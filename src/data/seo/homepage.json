@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "title": "Tooryst | Discover the Best Time to Travel",
+    "description": "Find the perfect time to visit any destination with live crowd signals, hyperlocal weather, and visitor sentiment. Plan smarter travels with real-time intelligence.",
+    "keywords": [
+      "travel planning",
+      "best time to visit",
+      "crowd levels",
+      "weather insights",
+      "travel intelligence",
+      "attraction guides",
+      "tourism data",
+      "travel tips",
+      "destination planning",
+      "smart travel"
+    ],
+    "image": "/herobg1.svg"
+  },
+  "structured_data": [
+    {
+      "type": "organization"
+    },
+    {
+      "type": "website"
+    }
+  ],
+  "hero": {
+    "eyebrow": "Travel Intelligence",
+    "heading": "Skip lines. Save time. See more.",
+    "subheading": "Discover the best time to visit any attraction—plus crowd levels, reviews, weather, tips, and nearby must-sees.",
+    "backgroundImage": "/herobg1.svg"
+  }
+}

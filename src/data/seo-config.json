@@ -1,0 +1,142 @@
+{
+  "global": {
+    "siteName": "Tooryst",
+    "siteUrl": "https://tooryst.com",
+    "defaultImage": "/herobg1.svg",
+    "twitterHandle": "@bettervacation_",
+    "facebookAppId": "",
+    "locale": "en_US",
+    "type": "website"
+  },
+  "templates": {
+    "homepage": {
+      "title": "{siteName} | Discover the Best Time to Travel",
+      "description": "Find the perfect time to visit any destination with live crowd signals, hyperlocal weather, and visitor sentiment. Plan smarter travels with real-time intelligence.",
+      "keywords": ["travel", "destinations", "attractions", "cities", "crowd levels", "weather insights", "travel planning", "tourism"],
+      "image": "/herobg1.svg",
+      "type": "website"
+    },
+    "city": {
+      "title": "{cityName} Travel Guide | {siteName} - Best Time to Visit",
+      "description": "Discover {cityName}'s top {attractionCount} attractions with real-time crowd data, weather insights, and local tips. Plan your perfect visit to {cityName}.",
+      "keywords": ["{cityName} travel", "{cityName} attractions", "{cityName} tourism", "visit {cityName}", "{cityName} guide", "best time visit {cityName}"],
+      "image": "{cityImage}",
+      "type": "place"
+    },
+    "attraction": {
+      "title": "{attractionName} in {cityName} | {siteName} - Crowd & Weather Intel",
+      "description": "Visit {attractionName} in {cityName} at the best time. Get real-time crowd levels, weather forecasts, opening hours, and insider tips for your perfect visit.",
+      "keywords": ["{attractionName}", "{cityName} attractions", "{attractionName} hours", "{attractionName} tickets", "visit {attractionName}", "{attractionName} crowd levels"],
+      "image": "{attractionImage}",
+      "type": "place"
+    },
+    "search": {
+      "title": "Search Results for \"{query}\" | {siteName}",
+      "description": "Find attractions and cities matching \"{query}\". Discover crowd levels, weather data, and travel intelligence for your search results.",
+      "keywords": ["search", "travel search", "{query}", "find attractions", "discover destinations"],
+      "image": "{defaultImage}",
+      "type": "website",
+      "noindex": true
+    },
+    "static": {
+      "about": {
+        "title": "About {siteName} | Travel Intelligence Platform",
+        "description": "Learn about {siteName}'s mission to provide real-time travel intelligence. Discover how we help millions of travelers make smarter decisions.",
+        "keywords": ["about tooryst", "travel intelligence", "company", "mission", "travel technology"],
+        "image": "{defaultImage}",
+        "type": "website"
+      },
+      "contact": {
+        "title": "Contact {siteName} | Get in Touch",
+        "description": "Contact {siteName} for support, partnerships, or questions. We're here to help you discover and experience attractions like never before.",
+        "keywords": ["contact", "support", "partnership", "help", "customer service"],
+        "image": "{defaultImage}",
+        "type": "website"
+      },
+      "privacy": {
+        "title": "Privacy Policy | {siteName}",
+        "description": "Read {siteName}'s privacy policy to understand how we collect, use, and protect your personal information.",
+        "keywords": ["privacy policy", "data protection", "privacy", "personal information"],
+        "image": "{defaultImage}",
+        "type": "website"
+      },
+      "terms": {
+        "title": "Terms of Service | {siteName}",
+        "description": "Read {siteName}'s terms of service and user agreement for using our travel intelligence platform.",
+        "keywords": ["terms of service", "user agreement", "terms", "conditions"],
+        "image": "{defaultImage}",
+        "type": "website"
+      }
+    }
+  },
+  "structured_data": {
+    "organization": {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "{siteName}",
+      "url": "{siteUrl}",
+      "logo": "{siteUrl}/logo.png",
+      "description": "Travel intelligence platform providing real-time crowd data, weather insights, and visitor sentiment for attractions worldwide.",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+91-73588-08488",
+        "contactType": "customer service",
+        "email": "travel@thebettervacation.com"
+      },
+      "sameAs": [
+        "https://twitter.com/bettervacation_",
+        "https://www.facebook.com/thebettervacation",
+        "https://www.instagram.com/thebettervacation/",
+        "https://www.linkedin.com/company/thebettervacation/",
+        "https://www.pinterest.com/thebettervacation/",
+        "https://www.youtube.com/channel/UCmSy2vAcpu2ULN0tHV6aA1A"
+      ]
+    },
+    "website": {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "{siteName}",
+      "url": "{siteUrl}",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{siteUrl}/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    "city": {
+      "@context": "https://schema.org",
+      "@type": "City",
+      "name": "{cityName}",
+      "description": "{cityDescription}",
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "{cityLatitude}",
+        "longitude": "{cityLongitude}"
+      },
+      "containsPlace": "{attractions}"
+    },
+    "attraction": {
+      "@context": "https://schema.org",
+      "@type": "TouristAttraction",
+      "name": "{attractionName}",
+      "description": "{attractionDescription}",
+      "image": "{attractionImage}",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "{cityName}",
+        "addressCountry": "{countryName}"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "{attractionLatitude}",
+        "longitude": "{attractionLongitude}"
+      },
+      "openingHours": "{openingHours}",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "{rating}",
+        "reviewCount": "{reviewCount}"
+      }
+    }
+  }
+}

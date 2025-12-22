@@ -1,0 +1,130 @@
+{
+  "hero": {
+    "title": "Privacy Policy"
+  },
+  "introduction": {
+    "title": "Introduction",
+    "paragraphs": [
+      "Attraction Storyboard (\"we,\" \"us,\" \"our,\" or \"Attraction Storyboard\") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our website and services.",
+      "Please read this Privacy Policy carefully. If you do not agree with our policies and practices, please do not use our services."
+    ]
+  },
+  "sections": [
+    {
+      "id": 1,
+      "title": "Information We Collect",
+      "subsections": [
+        {
+          "heading": "Information You Provide",
+          "items": [
+            "Contact information (name, email, phone number) when you use our contact form",
+            "Account information if you create an account",
+            "Content you submit, including reviews and tips",
+            "Communication preferences and feedback"
+          ]
+        },
+        {
+          "heading": "Information Collected Automatically",
+          "items": [
+            "Device information (browser type, IP address, operating system)",
+            "Usage data (pages visited, time spent, interactions)",
+            "Location data (if you enable location permissions)",
+            "Cookies and similar tracking technologies"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "How We Use Your Information",
+      "intro": "We use the information we collect for various purposes, including:",
+      "items": [
+        "Providing and improving our services",
+        "Responding to your inquiries and requests",
+        "Sending important updates and communications",
+        "Personalizing your experience",
+        "Analyzing usage patterns to improve functionality",
+        "Preventing fraud and ensuring security",
+        "Complying with legal obligations"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Third-Party Services",
+      "intro": "Our platform uses data from trusted third-party providers, including:",
+      "items": [
+        "Google Places API: For attraction information, ratings, and reviews",
+        "Google Maps: For location data and mapping features",
+        "YouTube: For video content and recommendations",
+        "OpenWeatherMap: For weather forecasts and data",
+        "Google Generative AI (Gemini): For content generation and recommendations"
+      ],
+      "note": "These third parties have their own privacy policies governing their use of your data. We are not responsible for their practices. We encourage you to review their privacy policies."
+    },
+    {
+      "id": 4,
+      "title": "Data Sharing & Disclosure",
+      "intro": "We do not sell, trade, or rent your personal information to third parties. We may share your information:",
+      "items": [
+        "With service providers who assist us in operating our website and services",
+        "When required by law or legal process",
+        "To protect our rights, privacy, safety, or property",
+        "In connection with a merger, acquisition, or asset sale",
+        "With your consent or at your direction"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Data Security",
+      "content": "We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the Internet is completely secure. While we strive to protect your information, we cannot guarantee its absolute security."
+    },
+    {
+      "id": 6,
+      "title": "Your Rights",
+      "intro": "Depending on your location, you may have certain rights regarding your personal information, including:",
+      "items": [
+        "Right to access your personal information",
+        "Right to correct inaccurate information",
+        "Right to request deletion of your information",
+        "Right to opt-out of marketing communications",
+        "Right to restrict processing of your information"
+      ],
+      "note": "To exercise these rights, please contact us at hello@attractionstoryboard.com"
+    },
+    {
+      "id": 7,
+      "title": "Cookies & Tracking",
+      "content": "We use cookies and similar tracking technologies to enhance your experience. You can control cookie preferences through your browser settings. Disabling cookies may affect the functionality of our services."
+    },
+    {
+      "id": 8,
+      "title": "Children's Privacy",
+      "content": "Our services are not directed to individuals under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected information from a child under 13, we will take steps to delete such information promptly."
+    },
+    {
+      "id": 9,
+      "title": "International Data Transfers",
+      "content": "Your information may be transferred to and processed in countries other than your country of residence. These countries may have data protection laws that differ from your home country. By using our services, you consent to the transfer of your information to countries outside your country of residence."
+    },
+    {
+      "id": 10,
+      "title": "Changes to This Privacy Policy",
+      "content": "We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. We will notify you of significant changes by posting the updated policy on our website and updating the \"Last updated\" date above."
+    },
+    {
+      "id": 11,
+      "title": "Contact Us",
+      "intro": "If you have questions about this Privacy Policy or our privacy practices, please contact us at:",
+      "contactInfo": {
+        "email": "hello@attractionstoryboard.com",
+        "address": "San Francisco, CA 94105, USA",
+        "phone": "+1 (555) 123-4567"
+      }
+    },
+    {
+      "id": 12,
+      "title": "Privacy Compliance",
+      "content": "Our data processing practices comply with applicable privacy laws and regulations, including but not limited to GDPR (General Data Protection Regulation), CCPA (California Consumer Privacy Act), and other relevant data protection laws."
+    }
+  ]
+}

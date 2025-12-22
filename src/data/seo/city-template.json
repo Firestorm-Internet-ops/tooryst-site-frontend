@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "title_template": "{cityName} Travel Guide | Tooryst - Best Time to Visit",
+    "description_template": "Discover {cityName}'s top {attractionCount} attractions with real-time crowd data, weather insights, and local tips. Plan your perfect visit to {cityName} with insider knowledge.",
+    "keywords_template": [
+      "{cityName} travel guide",
+      "{cityName} attractions",
+      "{cityName} tourism",
+      "visit {cityName}",
+      "{cityName} best time",
+      "{cityName} crowd levels",
+      "{cityName} weather",
+      "things to do {cityName}",
+      "{cityName} travel tips",
+      "{cityName} itinerary"
+    ]
+  },
+  "structured_data": [
+    {
+      "type": "city"
+    }
+  ],
+  "content": {
+    "hero": {
+      "title_template": "Discover {cityName}",
+      "subtitle_template": "Real-time intelligence for {attractionCount} attractions",
+      "description_template": "Get crowd levels, weather insights, and local tips for the perfect visit to {cityName}."
+    },
+    "sections": {
+      "attractions": {
+        "title": "Top Attractions",
+        "description": "Explore the most popular destinations with real-time data"
+      },
+      "weather": {
+        "title": "Weather & Best Times",
+        "description": "Plan your visit with accurate weather forecasts and crowd predictions"
+      },
+      "tips": {
+        "title": "Local Insights",
+        "description": "Insider tips from locals and experienced travelers"
+      }
+    }
+  }
+}

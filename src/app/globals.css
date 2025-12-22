@@ -1,0 +1,521 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap');
+
+@import 'tailwindcss';
+@import 'swiper/css';
+@import 'swiper/css/navigation';
+
+:root {
+  --font-playfair: 'Playfair Display', serif;
+  --font-inter: 'Inter', sans-serif;
+  --background: #ffffff;
+  --foreground: #111827;
+}
+
+@theme inline {
+  --font-display: var(--font-playfair);
+  --font-sans: var(--font-inter);
+
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.5rem;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #f5f5f5;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter);
+  font-feature-settings: 'liga' 1, 'calt' 0;
+  text-rendering: optimizeLegibility;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* GetYourGuide Widget Enhancements */
+[data-gyg-widget] {
+  --gyg-card-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Card hover effects */
+[data-gyg-widget] .gyg-card,
+[data-gyg-widget] [class*="card"] {
+  transition: var(--gyg-card-transition);
+  position: relative;
+}
+
+[data-gyg-widget] .gyg-card:hover,
+[data-gyg-widget] [class*="card"]:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Image overlay for better text readability */
+[data-gyg-widget] .gyg-card img,
+[data-gyg-widget] [class*="card"] img {
+  transition: var(--gyg-card-transition);
+}
+
+[data-gyg-widget] .gyg-card:hover img,
+[data-gyg-widget] [class*="card"]:hover img {
+  filter: brightness(0.95);
+}
+
+/* Rating prominence */
+[data-gyg-widget] [class*="rating"],
+[data-gyg-widget] [class*="stars"] {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Price styling */
+[data-gyg-widget] [class*="price"],
+[data-gyg-widget] [class*="from"] {
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+/* Title hierarchy */
+[data-gyg-widget] [class*="title"],
+[data-gyg-widget] h3,
+[data-gyg-widget] h4 {
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Button styling */
+[data-gyg-widget] button,
+[data-gyg-widget] [class*="button"],
+[data-gyg-widget] [class*="cta"] {
+  transition: var(--gyg-card-transition);
+  font-weight: 600;
+}
+
+[data-gyg-widget] button:hover,
+[data-gyg-widget] [class*="button"]:hover,
+[data-gyg-widget] [class*="cta"]:hover {
+  transform: scale(1.02);
+}
+
+/* Review count emphasis */
+[data-gyg-widget] [class*="review"],
+[data-gyg-widget] [class*="count"] {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+/* Spacing improvements */
+[data-gyg-widget] {
+  --gyg-gap: 1.25rem;
+}
+
+/* Smooth animations */
+@keyframes slideInCard {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-gyg-widget] .gyg-card,
+[data-gyg-widget] [class*="card"] {
+  animation: slideInCard 0.4s ease-out forwards;
+}
+
+[data-gyg-widget] .gyg-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+[data-gyg-widget] .gyg-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+[data-gyg-widget] .gyg-card:nth-child(n+4) {
+  animation-delay: 0.3s;
+}
+
+
+/* Ticket-specific animations */
+@keyframes ticketPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+}
+
+@keyframes ticketShimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes ticketBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes ticketGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 0px rgba(59, 130, 246, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+  }
+}
+
+/* Apply ticket animations to cards */
+[data-gyg-widget] .gyg-card,
+[data-gyg-widget] [class*="card"] {
+  animation: slideInCard 0.4s ease-out forwards, ticketBounce 2s ease-in-out infinite;
+}
+
+/* Pulse effect on first card to draw attention */
+[data-gyg-widget] .gyg-card:first-child,
+[data-gyg-widget] [class*="card"]:first-child {
+  animation: slideInCard 0.4s ease-out forwards, ticketPulse 2s ease-in-out infinite;
+}
+
+/* Shimmer effect on hover */
+[data-gyg-widget] .gyg-card:hover,
+[data-gyg-widget] [class*="card"]:hover {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  background-size: 1000px 100%;
+  animation: ticketShimmer 0.6s ease-in-out;
+}
+
+/* Glow effect on price/CTA elements */
+[data-gyg-widget] [class*="price"],
+[data-gyg-widget] [class*="button"],
+[data-gyg-widget] [class*="cta"] {
+  animation: ticketGlow 1.5s ease-in-out infinite;
+}
+
+/* Ticket corner fold effect */
+[data-gyg-widget] .gyg-card::before,
+[data-gyg-widget] [class*="card"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 20px 20px 0;
+  border-color: transparent #3b82f6 transparent transparent;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+[data-gyg-widget] .gyg-card:hover::before,
+[data-gyg-widget] [class*="card"]:hover::before {
+  opacity: 0.1;
+}
+
+/* Staggered animation delays */
+[data-gyg-widget] .gyg-card:nth-child(2),
+[data-gyg-widget] [class*="card"]:nth-child(2) {
+  animation-delay: 0.1s, 0.2s;
+}
+
+[data-gyg-widget] .gyg-card:nth-child(3),
+[data-gyg-widget] [class*="card"]:nth-child(3) {
+  animation-delay: 0.2s, 0.4s;
+}
+
+[data-gyg-widget] .gyg-card:nth-child(n+4),
+[data-gyg-widget] [class*="card"]:nth-child(n+4) {
+  animation-delay: 0.3s, 0.6s;
+}
+
+
+/* Loading bar animation for navigation */
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 1s ease-in-out infinite;
+}
+
+/* Enhanced GetYourGuide Widget Section Styling */
+
+/* Container enhancements */
+[data-gyg-cmp*="auto1"],
+[data-gyg-cmp*="auto2"] {
+  --section-color: #3b82f6;
+}
+
+[data-gyg-cmp*="auto2"] {
+  --section-color: #10b981;
+}
+
+/* Section wrapper styling */
+[data-gyg-widget] {
+  position: relative;
+}
+
+/* Enhanced card container */
+[data-gyg-widget] .gyg-card,
+[data-gyg-widget] [class*="card"] {
+  border-radius: 1rem;
+  overflow: hidden;
+  position: relative;
+  background: white;
+}
+
+/* Card image enhancements */
+[data-gyg-widget] .gyg-card img,
+[data-gyg-widget] [class*="card"] img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Card content styling */
+[data-gyg-widget] .gyg-card > div,
+[data-gyg-widget] [class*="card"] > div {
+  padding: 1rem;
+}
+
+/* Title styling */
+[data-gyg-widget] .gyg-card h3,
+[data-gyg-widget] .gyg-card h4,
+[data-gyg-widget] [class*="card"] h3,
+[data-gyg-widget] [class*="card"] h4 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+/* Rating and review styling */
+[data-gyg-widget] [class*="rating"],
+[data-gyg-widget] [class*="review"],
+[data-gyg-widget] [class*="stars"] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+/* Price styling - make prominent */
+[data-gyg-widget] [class*="price"],
+[data-gyg-widget] [class*="from"],
+[data-gyg-widget] [class*="amount"] {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  display: block;
+  margin: 0.75rem 0;
+}
+
+/* Duration and info styling */
+[data-gyg-widget] [class*="duration"],
+[data-gyg-widget] [class*="info"],
+[data-gyg-widget] [class*="meta"] {
+  font-size: 0.875rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+/* Button styling */
+[data-gyg-widget] button,
+[data-gyg-widget] [class*="button"],
+[data-gyg-widget] [class*="cta"],
+[data-gyg-widget] a[class*="button"],
+[data-gyg-widget] a[class*="cta"] {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-block;
+}
+
+[data-gyg-widget] button:hover,
+[data-gyg-widget] [class*="button"]:hover,
+[data-gyg-widget] [class*="cta"]:hover,
+[data-gyg-widget] a[class*="button"]:hover,
+[data-gyg-widget] a[class*="cta"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Badge styling */
+[data-gyg-widget] [class*="badge"],
+[data-gyg-widget] [class*="tag"],
+[data-gyg-widget] [class*="label"] {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Popular/bestseller badge */
+[data-gyg-widget] [class*="popular"],
+[data-gyg-widget] [class*="bestseller"],
+[data-gyg-widget] [class*="featured"] {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+}
+
+/* Limited spots badge */
+[data-gyg-widget] [class*="limited"],
+[data-gyg-widget] [class*="urgent"] {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  animation: ticketPulse 2s ease-in-out infinite;
+}
+
+/* Spacing improvements */
+[data-gyg-widget] .gyg-card,
+[data-gyg-widget] [class*="card"] {
+  margin-bottom: 1.5rem;
+}
+
+/* Grid layout enhancement */
+[data-gyg-widget] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  [data-gyg-widget] {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Smooth transitions for all elements */
+[data-gyg-widget] * {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus states for accessibility */
+[data-gyg-widget] button:focus,
+[data-gyg-widget] a:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Loading state */
+[data-gyg-widget].loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Empty state */
+[data-gyg-widget]:empty::after {
+  content: 'Loading experiences...';
+  display: block;
+  text-align: center;
+  padding: 2rem;
+  color: #9ca3af;
+}

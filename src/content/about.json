@@ -1,0 +1,44 @@
+{
+  "mission": {
+    "title": "Our Mission",
+    "paragraphs": [
+      "Attraction Storyboard transforms how travelers plan their visits by providing real-time crowd intelligence, weather insights, and authentic visitor experiences. We believe that the best travel experiences come from knowing exactly when and how to visit each attraction.",
+      "Our platform combines live crowd data, hyperlocal weather forecasts, visitor reviews, and insider tips to help you discover the perfect time to explore any attraction. Whether you're planning a weekend getaway or a month-long adventure, we give you the intelligence to make every moment count."
+    ],
+    "image": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80"
+  },
+  "whyChoose": {
+    "title": "Why Choose Attraction Storyboard",
+    "subtitle": "Discover attractions smarter with real-time insights and comprehensive travel intelligence",
+    "features": [
+      {
+        "icon": "Clock",
+        "title": "Best Time to Visit",
+        "description": "Know the optimal hours to visit any attraction with live crowd comfort scores and real-time wait time predictions"
+      },
+      {
+        "icon": "Globe",
+        "title": "Global Attractions",
+        "description": "Explore thousands of attractions across major cities worldwide with detailed storyboards and visitor insights"
+      },
+      {
+        "icon": "Award",
+        "title": "Authentic Reviews",
+        "description": "Read genuine visitor experiences, safety tips, and insider recommendations from real travelers like you"
+      }
+    ]
+  },
+  "cta": {
+    "text": "Ready to plan your perfect visit?",
+    "buttons": [
+      {
+        "text": "Explore Attractions",
+        "href": "/"
+      },
+      {
+        "text": "Browse Cities",
+        "href": "/cities"
+      }
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "hero": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to common questions about Attraction Storyboard"
+  },
+  "searchHint": {
+    "text": "Can't find what you're looking for?",
+    "linkText": "contact us",
+    "linkHref": "/contact"
+  },
+  "items": [
+    {
+      "id": 1,
+      "question": "What is Attraction Storyboard?",
+      "answer": "Attraction Storyboard is a comprehensive travel guide and discovery platform that helps you explore attractions worldwide. We aggregate information from multiple sources including Google Places, community reviews, real-time weather data, and AI-powered recommendations to help you plan the perfect trip."
+    },
+    {
+      "id": 2,
+      "question": "Is it free to use?",
+      "answer": "Yes! Attraction Storyboard is completely free to use. All features, attraction information, reviews, and travel recommendations are accessible without any subscription or payment required."
+    },
+    {
+      "id": 3,
+      "question": "How do you get your information?",
+      "answer": "We collect information from multiple trusted sources including Google Places API, community reviews, real-time weather data from OpenWeatherMap, video recommendations from YouTube, and AI-powered insights using Google Generative AI. All information is aggregated, verified, and continuously updated."
+    },
+    {
+      "id": 4,
+      "question": "Can I contribute reviews or tips?",
+      "answer": "We welcome community contributions! If you'd like to contribute reviews, tips, or other content to help other travelers, please contact us. We review all submissions to ensure quality and accuracy."
+    },
+    {
+      "id": 5,
+      "question": "Is my personal information secure?",
+      "answer": "Yes, we take your privacy seriously. We use industry-standard encryption and security measures to protect your personal information. Please review our Privacy Policy for detailed information about how we handle your data."
+    },
+    {
+      "id": 6,
+      "question": "Can I bookmark or save attractions?",
+      "answer": "Currently, bookmarking features are in development. However, you can use your browser's bookmark feature or take screenshots of attraction pages to save them for later reference."
+    },
+    {
+      "id": 7,
+      "question": "How often is the information updated?",
+      "answer": "We continuously update our information from real-time sources. Weather data and attraction ratings are refreshed regularly, while community reviews and tips are added as users contribute them. Information accuracy may vary by location and source."
+    },
+    {
+      "id": 8,
+      "question": "How can I contact support?",
+      "answer": "We'd love to help! You can reach our support team by emailing or using the contact form at /contact. We typically respond within 24 hours."
+    }
+  ],
+  "cta": {
+    "title": "Still have questions?",
+    "subtitle": "Our support team is here to help. Get in touch with us!",
+    "buttonText": "Contact Us",
+    "buttonHref": "/contact"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "hero": {
+    "title": "Contact Us",
+    "subtitle": "Get in touch with our team for support, partnerships, or any questions about Tooryst",
+    "description": "We're here to help you discover and experience attractions like never before."
+  },
+  "intro": {
+    "title": "Let's Connect",
+    "description": "Tooryst is built on a passion for transforming how travelers explore the world. Whether you're a curious traveler, a local explorer, a content creator, or part of the tourism industry, we'd love to hear from you and explore how we can work together."
+  },
+  "contactInfo": {
+    "email": {
+      "label": "Email",
+      "value": "travel@thebettervacation.com",
+      "note": "For general inquiries, partnerships, and support"
+    },
+    "responseTime": "We typically respond within 24 hours."
+  },
+  "details": [
+    {
+      "title": "Email",
+      "content": "travel@thebettervacation.com"
+    },
+    {
+      "title": "Phone",
+      "content": "+91 73588-08488"
+    },
+    {
+      "title": "Address",
+      "content": "Firestorm Internet, 203, 30C, Bollineni Hillside, Perumbakkam Main Road, Nookampalayam, Chennai, India – 600126"
+    }
+  ],
+  "businessHours": {
+    "title": "Business Hours",
+    "hours": [
+      {
+        "day": "Monday to Friday",
+        "time": "10:00 AM – 6:00 PM"
+      },
+      {
+        "day": "Saturday",
+        "time": "10:00 AM – 1:00 PM"
+      }
+    ]
+  },
+  "cta": {
+    "text": "Ready to explore more?",
+    "buttons": [
+      {
+        "text": "Back to Home",
+        "href": "/"
+      },
+      {
+        "text": "Explore Attractions",
+        "href": "/attractions"
+      }
+    ]
+  }
+}

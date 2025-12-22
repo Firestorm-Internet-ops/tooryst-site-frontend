@@ -1,0 +1,22 @@
+{
+  "hero": {
+    "icon": "MapPinned",
+    "title": "Explore Global Destinations",
+    "description": "Discover travel intelligence for cities worldwide. Get real-time crowd signals, weather insights, and visitor sentiment for every destination."
+  },
+  "emptyState": {
+    "icon": "MapPin",
+    "title": "No cities available",
+    "message": "Check back soon for more destinations."
+  },
+  "infoSection": {
+    "title": "Smart Travel Planning",
+    "description": "For each city, you'll find real-time intelligence including:",
+    "features": [
+      "Live crowd comfort scores and real-time visitor data",
+      "Hyperlocal weather forecasts and seasonal patterns",
+      "Verified attraction reviews and visitor sentiment",
+      "Curated local tips and insider travel recommendations"
+    ]
+  }
+}

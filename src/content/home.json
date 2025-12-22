@@ -1,0 +1,16 @@
+{
+  "hero": {
+    "eyebrow": "Travel Intelligence",
+    "heading": "Skip lines. Save time. See more.",
+    "subheading": "Discover the best time to visit any attraction—plus crowd levels,  reviews, weather, tips, and nearby must-sees.",
+    "inputPlaceholder": "Search cities, attractions",
+    "cta": "Explore",
+    "pillars": [
+      "Crowd forecast",
+      "Opening hours",
+      "Weather",
+      "Insider tips"
+    ],
+    "backgroundImage": "/herobg1.svg"
+  }
+}

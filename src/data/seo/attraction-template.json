@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "title_template": "{attractionName} in {cityName} | Tooryst - Crowd & Weather Intel",
+    "description_template": "Visit {attractionName} in {cityName} at the best time. Get real-time crowd levels, weather forecasts, opening hours, and insider tips for your perfect visit.",
+    "keywords_template": [
+      "{attractionName}",
+      "{attractionName} {cityName}",
+      "{attractionName} hours",
+      "{attractionName} tickets",
+      "{attractionName} crowd levels",
+      "{attractionName} best time",
+      "{attractionName} weather",
+      "{attractionName} tips",
+      "visit {attractionName}",
+      "{attractionName} guide"
+    ]
+  },
+  "structured_data": [
+    {
+      "type": "attraction"
+    }
+  ],
+  "content": {
+    "hero": {
+      "title_template": "{attractionName}",
+      "subtitle_template": "Live intelligence for your visit",
+      "description_template": "Real-time crowd data, weather insights, and local tips for {attractionName} in {cityName}."
+    },
+    "sections": {
+      "overview": {
+        "title": "Overview",
+        "description": "Essential information and highlights"
+      },
+      "best_times": {
+        "title": "Best Times to Visit",
+        "description": "Crowd levels and optimal visiting hours"
+      },
+      "weather": {
+        "title": "Weather Forecast",
+        "description": "Current conditions and 7-day outlook"
+      },
+      "reviews": {
+        "title": "Visitor Reviews",
+        "description": "Real experiences from recent visitors"
+      },
+      "tips": {
+        "title": "Insider Tips",
+        "description": "Local knowledge and expert recommendations"
+      },
+      "nearby": {
+        "title": "Nearby Attractions",
+        "description": "Other places to visit in the area"
+      }
+    }
+  }
+}

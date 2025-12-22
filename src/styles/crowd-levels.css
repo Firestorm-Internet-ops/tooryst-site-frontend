@@ -1,0 +1,56 @@
+/* Crowd Level Color Variables */
+
+/* Closed */
+.bg-crowd-closed {
+  background-color: rgb(107 114 128 / 0.2); /* bg-gray-500/20 */
+}
+.text-crowd-closed-text {
+  color: rgb(156 163 175); /* text-gray-400 */
+}
+.bg-crowd-closed-dot {
+  background-color: rgb(107 114 128); /* bg-gray-500 */
+}
+
+/* Low (1-30) - Green */
+.bg-crowd-low {
+  background-color: rgb(16 185 129 / 0.2); /* bg-emerald-500/20 */
+}
+.text-crowd-low-text {
+  color: rgb(209 250 229); /* text-emerald-200 */
+}
+.bg-crowd-low-dot {
+  background-color: rgb(52 211 153); /* bg-emerald-400 */
+}
+
+/* Moderate (31-60) - Yellow */
+.bg-crowd-moderate {
+  background-color: rgb(252 211 77 / 0.2); /* bg-amber-300/20 */
+}
+.text-crowd-moderate-text {
+  color: rgb(253 230 138); /* text-amber-200 */
+}
+.bg-crowd-moderate-dot {
+  background-color: rgb(252 211 77); /* bg-amber-300 */
+}
+
+/* High (61-80) - Orange */
+.bg-crowd-high {
+  background-color: rgb(251 146 60 / 0.25); /* bg-orange-400/25 */
+}
+.text-crowd-high-text {
+  color: rgb(253 186 116); /* text-orange-200 */
+}
+.bg-crowd-high-dot {
+  background-color: rgb(251 146 60); /* bg-orange-400 */
+}
+
+/* Peak (81-100) - Red */
+.bg-crowd-peak {
+  background-color: rgb(239 68 68 / 0.25); /* bg-red-500/25 */
+}
+.text-crowd-peak-text {
+  color: rgb(252 165 165); /* text-red-200 */
+}
+.bg-crowd-peak-dot {
+  background-color: rgb(239 68 68); /* bg-red-500 */
+}

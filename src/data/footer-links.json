@@ -1,0 +1,56 @@
+{
+  "navigation": [
+    {
+      "label": "About",
+      "href": "/about"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact"
+    },
+    {
+      "label": "Privacy",
+      "href": "/privacy-policy"
+    },
+    {
+      "label": "Terms",
+      "href": "/terms-of-service"
+    },
+    {
+      "label": "Cookies",
+      "href": "/cookie-policy"
+    }
+  ],
+  "social": [
+    {
+      "icon": "Twitter",
+      "url": "https://twitter.com/bettervacation_",
+      "label": "Twitter"
+    },
+    {
+      "icon": "Linkedin",
+      "url": "https://www.linkedin.com/company/thebettervacation/",
+      "label": "LinkedIn"
+    },
+    {
+      "icon": "Pinterest",
+      "url": "https://www.pinterest.com/thebettervacation/",
+      "label": "Pinterest"
+    },
+    {
+      "icon": "Facebook",
+      "url": "https://www.facebook.com/thebettervacation",
+      "label": "Facebook"
+    },
+    {
+      "icon": "Instagram",
+      "url": "https://www.instagram.com/thebettervacation/",
+      "label": "Instagram"
+    },
+    {
+      "icon": "Youtube",
+      "url": "https://www.youtube.com/channel/UCmSy2vAcpu2ULN0tHV6aA1A",
+      "label": "YouTube"
+    }
+  ]
+}
