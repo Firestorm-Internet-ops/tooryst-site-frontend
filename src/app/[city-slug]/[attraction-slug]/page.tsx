@@ -54,14 +54,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       slug: attractionSlug,
       city_name: pageData.city || 'Unknown City',
       city_slug: citySlug,
-      description: pageData.cards?.about?.description || `Discover ${pageData.name} with real-time crowd data and travel insights.`,
+      description: pageData.cards?.about?.short_description || pageData.cards?.about?.long_description || `Discover ${pageData.name} with real-time crowd data and travel insights.`,
       latitude: pageData.cards?.map?.latitude,
       longitude: pageData.cards?.map?.longitude,
       country: pageData.country,
       hero_image: pageData.cards?.hero_images?.images?.[0]?.url,
-      rating: pageData.cards?.reviews?.average_rating,
-      review_count: pageData.cards?.reviews?.total_reviews,
-      opening_hours: pageData.cards?.best_time?.today_opening_hours_local,
+      rating: pageData.cards?.review?.overall_rating ?? undefined,
+      review_count: pageData.cards?.review?.review_count ?? undefined,
+      opening_hours: pageData.cards?.best_time?.today_opening_hours_local ?? undefined,
     });
   } catch (error) {
     console.error('Error generating attraction metadata:', error);
@@ -96,15 +96,15 @@ export default async function AttractionPage({ params }: PageProps) {
       <AttractionPageClient pageData={pageData} />
       <AttractionStructuredData
         attractionName={pageData.name}
-        attractionDescription={pageData.cards?.about?.description || `Discover ${pageData.name}`}
+        attractionDescription={pageData.cards?.about?.short_description || pageData.cards?.about?.long_description || `Discover ${pageData.name}`}
         attractionImage={pageData.cards?.hero_images?.images?.[0]?.url}
         attractionLatitude={pageData.cards?.map?.latitude}
         attractionLongitude={pageData.cards?.map?.longitude}
         cityName={pageData.city || 'Unknown City'}
         countryName={pageData.country}
-        openingHours={pageData.cards?.best_time?.today_opening_hours_local}
-        rating={pageData.cards?.reviews?.average_rating}
-        reviewCount={pageData.cards?.reviews?.total_reviews}
+        openingHours={pageData.cards?.best_time?.today_opening_hours_local ?? undefined}
+        rating={pageData.cards?.review?.overall_rating ?? undefined}
+        reviewCount={pageData.cards?.review?.review_count ?? undefined}
       />
     </>
   );

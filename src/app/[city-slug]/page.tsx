@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 interface CityPageProps {
-  params: { 'city-slug': string };
-  searchParams?: Record<string, string | string[] | undefined>;
+  params: Promise<{ 'city-slug': string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 const API_BASE_URL = config.apiBaseUrl;

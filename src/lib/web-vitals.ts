@@ -61,13 +61,13 @@ export async function initWebVitals() {
       return;
     }
 
-    const { getCLS, getFID, getFCP, getLCP, getTTFB } = webVitals;
+    const { onCLS, onINP, onFCP, onLCP, onTTFB } = webVitals;
 
-    getCLS(reportWebVitals);
-    getFID(reportWebVitals);
-    getFCP(reportWebVitals);
-    getLCP(reportWebVitals);
-    getTTFB(reportWebVitals);
+    onCLS(reportWebVitals);
+    onINP(reportWebVitals); // FID was replaced with INP (Interaction to Next Paint)
+    onFCP(reportWebVitals);
+    onLCP(reportWebVitals);
+    onTTFB(reportWebVitals);
   } catch (error) {
     console.error('Failed to initialize Web Vitals:', error);
   }

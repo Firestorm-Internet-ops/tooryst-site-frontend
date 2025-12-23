@@ -6,7 +6,7 @@ import { CountryOverview } from '@/types/api';
 import { config } from '@/lib/config';
 
 interface CountryPageProps {
-  params: { country: string };
+  params: Promise<{ country: string }>;
 }
 
 const API_BASE_URL = config.apiBaseUrl;
@@ -29,7 +29,8 @@ async function fetchCountry(country: string): Promise<CountryOverview | null> {
 export async function generateMetadata(
   { params }: CountryPageProps
 ): Promise<Metadata> {
-  const countryParam = params.country?.toLowerCase();
+  const resolvedParams = await params;
+  const countryParam = resolvedParams.country?.toLowerCase();
   if (!countryParam) {
     return {
       title: 'Destination not found | Storyboard',
@@ -77,8 +78,9 @@ export async function generateMetadata(
   };
 }
 
-export default function CountryPage({ params }: CountryPageProps) {
-  const countryParam = params.country?.toLowerCase();
+export default async function CountryPage({ params }: CountryPageProps) {
+  const resolvedParams = await params;
+  const countryParam = resolvedParams.country?.toLowerCase();
   if (!countryParam) {
     notFound();
   }

@@ -164,7 +164,6 @@ export function CountryPageClient({ countryCode }: { countryCode: string }) {
           </header>
           <AttractionsGrid
             attractions={topAttractions}
-            onAttractionClick={handleAttractionNavigate}
           />
         </section>
       </div>

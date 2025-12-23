@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
+import { Suspense } from 'react';
 import './globals.css';
 import '../styles/crowd-levels.css';
 import { Header } from '@/components/layout/Header';
@@ -42,7 +43,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="bg-gray-950 text-gray-50 antialiased">
-        <NavigationProgress />
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         <SkipToMain />
         <SkipToSearch />
         <QueryProvider>

@@ -264,7 +264,6 @@ export function CityPageClient({ slug, initialPage }: CityPageClientProps) {
           <AttractionsGrid
             attractions={attractionsList}
             loading={isLoadingAllAttractions}
-            onAttractionClick={handleAttractionNavigate}
           />
 
           {totalPages > 1 && (
