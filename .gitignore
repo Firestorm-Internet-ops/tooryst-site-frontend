@@ -76,7 +76,6 @@ yarn-error.log*
 
 # Package managers
 .pnpm-store/
-pnpm-lock.yaml
 
 # OS
 Thumbs.db
