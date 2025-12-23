@@ -6,10 +6,7 @@ import type { AttractionSummary, City } from '@/types/api';
 import { config } from '@/lib/config';
 import { seoManager } from '@/lib/seo-manager';
 import { OrganizationStructuredData, WebsiteStructuredData } from '@/components/seo/StructuredData';
-
-const API_BASE_URL = config.apiBaseUrl;
-const APP_URL = config.appUrl;
-const REVALIDATE_SECONDS = config.revalidateSeconds;
+import { safeFetchFromApi, extractItems } from '@/lib/api-utils';
 
 type PaginatedPayload<T> = {
   items?: T[];
@@ -26,49 +23,17 @@ type DestinationMarker = {
   attractionCount?: number;
 };
 
-function extractItems<T>(payload: PaginatedPayload<T> | T[]): T[] {
-  if (Array.isArray(payload)) return payload;
-  if ('items' in payload && Array.isArray(payload.items)) return payload.items;
-  if ('data' in payload && Array.isArray(payload.data)) return payload.data;
-  return [];
-}
-
-async function fetchFromApi<T>(path: string, fallback: T): Promise<T> {
-  const url = `${API_BASE_URL}${path}`;
-  try {
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), config.apiTimeout);
-    
-    try {
-      const response = await fetch(url, {
-        next: { revalidate: REVALIDATE_SECONDS },
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        return fallback;
-      }
-      const data = await response.json();
-      return data as T;
-    } catch (fetchError) {
-      clearTimeout(timeoutId);
-      throw fetchError;
-    }
-  } catch {
-    return fallback;
-  }
-}
-
 function cityImageForIndex(index: number): string {
   return `${config.images.fallbackCity}&sat=${index}`;
 }
 
 async function getFeaturedCities(): Promise<FeaturedCity[]> {
   // Fetch a larger pool of cities, then pick the top 10 by attraction_count
-  const payload = await fetchFromApi<PaginatedPayload<City>>(`/cities?limit=${config.pagination.citiesFetchLimit}`, { items: [] });
+  const payload = await safeFetchFromApi<PaginatedPayload<City>>(
+    `/cities?limit=${config.pagination.citiesFetchLimit}`, 
+    { items: [] },
+    { timeout: 10000, revalidate: config.revalidateSeconds }
+  );
   const allCities = extractItems(payload);
 
   // Return empty array if no cities found
@@ -93,9 +58,10 @@ async function getFeaturedCities(): Promise<FeaturedCity[]> {
 
 async function getTrendingAttractions(): Promise<AttractionSummary[]> {
   const limit = config.pagination.attractionsFetchLimit;
-  const payload = await fetchFromApi<PaginatedPayload<AttractionSummary>>(
+  const payload = await safeFetchFromApi<PaginatedPayload<AttractionSummary>>(
     `/attractions?limit=${limit}`,
-    { items: [] }
+    { items: [] },
+    { timeout: 10000, revalidate: config.revalidateSeconds }
   );
   const attractions = extractItems(payload).slice(0, limit);
   return attractions;

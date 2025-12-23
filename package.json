@@ -5,8 +5,10 @@
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
+    "build:standalone": "NEXT_PUBLIC_ENVIRONMENT=production next build",
     "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "test": "jest",
     "test:watch": "jest --watch"
   },

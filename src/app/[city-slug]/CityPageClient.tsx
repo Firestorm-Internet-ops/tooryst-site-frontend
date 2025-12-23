@@ -68,14 +68,42 @@ export function CityPageClient({ slug, initialPage }: CityPageClientProps) {
     isLoadingCity,
   } = useCity(slug, { initialPage });
 
-  // Client-side pagination from all attractions
-  const allAttractionsList = allAttractionsData?.items ?? [];
+  // Memoize allAttractionsList to prevent dependency issues
+  const allAttractionsList = useMemo(() => {
+    return allAttractionsData?.items ?? [];
+  }, [allAttractionsData?.items]);
+
   const totalAttractions = allAttractionsList.length;
   const pageSize = 12; // Match the pagination size
   const totalPages = Math.ceil(totalAttractions / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedAttractions = allAttractionsList.slice(startIndex, endIndex);
+
+  // Extract first images from ALL attractions for collage
+  const attractionImages = useMemo(() => {
+    return allAttractionsList
+      .map((attraction) => attraction.hero_image)
+      .filter((url): url is string => Boolean(url));
+  }, [allAttractionsList]);
+
+  // Calculate average rating from ALL attractions
+  const averageRating = useMemo(() => {
+    const ratings = allAttractionsList
+      .map((a) => a.average_rating)
+      .filter((r): r is number => r !== null && r !== undefined);
+    if (ratings.length === 0) return undefined;
+    return ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+  }, [allAttractionsList]);
+
+  // Handle scroll to map section
+  const handleMapClick = React.useCallback(() => {
+    const mapSection = document.getElementById('city-map-section');
+    if (mapSection) {
+      mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []);
+
   React.useEffect(() => {
     return () => {
       if (debounceRef.current) {
@@ -155,30 +183,6 @@ export function CityPageClient({ slug, initialPage }: CityPageClientProps) {
   }
 
   const attractionsList = paginatedAttractions;
-
-  // Extract first images from ALL attractions for collage
-  const attractionImages = useMemo(() => {
-    return allAttractionsList
-      .map((attraction) => attraction.hero_image)
-      .filter((url): url is string => Boolean(url));
-  }, [allAttractionsList]);
-
-  // Calculate average rating from ALL attractions
-  const averageRating = useMemo(() => {
-    const ratings = allAttractionsList
-      .map((a) => a.average_rating)
-      .filter((r): r is number => r !== null && r !== undefined);
-    if (ratings.length === 0) return undefined;
-    return ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
-  }, [allAttractionsList]);
-
-  // Handle scroll to map section
-  const handleMapClick = React.useCallback(() => {
-    const mapSection = document.getElementById('city-map-section');
-    if (mapSection) {
-      mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
