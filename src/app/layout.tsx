@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { SkipToMain, SkipToSearch } from '@/components/ui/SkipLink';
 import { NavigationProgress } from '@/components/ui/NavigationProgress';
+import { config } from '@/lib/config';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -21,6 +22,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(config.appUrl),
   title: 'Toorysts',
   description:
     'Discover the best time to visit any attraction with live crowd, weather, and travel intel.',

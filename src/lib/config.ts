@@ -217,7 +217,7 @@ export const config = {
 
     emptyState: {
       heading: process.env.NEXT_PUBLIC_EMPTY_STATE_HEADING || 'No Data Available',
-      message: process.env.NEXT_PUBLIC_EMPTY_STATE_MESSAGE || 'The database is empty. Import attractions data to get started with your travel guide.',
+      message: process.env.NEXT_PUBLIC_EMPTY_STATE_MESSAGE || 'The database is empty. Import attractions data to get started with your travel storyboard.',
       setupTitle: process.env.NEXT_PUBLIC_EMPTY_STATE_SETUP_TITLE || 'Setup Instructions',
     },
 

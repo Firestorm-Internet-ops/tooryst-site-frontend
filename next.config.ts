@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Performance optimizations
-  reactCompiler: true,
   compress: true,
   output: 'standalone', // Required for Docker deployment
   
@@ -13,9 +12,9 @@ const nextConfig: NextConfig = {
       '@mui/icons-material',
       'lucide-react',
     ],
+    // React Compiler should be configured here if needed
+    // reactCompiler: true, // This is experimental and may not be available in your Next.js version
   },
-
-  allowedDevOrigins: ['10.80.121.45'],
 
   // Image optimization
   images: {
