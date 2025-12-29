@@ -29,7 +29,7 @@ async function getAttraction(slug: string): Promise<AttractionPageResponse> {
 
 
 export const metadata: Metadata = {
-  title: 'Attraction Storyboard',
+  title: 'Tooryst',
   description: 'Best time to visit, weather, reviews and tips.',
 };
 

@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "Frequently Asked Questions",
-    "subtitle": "Find answers to common questions about Attraction Storyboard"
+    "subtitle": "Find answers to common questions about Tooryst"
   },
   "searchHint": {
     "text": "Can't find what you're looking for?",
@@ -11,13 +11,13 @@
   "items": [
     {
       "id": 1,
-      "question": "What is Attraction Storyboard?",
-      "answer": "Attraction Storyboard is a comprehensive travel guide and discovery platform that helps you explore attractions worldwide. We aggregate information from multiple sources including Google Places, community reviews, real-time weather data, and AI-powered recommendations to help you plan the perfect trip."
+      "question": "What is Tooryst?",
+      "answer": "Tooryst is a comprehensive travel guide and discovery platform that helps you explore attractions worldwide. We aggregate information from multiple sources including Google Places, community reviews, real-time weather data, and AI-powered recommendations to help you plan the perfect trip."
     },
     {
       "id": 2,
       "question": "Is it free to use?",
-      "answer": "Yes! Attraction Storyboard is completely free to use. All features, attraction information, reviews, and travel recommendations are accessible without any subscription or payment required."
+      "answer": "Yes! Tooryst is completely free to use. All features, attraction information, reviews, and travel recommendations are accessible without any subscription or payment required."
     },
     {
       "id": 3,

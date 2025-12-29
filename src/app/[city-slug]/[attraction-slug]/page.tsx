@@ -74,7 +74,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 // Remove the static metadata
 // export const metadata: Metadata = {
-//   title: 'Attraction Storyboard',
+//   title: 'Tooryst',
 //   description: 'Best time to visit, weather, reviews and tips.',
 // };
 

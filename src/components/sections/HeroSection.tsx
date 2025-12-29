@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { SearchInput } from '@/components/form/SearchInput';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { useImagePreloader } from '@/hooks/useImagePreloader';
+import { useLoading } from '@/components/providers/LoadingProvider';
 import { getImageSizes, generateBlurDataURL } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
 
@@ -38,6 +39,7 @@ export function HeroSection({
 }: HeroSectionProps) {
   const router = useRouter();
   const [imageLoaded, setImageLoaded] = useState(false);
+  const { markHeroLoaded } = useLoading();
 
   // Validate background image URL
   const isValidImageUrl = backgroundImage && backgroundImage.trim() !== '';
@@ -47,6 +49,13 @@ export function HeroSection({
     isValidImageUrl ? [backgroundImage] : [],
     { enabled: !!isValidImageUrl, priority: true }
   );
+
+  // Notify LoadingProvider when hero image loads
+  useEffect(() => {
+    if (imageLoaded || !isValidImageUrl) {
+      markHeroLoaded();
+    }
+  }, [imageLoaded, isValidImageUrl, markHeroLoaded]);
 
   const handleSearch = (value: string) => {
     const trimmed = value.trim();

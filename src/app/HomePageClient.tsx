@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { useLoading } from '@/components/providers/LoadingProvider';
 
 import { HeroSection } from '@/components/sections/HeroSection';
 import { AttractionsGrid } from '@/components/sections/AttractionsGrid';
@@ -57,6 +58,14 @@ export function HomePageClient({
   destinations,
 }: HomePageClientProps) {
   const router = useRouter();
+  const { markDataLoaded } = useLoading();
+
+  // Mark initial data as loaded
+  useEffect(() => {
+    if (featuredCities || trendingAttractions) {
+      markDataLoaded();
+    }
+  }, [featuredCities, trendingAttractions, markDataLoaded]);
 
   const handleSearch = (query: string) => {
     const trimmed = query.trim();

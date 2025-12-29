@@ -1,10 +1,41 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import tzLookup from 'tz-lookup';
 
 import { AttractionPageResponse } from '@/types/attraction-page';
 import { SectionShell } from './SectionShell';
+
+interface BestTimesSectionProps {
+  data: AttractionPageResponse;
+}
+
+// Browser-safe timezone lookup fallback
+function getTimezoneFromCoordinates(lat: number, lng: number): string | null {
+  // Simple timezone approximation based on longitude
+  // This is a fallback - ideally the backend should provide timezone
+  const offset = Math.round(lng / 15);
+  const utcOffset = Math.max(-12, Math.min(12, offset));
+  
+  // Common timezone mappings for major regions
+  const timezoneMap: Record<string, string> = {
+    // North America
+    '-8': 'America/Los_Angeles',
+    '-7': 'America/Denver', 
+    '-6': 'America/Chicago',
+    '-5': 'America/New_York',
+    // Europe
+    '0': 'Europe/London',
+    '1': 'Europe/Paris',
+    '2': 'Europe/Berlin',
+    // Asia
+    '8': 'Asia/Shanghai',
+    '9': 'Asia/Tokyo',
+    // Australia
+    '10': 'Australia/Sydney',
+  };
+  
+  return timezoneMap[utcOffset.toString()] || null;
+}
 
 interface BestTimesSectionProps {
   data: AttractionPageResponse;
@@ -53,8 +84,10 @@ export function BestTimesSection({ data }: BestTimesSectionProps) {
     
     if (!tz && lat != null && lng != null) {
       try {
-        tz = tzLookup(lat, lng);
-        dayNameStr = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long' }).format(new Date());
+        tz = getTimezoneFromCoordinates(lat, lng);
+        if (tz) {
+          dayNameStr = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long' }).format(new Date());
+        }
       } catch {
         // Use default
       }
@@ -64,6 +97,11 @@ export function BestTimesSection({ data }: BestTimesSectionProps) {
       } catch {
         // Use default
       }
+    }
+    
+    // Fallback to local timezone if no timezone found
+    if (!dayNameStr) {
+      dayNameStr = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
     }
     
     return { displayTimezone: tz, dayName: dayNameStr };

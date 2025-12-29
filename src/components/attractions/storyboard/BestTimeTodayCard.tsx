@@ -1,8 +1,28 @@
 'use client';
 
 import { useMemo } from 'react';
-import tzLookup from 'tz-lookup';
 import { BestTimeCard } from '@/types/attraction-page';
+
+// Browser-safe timezone lookup fallback
+function getTimezoneFromCoordinates(lat: number, lng: number): string | null {
+  const offset = Math.round(lng / 15);
+  const utcOffset = Math.max(-12, Math.min(12, offset));
+  
+  const timezoneMap: Record<string, string> = {
+    '-8': 'America/Los_Angeles',
+    '-7': 'America/Denver', 
+    '-6': 'America/Chicago',
+    '-5': 'America/New_York',
+    '0': 'Europe/London',
+    '1': 'Europe/Paris',
+    '2': 'Europe/Berlin',
+    '8': 'Asia/Shanghai',
+    '9': 'Asia/Tokyo',
+    '10': 'Australia/Sydney',
+  };
+  
+  return timezoneMap[utcOffset.toString()] || null;
+}
 
 interface VisitorInfo {
   opening_hours?: Array<{
@@ -175,7 +195,7 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
     
     if (!tz && latitude != null && longitude != null) {
       try {
-        tz = tzLookup(latitude, longitude);
+        tz = getTimezoneFromCoordinates(latitude, longitude);
       } catch {
         // Use default
       }

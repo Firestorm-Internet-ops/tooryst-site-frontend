@@ -6,8 +6,10 @@ import '../styles/crowd-levels.css';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { QueryProvider } from '@/components/providers/QueryProvider';
+import { LoadingProvider } from '@/components/providers/LoadingProvider';
 import { SkipToMain, SkipToSearch } from '@/components/ui/SkipLink';
 import { NavigationProgress } from '@/components/ui/NavigationProgress';
+import SplashScreen from '@/components/ui/SplashScreen';
 import { config } from '@/lib/config';
 
 const inter = Inter({
@@ -57,18 +59,21 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-gray-950 text-gray-50 antialiased">
-        <Suspense fallback={null}>
-          <NavigationProgress />
-        </Suspense>
-        <SkipToMain />
-        <SkipToSearch />
-        <QueryProvider>
-          <div className="flex min-h-screen flex-col bg-gray-950 text-gray-50">
-            <Header />
-            <main id="main-content" className="flex-1">{children}</main>
-            <Footer />
-          </div>
-        </QueryProvider>
+        <LoadingProvider>
+          <SplashScreen />
+          <Suspense fallback={null}>
+            <NavigationProgress />
+          </Suspense>
+          <SkipToMain />
+          <SkipToSearch />
+          <QueryProvider>
+            <div className="flex min-h-screen flex-col bg-gray-950 text-gray-50">
+              <Header />
+              <main id="main-content" className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </QueryProvider>
+        </LoadingProvider>
       </body>
     </html>
   );

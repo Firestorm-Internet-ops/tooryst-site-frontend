@@ -1,10 +1,30 @@
 'use client';
 
 import { useMemo } from 'react';
-import tzLookup from 'tz-lookup';
 import { AttractionPageResponse } from '@/types/attraction-page';
 import { SectionShell } from './SectionShell';
 import { Mail, Phone, Globe, Clock, Info, Calendar } from 'lucide-react';
+
+// Browser-safe timezone lookup fallback
+function getTimezoneFromCoordinates(lat: number, lng: number): string | null {
+  const offset = Math.round(lng / 15);
+  const utcOffset = Math.max(-12, Math.min(12, offset));
+  
+  const timezoneMap: Record<string, string> = {
+    '-8': 'America/Los_Angeles',
+    '-7': 'America/Denver', 
+    '-6': 'America/Chicago',
+    '-5': 'America/New_York',
+    '0': 'Europe/London',
+    '1': 'Europe/Paris',
+    '2': 'Europe/Berlin',
+    '8': 'Asia/Shanghai',
+    '9': 'Asia/Tokyo',
+    '10': 'Australia/Sydney',
+  };
+  
+  return timezoneMap[utcOffset.toString()] || null;
+}
 
 interface VisitorInfoSectionProps {
   data: AttractionPageResponse;
@@ -25,7 +45,7 @@ export function VisitorInfoSection({ data }: VisitorInfoSectionProps) {
     
     if (!tz && data.cards?.map?.latitude != null && data.cards?.map?.longitude != null) {
       try {
-        tz = tzLookup(data.cards.map.latitude, data.cards.map.longitude);
+        tz = getTimezoneFromCoordinates(data.cards.map.latitude, data.cards.map.longitude);
       } catch {
         // Use default
       }
