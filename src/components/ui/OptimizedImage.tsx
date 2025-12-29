@@ -90,12 +90,16 @@ export function OptimizedImage({
   };
 
   const handleError = () => {
-    setHasError(true);
-    setIsLoading(false);
     if (fallbackSrc && imgSrc !== fallbackSrc) {
       setImgSrc(fallbackSrc);
-      setHasError(false);
-      setIsLoading(true);
+      // Batch state updates with setTimeout to avoid re-render thrashing
+      setTimeout(() => {
+        setHasError(false);
+        setIsLoading(true);
+      }, 0);
+    } else {
+      setHasError(true);
+      setIsLoading(false);
     }
     onError?.();
   };

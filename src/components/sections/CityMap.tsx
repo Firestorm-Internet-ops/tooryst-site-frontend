@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import { Card } from '@/components/ui/Card';
 import { AttractionCard } from '@/components/cards/AttractionCard';
 import { config } from '@/lib/config';
@@ -158,6 +158,10 @@ export function CityMap({
   const handleMapLoad = React.useCallback((map: any) => {
     mapRef.current = map;
     
+    const handleMarkerClickInternal = (marker: AttractionMarker) => {
+      setActiveMarker(marker);
+    };
+    
     if (validMarkers.length > 0 && center) {
       const bounds = new window.google.maps.LatLngBounds();
       
@@ -172,6 +176,34 @@ export function CityMap({
       // Fit bounds with padding from config
       const padding = config.map.boundsPadding;
       map.fitBounds(bounds, padding);
+      
+      // Add markers using AdvancedMarkerElement if available
+      validMarkers.forEach((marker) => {
+        const position = { lat: marker.lat, lng: marker.lng };
+        
+        if (window.google.maps.marker && window.google.maps.marker.AdvancedMarkerElement) {
+          const advancedMarker = new window.google.maps.marker.AdvancedMarkerElement({
+            position,
+            map,
+            title: marker.name,
+          });
+          
+          advancedMarker.addListener('click', () => {
+            handleMarkerClickInternal(marker);
+          });
+        } else {
+          // Fallback to legacy Marker
+          const legacyMarker = new window.google.maps.Marker({
+            position,
+            map,
+            title: marker.name,
+          });
+          
+          legacyMarker.addListener('click', () => {
+            handleMarkerClickInternal(marker);
+          });
+        }
+      });
     }
   }, [validMarkers, center]);
 
@@ -187,7 +219,7 @@ export function CityMap({
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: apiKey || '',
-    libraries: ['places'], // Only load necessary libraries
+    libraries: ['places', 'marker'], // Include marker library for AdvancedMarkerElement
     id: scriptId, // Use consistent script ID to prevent duplicate loads
     version: 'weekly', // Use weekly version for better caching
   });
@@ -343,14 +375,7 @@ export function CityMap({
             options={defaultMapOptions}
             onLoad={handleMapLoad}
           >
-          {validMarkers.map((marker, index) => (
-              <Marker
-                key={`${marker.slug}-${index}`}
-                position={{ lat: marker.lat, lng: marker.lng }}
-              title={marker.name}
-                onClick={() => handleMarkerClick(marker)}
-              />
-            ))}
+            {/* Markers are now handled in handleMapLoad to use AdvancedMarkerElement */}
           </GoogleMap>
 
         {activeMarker && (

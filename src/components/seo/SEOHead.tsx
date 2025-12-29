@@ -96,7 +96,7 @@ export function generateSEOProps(pageType: string, data: any) {
     title: data.title || 'Tooryst',
     description: data.description || 'Discover the best time to travel',
     keywords: data.keywords || ['travel', 'attractions', 'tourism'],
-    image: data.image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80',
+    image: data.image || '/images/fallbacks/seo-default.jpg',
     url: data.url,
     canonical: data.canonical || data.url,
   };

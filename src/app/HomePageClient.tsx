@@ -1,10 +1,11 @@
 'use client';
 
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useLoading } from '@/components/providers/LoadingProvider';
+import { Globe3DErrorBoundary } from '@/components/sections/Globe3DErrorBoundary';
 
 import { HeroSection } from '@/components/sections/HeroSection';
 import { AttractionsGrid } from '@/components/sections/AttractionsGrid';
@@ -60,12 +61,12 @@ export function HomePageClient({
   const router = useRouter();
   const { markDataLoaded } = useLoading();
 
-  // Mark initial data as loaded
+  // Mark initial data as loaded - always call once when component mounts
   useEffect(() => {
-    if (featuredCities || trendingAttractions) {
-      markDataLoaded();
-    }
-  }, [featuredCities, trendingAttractions, markDataLoaded]);
+    console.log('HomePageClient mounted, marking data loaded');
+    markDataLoaded();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
   const handleSearch = (query: string) => {
     const trimmed = query.trim();
@@ -255,7 +256,17 @@ export function HomePageClient({
               <h2 className="text-2xl font-display font-semibold text-gray-900 md:text-3xl">{config.text.globe.heading}</h2>
             </div>
           </div>
-          <Globe3D cities={globeCities} />
+          <Globe3DErrorBoundary>
+            <Suspense
+              fallback={
+                <div className="relative w-full h-[340px] sm:h-[420px] md:h-[520px] lg:h-[600px] rounded-3xl overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center border border-blue-100">
+                  <p className="text-gray-600">Preparing globe...</p>
+                </div>
+              }
+            >
+              <Globe3D cities={globeCities} />
+            </Suspense>
+          </Globe3DErrorBoundary>
         </section>
       )}
     </div>

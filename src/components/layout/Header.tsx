@@ -14,11 +14,6 @@ const links = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 shadow-sm backdrop-blur">
@@ -59,8 +54,13 @@ export function Header() {
         </div>
       </div>
 
-      {mounted && mobileMenuOpen && (
-      <nav className="border-t border-gray-100 bg-white md:hidden" aria-label="Mobile navigation">
+      <nav
+        className="border-t border-gray-100 bg-white md:hidden transition-all duration-200 data-[open=false]:max-h-0 data-[open=false]:opacity-0 data-[open=false]:overflow-hidden data-[open=false]:pointer-events-none data-[open=true]:max-h-96 data-[open=true]:opacity-100"
+        data-open={mobileMenuOpen}
+        aria-label="Mobile navigation"
+        aria-hidden={!mobileMenuOpen}
+        suppressHydrationWarning
+      >
         <div className="mx-auto max-w-7xl px-4 py-2">
           {links.map((link) => (
             <Link
@@ -74,7 +74,6 @@ export function Header() {
           ))}
         </div>
       </nav>
-    )}
     </header>
   );
 }

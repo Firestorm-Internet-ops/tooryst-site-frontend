@@ -17,7 +17,7 @@ declare global {
   }
 }
 
-const GOOGLE_MAPS_LIBRARIES: ("places")[] = ['places'];
+const GOOGLE_MAPS_LIBRARIES: ("places" | "marker")[] = ['places', 'marker'];
 
 export function AttractionMapSection({ data }: MapSectionProps) {
   const map = data.cards.map;
@@ -54,12 +54,21 @@ export function AttractionMapSection({ data }: MapSectionProps) {
         fullscreenControl: true,
       });
 
-      // Add marker for destination
-      new google.maps.Marker({
-        position: destination,
-        map: mapInstance,
-        title: map.address || 'Attraction',
-      });
+      // Add marker for destination using AdvancedMarkerElement
+      if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+        new google.maps.marker.AdvancedMarkerElement({
+          position: destination,
+          map: mapInstance,
+          title: map.address || 'Attraction',
+        });
+      } else {
+        // Fallback to legacy Marker if AdvancedMarkerElement is not available
+        new google.maps.Marker({
+          position: destination,
+          map: mapInstance,
+          title: map.address || 'Attraction',
+        });
+      }
 
       // Create directions service and renderer
       const directionsService = new google.maps.DirectionsService();
@@ -71,18 +80,50 @@ export function AttractionMapSection({ data }: MapSectionProps) {
       // Add directions input functionality
       const originInput = document.getElementById('origin-input') as HTMLInputElement;
       if (originInput) {
-        const autocomplete = new google.maps.places.Autocomplete(originInput);
-        
-        originInput.addEventListener('keypress', (e: KeyboardEvent) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            calculateRoute();
+        // Use PlaceAutocompleteElement if available, otherwise fallback to legacy Autocomplete
+        if (google.maps.places.PlaceAutocompleteElement) {
+          const autocompleteElement = new google.maps.places.PlaceAutocompleteElement();
+          autocompleteElement.id = 'place-autocomplete';
+          
+          // Replace the input with the new element
+          const container = originInput.parentElement;
+          if (container) {
+            container.replaceChild(autocompleteElement, originInput);
+            
+            autocompleteElement.addEventListener('gmp-placeselect', (event: any) => {
+              const place = event.place;
+              if (place.geometry && place.geometry.location) {
+                // Store the selected place for directions
+                (autocompleteElement as any).selectedPlace = place;
+              }
+            });
           }
-        });
+        } else {
+          // Fallback to legacy Autocomplete
+          const autocomplete = new google.maps.places.Autocomplete(originInput);
+          
+          originInput.addEventListener('keypress', (e: KeyboardEvent) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              calculateRoute();
+            }
+          });
+        }
       }
 
       const calculateRoute = () => {
-        const origin = (document.getElementById('origin-input') as HTMLInputElement)?.value;
+        // Try to get value from PlaceAutocompleteElement first, then fallback to input
+        const autocompleteElement = document.getElementById('place-autocomplete') as any;
+        const originInput = document.getElementById('origin-input') as HTMLInputElement;
+        
+        let origin: any = null;
+        
+        if (autocompleteElement && autocompleteElement.selectedPlace) {
+          origin = autocompleteElement.selectedPlace.geometry.location;
+        } else if (originInput) {
+          origin = originInput.value;
+        }
+        
         const travelMode = (document.querySelector('input[name="travel-mode"]:checked') as HTMLInputElement)?.value || 'DRIVING';
 
         if (!origin) {

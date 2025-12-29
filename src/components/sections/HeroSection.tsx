@@ -53,9 +53,11 @@ export function HeroSection({
   // Notify LoadingProvider when hero image loads
   useEffect(() => {
     if (imageLoaded || !isValidImageUrl) {
+      console.log('Hero ready, marking hero loaded');
       markHeroLoaded();
     }
-  }, [imageLoaded, isValidImageUrl, markHeroLoaded]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageLoaded, isValidImageUrl]);
 
   const handleSearch = (value: string) => {
     const trimmed = value.trim();

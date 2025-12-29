@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 
 interface LoadingContextType {
   isLoading: boolean;
@@ -20,22 +20,27 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
   const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    // Simulate initial progress
+    // Initial progress
     const timer = setTimeout(() => setProgress(30), 100);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    // Hide loading screen when both hero image and initial data are ready
+    // Update progress when either loads
+    if (heroLoaded || dataLoaded) {
+      setProgress(70);
+    }
+
+    // Complete when both are loaded
     if (heroLoaded && dataLoaded) {
       setProgress(100);
-      // Small delay before hiding to show 100% completion
-      setTimeout(() => {
+
+      // Defer hiding to avoid hydration issues
+      const hideTimer = setTimeout(() => {
         setIsLoading(false);
-      }, 300);
-    } else if (heroLoaded || dataLoaded) {
-      // Update progress to 70% when one is loaded
-      setProgress(70);
+      }, 400);
+
+      return () => clearTimeout(hideTimer);
     }
   }, [heroLoaded, dataLoaded]);
 

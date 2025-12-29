@@ -25,11 +25,52 @@ if (SENTRY_ENABLED) {
         maskAllText: false,
         blockAllMedia: false,
       }),
+      Sentry.browserTracingIntegration({
+        tracePropagationTargets: [
+          'localhost',
+          /^https:\/\/.*\.tooryst\.co/,
+        ],
+      }),
+      Sentry.captureConsoleIntegration({
+        levels: ['error', 'warn'],
+      }),
     ],
 
-    // Enable automatic breadcrumbs
-    beforeSend(event) {
-      // Filter out events if needed
+    // Enhanced error categorization for production issues
+    beforeSend(event, hint) {
+      // Tag hydration errors for tracking
+      const isHydrationError = event.exception?.values?.some(
+        (ex) =>
+          ex.value?.includes('Hydration') ||
+          ex.value?.includes('Server Components') ||
+          ex.value?.includes('Text content does not match')
+      );
+
+      if (isHydrationError) {
+        event.tags = { ...event.tags, errorType: 'hydration' };
+      }
+
+      // Tag WebGL errors with device context
+      const isWebGLError = event.exception?.values?.some(
+        (ex) =>
+          ex.value?.includes('WebGL') ||
+          ex.value?.includes('Context Lost')
+      );
+
+      if (isWebGLError) {
+        event.tags = { ...event.tags, errorType: 'webgl' };
+        // Add GPU info if available
+        if (typeof navigator !== 'undefined') {
+          event.contexts = {
+            ...event.contexts,
+            device: {
+              gpu: (navigator as any)?.gpu || 'unknown',
+              userAgent: navigator.userAgent,
+            },
+          };
+        }
+      }
+
       return event;
     },
   });

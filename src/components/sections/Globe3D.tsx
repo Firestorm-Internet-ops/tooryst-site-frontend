@@ -44,57 +44,89 @@ function GlobeScene({
   useEffect(() => {
     if (!groupRef.current) return;
 
-    // Remove old globe
+    let isMounted = true;
+    let globe: Globe | null = null;
+
+    // Cleanup old globe with comprehensive resource disposal
     if (globeRef.current) {
-      groupRef.current.remove(globeRef.current);
-      globeRef.current = null;
+      const oldGlobe = globeRef.current;
+      groupRef.current.remove(oldGlobe);
+
+      // Dispose THREE.js resources to prevent memory leaks
+      oldGlobe.children.forEach((child: any) => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach((m: any) => m.dispose());
+          } else {
+            child.material.dispose();
+          }
+        }
+      });
     }
 
-    const globe = new Globe();
-    globeRef.current = globe;
+    // Initialize only if still mounted
+    if (isMounted) {
+      globe = new Globe();
+      globeRef.current = globe;
 
-    globe.globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg');
-    globe.showAtmosphere(true);
-    globe.atmosphereColor('#60a5fa');
-    globe.atmosphereAltitude(0.2);
+      // Use a more reliable CDN or local image
+      globe.globeImageUrl('https://unpkg.com/three-globe@2.45.0/example/img/earth-blue-marble.jpg');
+      globe.showAtmosphere(true);
+      globe.atmosphereColor('#60a5fa');
+      globe.atmosphereAltitude(0.2);
 
-    // Pins
-    globe
-      .pointsData(validCities)
-      .pointLat((d: any) => d.lat)
-      .pointLng((d: any) => d.lng)
-      .pointAltitude(() => 0.02)
-      .pointColor(() => '#ef4444')
-      .pointRadius(() => 0.8);
+      // Pins
+      globe
+        .pointsData(validCities)
+        .pointLat((d: any) => d.lat)
+        .pointLng((d: any) => d.lng)
+        .pointAltitude(() => 0.02)
+        .pointColor(() => '#ef4444')
+        .pointRadius(() => 0.8);
 
-    // Labels
-    globe
-      .labelsData(validCities)
-      .labelLat((d: any) => d.lat)
-      .labelLng((d: any) => d.lng)
-      .labelText((d: any) => d.name)
-      .labelColor(() => '#ef4444')
-      .labelSize(() => 1.5)
-      .labelDotRadius(() => 0.4)
-      .labelDotOrientation(() => 'right');
+      // Labels
+      globe
+        .labelsData(validCities)
+        .labelLat((d: any) => d.lat)
+        .labelLng((d: any) => d.lng)
+        .labelText((d: any) => d.name)
+        .labelColor(() => '#ef4444')
+        .labelSize(() => 1.5)
+        .labelDotRadius(() => 0.4)
+        .labelDotOrientation(() => 'right');
 
-    // Align city vectors with three-globe's own projection to avoid drift
-    const globeAny = globe as any;
-    cityVectorsRef.current = validCities.map((city) => {
-      const { x, y, z } = globeAny.getCoords(city.lat!, city.lng!, 0);
-      return {
-        city,
-        vec: new THREE.Vector3(x, y, z),
-      };
-    });
+      // Align city vectors with three-globe's own projection to avoid drift
+      const globeAny = globe as any;
+      cityVectorsRef.current = validCities.map((city) => {
+        const { x, y, z } = globeAny.getCoords(city.lat!, city.lng!, 0);
+        return {
+          city,
+          vec: new THREE.Vector3(x, y, z),
+        };
+      });
 
-    groupRef.current.add(globe);
+      groupRef.current.add(globe);
+    }
 
     return () => {
-      if (globeRef.current && groupRef.current) {
-        groupRef.current.remove(globeRef.current);
-        globeRef.current = null;
+      isMounted = false;
+      if (globe && groupRef.current) {
+        groupRef.current.remove(globe);
+
+        // Comprehensive resource cleanup
+        globe.children.forEach((child: any) => {
+          if (child.geometry) child.geometry.dispose();
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach((m: any) => m.dispose());
+            } else {
+              child.material.dispose();
+            }
+          }
+        });
       }
+      globeRef.current = null;
     };
   }, [validCities]);
 
@@ -169,6 +201,67 @@ function GlobeScene({
 export function Globe3D({ cities }: Globe3DProps) {
   const [activeCities, setActiveCities] = useState<CityMarker[]>([]);
   const [isPaused, setIsPaused] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  // Improved WebGL context loss handling
+  useEffect(() => {
+    let canvas: HTMLCanvasElement | null = null;
+    let recoveryTimeout: NodeJS.Timeout;
+
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      console.warn('WebGL context lost');
+
+      // Debounce error display to avoid flickering
+      recoveryTimeout = setTimeout(() => {
+        setHasError(true);
+      }, 1000);
+    };
+
+    const handleContextRestored = () => {
+      console.log('WebGL context restored');
+      clearTimeout(recoveryTimeout);
+      setHasError(false);
+    };
+
+    // Find canvas with retry logic
+    const findCanvas = () => {
+      canvas = document.querySelector('canvas[data-engine="three.js"]');
+      if (canvas) {
+        canvas.addEventListener('webglcontextlost', handleContextLost);
+        canvas.addEventListener('webglcontextrestored', handleContextRestored);
+      } else {
+        // Retry after short delay if canvas not ready
+        setTimeout(findCanvas, 100);
+      }
+    };
+
+    findCanvas();
+
+    return () => {
+      clearTimeout(recoveryTimeout);
+      if (canvas) {
+        canvas.removeEventListener('webglcontextlost', handleContextLost);
+        canvas.removeEventListener('webglcontextrestored', handleContextRestored);
+      }
+    };
+  }, []);
+
+  if (hasError) {
+    return (
+      <div className="relative w-full h-[340px] sm:h-[420px] md:h-[520px] lg:h-[600px] rounded-3xl overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-white border border-blue-100 flex items-center justify-center">
+        <div className="text-center p-8">
+          <p className="text-gray-600 mb-4">Globe visualization temporarily unavailable</p>
+          <button 
+            onClick={() => setHasError(false)}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -178,10 +271,26 @@ export function Globe3D({ cities }: Globe3DProps) {
     >
       <Canvas
         className="bg-transparent"
-        gl={{ antialias: true, alpha: true }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          preserveDrawingBuffer: false,
+          powerPreference: "high-performance",
+          failIfMajorPerformanceCaveat: false, // Don't fail on low-end devices
+          stencil: false, // Reduce WebGL overhead
+        }}
+        frameloop="demand" // Only render when needed (saves GPU resources)
+        dpr={[1, 2]} // Limit pixel ratio to prevent GPU overload
         onCreated={({ gl }) => {
           gl.setClearColor(0x000000, 0);
+          // Mark canvas for easier selection by context loss handler
+          gl.domElement.setAttribute('data-engine', 'three.js');
         }}
+        fallback={
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-600">Loading globe...</p>
+          </div>
+        }
       >
         <PerspectiveCamera makeDefault position={[0, 0, 300]} fov={45} />
         <GlobeScene

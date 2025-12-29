@@ -97,9 +97,9 @@ export const config = {
 
   // Images & Media
   images: {
-    fallbackAttraction: process.env.NEXT_PUBLIC_FALLBACK_ATTRACTION_IMAGE || 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=800&q=80',
-    fallbackCity: process.env.NEXT_PUBLIC_FALLBACK_CITY_IMAGE || 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1600&q=80',
-    fallbackHero: process.env.NEXT_PUBLIC_FALLBACK_HERO_IMAGE || 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1200&q=80',
+    fallbackAttraction: process.env.NEXT_PUBLIC_FALLBACK_ATTRACTION_IMAGE || '/images/fallbacks/attraction-fallback.jpg',
+    fallbackCity: process.env.NEXT_PUBLIC_FALLBACK_CITY_IMAGE || '/images/fallbacks/city-fallback.jpg',
+    fallbackHero: process.env.NEXT_PUBLIC_FALLBACK_HERO_IMAGE || '/images/fallbacks/hero-fallback.jpg',
   },
 
   // Pagination & Limits

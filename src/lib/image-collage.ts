@@ -64,7 +64,7 @@ export function generateCollageUrl(
   }
   
   // Fallback to a default city image
-  return `https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=${width}&h=${height}&q=${quality}`;
+  return `/images/fallbacks/city-fallback.jpg`;
 }
 
 // Generate collage using canvas (client-side implementation)
