@@ -82,7 +82,7 @@ steps:
 
         NEXT_PUBLIC_ENABLE_BLOG=false
 
-        NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY
+        NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$$GOOGLE_MAPS_API_KEY
 
         NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=1ddb8b2b125e4212a9964914
 
@@ -261,8 +261,8 @@ steps:
         echo "Starting Docker build..."
 
         docker build \
-          --build-arg SENTRY_AUTH_TOKEN="$SENTRY_AUTH_TOKEN" \
-          --build-arg NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="$GOOGLE_MAPS_API_KEY" \
+          --build-arg SENTRY_AUTH_TOKEN="$$SENTRY_AUTH_TOKEN" \
+          --build-arg NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="$$GOOGLE_MAPS_API_KEY" \
           --build-arg NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID="1ddb8b2b125e4212a9964914" \
           --build-arg NEXT_PUBLIC_API_BASE_URL="https://api.tooryst.co/api/v1" \
           --build-arg NEXT_PUBLIC_APP_URL="https://tooryst.co" \
