@@ -76,7 +76,7 @@ yarn-error.log*
 
 # Package managers
 .pnpm-store/
-pnpm-lock.yaml
+# pnpm-lock.yaml - Keep lockfile for reproducible builds
 
 # OS
 Thumbs.db
