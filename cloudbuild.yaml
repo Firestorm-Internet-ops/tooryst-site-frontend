@@ -3,10 +3,10 @@ steps:
   - name: ubuntu
     args:
       - '-c'
-      - >
+      - |
         set -e
 
-        cat > .env.production <<'EOF'
+        cat > .env.production <<EOF
 
         NEXT_PUBLIC_API_BASE_URL=https://api.tooryst.co/api/v1
 
