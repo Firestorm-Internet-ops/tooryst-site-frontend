@@ -49,6 +49,7 @@ export function AttractionMapSection({ data }: MapSectionProps) {
       const mapInstance = new google.maps.Map(mapRef.current, {
         center: destination,
         zoom: 15,
+        mapId: config.googleMapsMapId,
         mapTypeControl: true,
         streetViewControl: true,
         fullscreenControl: true,

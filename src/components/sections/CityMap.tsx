@@ -41,6 +41,7 @@ const defaultMapOptions = {
   streetViewControl: false,
   fullscreenControl: true,
   gestureHandling: 'cooperative' as const,
+  mapId: config.googleMapsMapId,
 };
 
 export function CityMap({

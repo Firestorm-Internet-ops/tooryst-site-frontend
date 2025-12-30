@@ -93,7 +93,11 @@ export const config = {
 
   // Maps & Location
   googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+  googleMapsMapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || '',
   mapboxToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw',
+
+  // Analytics
+  googleAnalyticsId: process.env.NEXT_PUBLIC_GA_ID || '',
 
   // Images & Media
   images: {
