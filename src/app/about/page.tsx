@@ -92,7 +92,7 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Why Choose Attraction Storyboard */}
+        {/* Why Choose Tooryst */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">
             {aboutData.whyChoose.title}
