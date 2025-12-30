@@ -169,56 +169,111 @@ function GlobeScene({
 export function Globe3D({ cities }: Globe3DProps) {
   const [activeCities, setActiveCities] = useState<CityMarker[]>([]);
   const [isPaused, setIsPaused] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    setIsPaused(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false);
+    }, 100);
+  };
 
   return (
-    <div
-      className="relative w-full h-[340px] sm:h-[420px] md:h-[520px] lg:h-[600px] rounded-3xl overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-white border border-blue-100"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
-      <Canvas
-        className="bg-transparent"
-        gl={{ antialias: true, alpha: true }}
-        onCreated={({ gl }) => {
-          gl.setClearColor(0x000000, 0);
-        }}
+    <div className="space-y-3">
+      <div
+        className="relative w-full h-[340px] sm:h-[420px] md:h-[520px] lg:h-[600px] rounded-3xl overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-white border border-blue-100"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        <PerspectiveCamera makeDefault position={[0, 0, 300]} fov={45} />
-        <GlobeScene
-          cities={cities}
-          setActiveCities={setActiveCities}
-          isPaused={isPaused}
-        />
-        <OrbitControls
-          enableZoom
-          enablePan={false}
-          minDistance={200}
-          maxDistance={500}
-          autoRotate={false}
-        />
-      </Canvas>
+        <Canvas
+          className="bg-transparent"
+          gl={{ antialias: true, alpha: true }}
+          onCreated={({ gl }) => {
+            gl.setClearColor(0x000000, 0);
+          }}
+        >
+          <PerspectiveCamera makeDefault position={[0, 0, 300]} fov={45} />
+          <GlobeScene
+            cities={cities}
+            setActiveCities={setActiveCities}
+            isPaused={isPaused}
+          />
+          <OrbitControls
+            enableZoom
+            enablePan={false}
+            minDistance={200}
+            maxDistance={500}
+            autoRotate={false}
+          />
+        </Canvas>
 
-      {activeCities.length > 0 && (
-        <div className="absolute top-1/2 right-4 -translate-y-1/2 bg-white/95 backdrop-blur-sm rounded-xl px-4 py-3 shadow-xl z-10 border border-gray-200/50 w-[240px] max-h-[360px] overflow-y-auto space-y-3 pr-2">
-          {activeCities.map((city) => (
-            <div
-              key={city.slug ?? city.name}
-              className="flex flex-col gap-1 border-b last:border-b-0 border-gray-200/50 pb-2 last:pb-0"
-            >
-              <p className="text-sm font-semibold text-gray-900">{city.name}</p>
-              {typeof city.attractionCount === 'number' && (
-                <p className="text-xs text-gray-700">
-                  {city.attractionCount} attractions
-                </p>
-              )}
-              <a
-                href={city.slug ? `/${city.slug}` : '#'}
-                className="mt-1 inline-flex items-center justify-center rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-600 transition-colors"
+        {/* Desktop: Card on the right inside globe */}
+        {activeCities.length > 0 && (
+          <div className="hidden lg:block absolute top-1/2 right-4 -translate-y-1/2 bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 shadow-xl z-10 border border-gray-200/50 w-[200px] max-h-[320px] overflow-y-auto space-y-2">
+            {activeCities.map((city) => (
+              <div
+                key={city.slug ?? city.name}
+                className="flex flex-col gap-1 border-b last:border-b-0 border-gray-200/50 pb-2 last:pb-0"
               >
-                {config.text.globe.viewCity}
-              </a>
-            </div>
-          ))}
+                <p className="text-xs font-semibold text-gray-900">{city.name}</p>
+                {typeof city.attractionCount === 'number' && (
+                  <p className="text-[10px] text-gray-700">
+                    {city.attractionCount} attractions
+                  </p>
+                )}
+                <a
+                  href={city.slug ? `/${city.slug}` : '#'}
+                  className="mt-1 inline-flex items-center justify-center rounded-lg bg-primary-500 px-2 py-1 text-[10px] font-semibold text-white hover:bg-primary-600 transition-colors"
+                >
+                  {config.text.globe.viewCity}
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Tablet & Mobile: Horizontal slider below globe as separate layer */}
+      {activeCities.length > 0 && (
+        <div className="lg:hidden bg-white/95 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg">
+          <div className="flex gap-2 overflow-x-auto px-3 py-2 snap-x snap-mandatory scrollbar-hide">
+            {activeCities.map((city) => (
+              <div
+                key={city.slug ?? city.name}
+                className="flex-shrink-0 snap-start bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-200/50 w-[200px]"
+              >
+                <p className="text-xs font-semibold text-gray-900 truncate">{city.name}</p>
+                {typeof city.attractionCount === 'number' && (
+                  <p className="text-[10px] text-gray-700 mt-0.5">
+                    {city.attractionCount} attractions
+                  </p>
+                )}
+                <a
+                  href={city.slug ? `/${city.slug}` : '#'}
+                  className="mt-1.5 inline-flex items-center justify-center rounded-lg bg-primary-500 px-2 py-1 text-[10px] font-semibold text-white hover:bg-primary-600 transition-colors w-full"
+                >
+                  {config.text.globe.viewCity}
+                </a>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

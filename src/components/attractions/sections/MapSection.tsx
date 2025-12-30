@@ -17,7 +17,7 @@ declare global {
   }
 }
 
-const GOOGLE_MAPS_LIBRARIES: ("places")[] = ['places'];
+const GOOGLE_MAPS_LIBRARIES: ("places" | "marker")[] = ['places', 'marker'];
 
 export function AttractionMapSection({ data }: MapSectionProps) {
   const map = data.cards.map;
@@ -54,12 +54,21 @@ export function AttractionMapSection({ data }: MapSectionProps) {
         fullscreenControl: true,
       });
 
-      // Add marker for destination
-      new google.maps.Marker({
-        position: destination,
-        map: mapInstance,
-        title: map.address || 'Attraction',
-      });
+      // Add marker for destination (using modern AdvancedMarkerElement if available, fallback to Marker)
+      if (google.maps.marker?.AdvancedMarkerElement) {
+        new google.maps.marker.AdvancedMarkerElement({
+          position: destination,
+          map: mapInstance,
+          title: map.address || 'Attraction',
+        });
+      } else {
+        // Fallback to deprecated Marker for older API versions
+        new google.maps.Marker({
+          position: destination,
+          map: mapInstance,
+          title: map.address || 'Attraction',
+        });
+      }
 
       // Create directions service and renderer
       const directionsService = new google.maps.DirectionsService();

@@ -6,6 +6,9 @@ import { Card } from '@/components/ui/Card';
 import { AttractionCard } from '@/components/cards/AttractionCard';
 import { config } from '@/lib/config';
 
+// Define libraries as a constant outside component to prevent reload warnings
+const GOOGLE_MAPS_LIBRARIES: ('places')[] = ['places'];
+
 type AttractionMarker = {
   lat: number;
   lng: number;
@@ -187,7 +190,7 @@ export function CityMap({
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: apiKey || '',
-    libraries: ['places'], // Only load necessary libraries
+    libraries: GOOGLE_MAPS_LIBRARIES, // Use constant to prevent reload warnings
     id: scriptId, // Use consistent script ID to prevent duplicate loads
     version: 'weekly', // Use weekly version for better caching
   });
