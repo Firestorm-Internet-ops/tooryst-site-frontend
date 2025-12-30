@@ -323,6 +323,21 @@ steps:
       - NODE_ENV=production
     entrypoint: gcloud
 
+  # Step 4: Ensure unauthenticated access (fix for IAM race condition)
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    args:
+      - run
+      - services
+      - add-iam-policy-binding
+      - tooryst-frontend-staging
+      - '--region'
+      - us-central1
+      - '--member'
+      - allUsers
+      - '--role'
+      - roles/run.invoker
+    entrypoint: gcloud
+
 images:
   - >-
     us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend-staging:$SHORT_SHA

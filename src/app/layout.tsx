@@ -9,6 +9,8 @@ import { QueryProvider } from '@/components/providers/QueryProvider';
 import { SkipToMain, SkipToSearch } from '@/components/ui/SkipLink';
 import { NavigationProgress } from '@/components/ui/NavigationProgress';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { MonitoringProvider } from '@/components/providers/MonitoringProvider';
 import { config } from '@/lib/config';
 
 const inter = Inter({
@@ -45,18 +47,30 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="bg-gray-950 text-gray-50 antialiased">
         <GoogleAnalytics />
-        <Suspense fallback={null}>
-          <NavigationProgress />
-        </Suspense>
-        <SkipToMain />
-        <SkipToSearch />
-        <QueryProvider>
-          <div className="flex min-h-screen flex-col bg-gray-950 text-gray-50">
-            <Header />
-            <main id="main-content" className="flex-1">{children}</main>
-            <Footer />
-          </div>
-        </QueryProvider>
+        <MonitoringProvider>
+          <ErrorBoundary>
+            <Suspense fallback={null}>
+              <NavigationProgress />
+            </Suspense>
+            <SkipToMain />
+            <SkipToSearch />
+            <QueryProvider>
+              <div className="flex min-h-screen flex-col bg-gray-950 text-gray-50">
+                <ErrorBoundary>
+                  <Header />
+                </ErrorBoundary>
+                <main id="main-content" className="flex-1">
+                  <ErrorBoundary>
+                    {children}
+                  </ErrorBoundary>
+                </main>
+                <ErrorBoundary>
+                  <Footer />
+                </ErrorBoundary>
+              </div>
+            </QueryProvider>
+          </ErrorBoundary>
+        </MonitoringProvider>
       </body>
     </html>
   );
