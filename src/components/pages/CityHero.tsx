@@ -5,6 +5,7 @@ import { MapPin, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { config } from '@/lib/config';
+import { generateBlurDataURL } from '@/lib/image-utils';
 
 interface CityHeroProps {
   city: {
@@ -48,6 +49,10 @@ export function CityHero({
           alt={`${city.name} skyline`}
           fill
           priority
+          sizes="100vw"
+          quality={90}
+          placeholder="blur"
+          blurDataURL={generateBlurDataURL()}
           className="object-cover"
         />
       </div>

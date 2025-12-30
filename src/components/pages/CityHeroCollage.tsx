@@ -123,8 +123,9 @@ export function CityHeroCollage({
             alt={`${city.name} skyline`}
             fill
             priority
-            className="object-cover"
             sizes="100vw"
+            quality={90}
+            className="object-cover"
           />
         )}
       </div>

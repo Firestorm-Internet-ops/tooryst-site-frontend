@@ -77,6 +77,8 @@ function ReviewCard({ review: r, index }: ReviewCardProps) {
               alt={r.author_name}
               width={56}
               height={56}
+              quality={75}
+              loading="lazy"
               className="rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-primary-200 transition-all"
             />
             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>

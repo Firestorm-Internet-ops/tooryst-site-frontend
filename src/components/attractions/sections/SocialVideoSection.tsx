@@ -5,6 +5,7 @@ import { SectionShell } from './SectionShell';
 import Image from 'next/image';
 import { Play, Eye, Clock } from 'lucide-react';
 import { useState } from 'react';
+import { generateBlurDataURL } from '@/lib/image-utils';
 
 interface SocialVideoSectionProps {
   data: AttractionPageResponse;
@@ -75,6 +76,10 @@ export function SocialVideoSection({ data }: SocialVideoSectionProps) {
                         src={video.thumbnail_url}
                         alt={video.title}
                         fill
+                        quality={75}
+                        loading={idx < 3 ? 'eager' : 'lazy'}
+                        placeholder="blur"
+                        blurDataURL={generateBlurDataURL()}
                         className="object-cover"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       />
