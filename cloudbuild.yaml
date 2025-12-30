@@ -128,7 +128,7 @@ steps:
         NEXT_PUBLIC_HERO_OVERLAY=linear-gradient(120deg, rgba(15,23,42,0.7),
         rgba(15,23,42,0.4))
 
-        NEXT_PUBLIC_GA_ID=toosits
+        NEXT_PUBLIC_GA_ID=G-CW2LJ9QCNN
 
         NEXT_PUBLIC_HOTJAR_ID=
 

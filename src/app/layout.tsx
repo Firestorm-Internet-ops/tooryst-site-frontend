@@ -8,6 +8,7 @@ import { Footer } from '@/components/layout/Footer';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { SkipToMain, SkipToSearch } from '@/components/ui/SkipLink';
 import { NavigationProgress } from '@/components/ui/NavigationProgress';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { config } from '@/lib/config';
 
 const inter = Inter({
@@ -43,6 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="bg-gray-950 text-gray-50 antialiased">
+        <GoogleAnalytics />
         <Suspense fallback={null}>
           <NavigationProgress />
         </Suspense>
