@@ -189,6 +189,11 @@ Allow: /`;
       return `${imageUrl}${separator}auto=format&fit=crop&w=${size.width}&h=${size.height}&q=80`;
     }
 
+    // If it's a local image, use Next.js Image Optimization API
+    if (imageUrl.startsWith('/images/')) {
+      return `/_next/image?url=${encodeURIComponent(imageUrl)}&w=${size.width}&h=${size.height}&q=80`;
+    }
+
     return imageUrl;
   }
 

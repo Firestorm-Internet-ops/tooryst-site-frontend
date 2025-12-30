@@ -10,7 +10,7 @@ steps:
 
         NEXT_PUBLIC_API_BASE_URL=https://api.tooryst.co/api/v1
 
-        NEXT_PUBLIC_APP_URL=https://tooryst.co
+        NEXT_PUBLIC_APP_URL=https://staging.tooryst.co
 
         NEXT_PUBLIC_APP_NAME=Tooryst
 
@@ -132,7 +132,7 @@ steps:
 
         NEXT_PUBLIC_HOTJAR_ID=
 
-        NEXT_PUBLIC_ENVIRONMENT=production
+        NEXT_PUBLIC_ENVIRONMENT=staging
 
         NEXT_PUBLIC_APP_VERSION=1.0.0
 
@@ -230,7 +230,7 @@ steps:
 
         NEXT_PUBLIC_SENTRY_DSN=https://8ffe2c57fa82a5110ffb4dc1483f7175@o4510596311547904.ingest.us.sentry.io/4510596912185344
 
-        NEXT_PUBLIC_SENTRY_ENVIRONMENT=production
+        NEXT_PUBLIC_SENTRY_ENVIRONMENT=staging
 
         NEXT_PUBLIC_SENTRY_ENABLED=true
 
@@ -266,11 +266,11 @@ steps:
           --build-arg NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID="1ddb8b2b125e4212a9964914" \
           --build-arg NEXT_PUBLIC_API_BASE_URL="https://api.tooryst.co/api/v1" \
           --build-arg NEXT_PUBLIC_APP_URL="https://tooryst.co" \
-          --build-arg NEXT_PUBLIC_ENVIRONMENT="production" \
+          --build-arg NEXT_PUBLIC_ENVIRONMENT="staging" \
           --build-arg NEXT_PUBLIC_SENTRY_DSN="https://8ffe2c57fa82a5110ffb4dc1483f7175@o4510596311547904.ingest.us.sentry.io/4510596912185344" \
-          --build-arg NEXT_PUBLIC_SENTRY_ENVIRONMENT="production" \
-          -t us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend:$SHORT_SHA \
-          -t us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend:latest \
+          --build-arg NEXT_PUBLIC_SENTRY_ENVIRONMENT="staging" \
+          -t us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend-staging:$SHORT_SHA \
+          -t us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend-staging:latest \
           . || {
             echo "ERROR: Docker build failed!"
             exit 1
@@ -293,17 +293,17 @@ steps:
     args:
       - push
       - '--all-tags'
-      - us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend
+      - us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend-staging
 
-  # Step 3: Deploy to Cloud Run
+  # Step 3: Deploy to Cloud Run (staging)
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     args:
       - run
       - deploy
-      - tooryst-frontend
+      - tooryst-frontend-staging
       - '--image'
       - >-
-        us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend:$SHORT_SHA
+        us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend-staging:$SHORT_SHA
       - '--region'
       - us-central1
       - '--platform'
@@ -318,15 +318,15 @@ steps:
       - '--min-instances'
       - '0'
       - '--max-instances'
-      - '10'
+      - '5'
       - '--set-env-vars'
       - NODE_ENV=production
     entrypoint: gcloud
 
 images:
   - >-
-    us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend:$SHORT_SHA
-  - 'us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend:latest'
+    us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend-staging:$SHORT_SHA
+  - 'us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend-staging:latest'
 
 options:
   machineType: E2_HIGHCPU_8

@@ -31,7 +31,12 @@ export const generateResponsiveImageUrl = (
     return `${baseUrl}&w=${width}&q=${quality}&auto=format&fit=crop`;
   }
   
-  // For other image services, return original URL
+  // For local images, use Next.js Image Optimization API
+  if (baseUrl.startsWith('/images/')) {
+    return `/_next/image?url=${encodeURIComponent(baseUrl)}&w=${width}&q=${quality}`;
+  }
+  
+  // For other external image services, return original URL
   // In production, you might want to use your own image optimization service
   return baseUrl;
 };

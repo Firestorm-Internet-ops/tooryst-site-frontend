@@ -71,9 +71,9 @@ RUN echo "NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}" > .env.productio
     echo "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}" >> .env.production && \
     echo "NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=${NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID}" >> .env.production && \
     echo "NEXT_PUBLIC_MAPBOX_TOKEN=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw" >> .env.production && \
-    echo "NEXT_PUBLIC_FALLBACK_ATTRACTION_IMAGE=https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=800&q=80" >> .env.production && \
-    echo "NEXT_PUBLIC_FALLBACK_CITY_IMAGE=https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1600&q=80" >> .env.production && \
-    echo "NEXT_PUBLIC_FALLBACK_HERO_IMAGE=https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1200&q=80" >> .env.production && \
+    echo "NEXT_PUBLIC_FALLBACK_ATTRACTION_IMAGE=/images/fallbacks/attraction-fallback.jpg" >> .env.production && \
+    echo "NEXT_PUBLIC_FALLBACK_CITY_IMAGE=/images/fallbacks/city-fallback.jpg" >> .env.production && \
+    echo "NEXT_PUBLIC_FALLBACK_HERO_IMAGE=/images/fallbacks/hero-fallback.jpg" >> .env.production && \
     echo "NEXT_PUBLIC_SEARCH_PAGE_SIZE=12" >> .env.production && \
     echo "NEXT_PUBLIC_CITIES_FETCH_LIMIT=100" >> .env.production && \
     echo "NEXT_PUBLIC_ATTRACTIONS_FETCH_LIMIT=12" >> .env.production && \
