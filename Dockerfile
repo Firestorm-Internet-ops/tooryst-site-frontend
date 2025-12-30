@@ -32,8 +32,8 @@ ARG NEXT_PUBLIC_SENTRY_DSN
 ARG NEXT_PUBLIC_SENTRY_ENVIRONMENT
 ARG SENTRY_AUTH_TOKEN
 
-# Create production env file
-RUN cat > .env.production <<EOF
+# Create production env file using shell script to handle ARG substitution
+RUN /bin/sh -c 'cat > .env.production <<EOF
 NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 NEXT_PUBLIC_APP_NAME=Tooryst
@@ -146,6 +146,7 @@ NEXT_PUBLIC_SENTRY_REPLAYS_SESSION_SAMPLE_RATE=0.1
 NEXT_PUBLIC_SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE=1.0
 SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 EOF
+'
 
 # Build Next.js app
 RUN pnpm run build
