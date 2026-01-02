@@ -167,7 +167,26 @@ function calculateIsOpenNow(
 }
 
 export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitude, visitorInfo }: BestTimeTodayCardProps) {
-  if (!bestTime) return null;
+  console.log('[BestTimeTodayCard] Rendering for:', name, { bestTime, timezone, latitude, longitude });
+
+  // Show fallback UI if no data available
+  if (!bestTime) {
+    console.log('[BestTimeTodayCard] No bestTime data - showing fallback UI');
+    return (
+      <article className="rounded-3xl bg-gradient-to-br from-slate-800/90 via-slate-850/90 to-slate-900/90 border border-slate-700/50 p-4 md:p-5 flex flex-col relative overflow-hidden min-h-[260px]">
+        {/* Content */}
+        <div className="relative z-10 flex flex-col h-full justify-center items-center text-center">
+          <div className="mb-4">
+            <svg className="w-12 h-12 text-slate-600 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-sm text-slate-400 mb-2">Best Time Data</p>
+          <p className="text-xs text-slate-500">No timing information available</p>
+        </div>
+      </article>
+    );
+  }
 
   // Get current day name in the city's timezone
   const dayName = useMemo(() => {
@@ -194,7 +213,7 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
 
   // Get opening hours from visitor info for today
   const todayOpeningHours = useMemo(() => {
-    if (!visitorInfo?.opening_hours) return null;
+    if (!visitorInfo?.opening_hours || !Array.isArray(visitorInfo.opening_hours)) return null;
     return visitorInfo.opening_hours.find(
       (hour) => hour.day.toLowerCase() === dayName?.toLowerCase()
     );
@@ -226,6 +245,19 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
   const bestWindow = bestTime.best_time_text
     ? bestTime.best_time_text.replace(/^(\d{1,2}:\d{2})\s*-\s*\1$/, '$1')
     : null;
+
+  console.log('[BestTimeTodayCard] Rendering with data:', {
+    timezone,
+    dayName,
+    best_time_text: bestTime.best_time_text,
+    bestWindow,
+    crowd_level_today: bestTime.crowd_level_today,
+    is_open_today: bestTime.is_open_today,
+    opening_time: bestTime.today_opening_time,
+    closing_time: bestTime.today_closing_time,
+    isOpenNow,
+    isOpenText,
+  });
 
   const crowd = getCrowdStyle(bestTime.crowd_level_today, bestTime.crowd_level_label_today);
 
@@ -319,10 +351,10 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
         {/* Row 2: big best window in the centre */}
         <div className="text-center flex-1 flex flex-col justify-center py-4 animate-in fade-in zoom-in-95 duration-700 delay-150">
           <p className="text-xs md:text-sm uppercase tracking-wide text-slate-400 mb-3 transition-all duration-300 group-hover:text-slate-300 group-hover:tracking-wider">
-            Best time {dayName?.toLowerCase()}
+            {bestTime.is_open_today ? `Best time ${dayName?.toLowerCase()}` : 'Status'}
           </p>
           <p className="text-2xl md:text-3xl font-semibold text-slate-50 transition-all duration-300 group-hover:text-white group-hover:scale-105">
-            {bestWindow || 'No window available'}
+            {bestTime.is_open_today ? (bestWindow || 'Visit anytime') : 'CLOSED'}
           </p>
         </div>
 

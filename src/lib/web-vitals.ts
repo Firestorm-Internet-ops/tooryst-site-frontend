@@ -1,7 +1,9 @@
 /**
- * Web Vitals monitoring for performance tracking
- * Sends Core Web Vitals metrics to analytics endpoint
+ * Web Vitals monitoring for performance tracking with budget validation
+ * Sends Core Web Vitals metrics to analytics endpoint and performance budget system
  */
+
+import { recordPerformanceMetric } from '../utils/performance-budget';
 
 export interface WebVitalMetric {
   name: string;
@@ -13,6 +15,9 @@ export interface WebVitalMetric {
 }
 
 export function reportWebVitals(metric: WebVitalMetric) {
+  // Record in performance budget system
+  recordPerformanceMetric(metric.name, metric.value, 'webVitals');
+
   if (process.env.NODE_ENV === 'production') {
     // Send to your analytics service
     const body = JSON.stringify(metric);
@@ -45,7 +50,7 @@ export function reportWebVitals(metric: WebVitalMetric) {
 }
 
 /**
- * Initialize Web Vitals tracking
+ * Initialize Web Vitals tracking with performance budget integration
  * Call this in your root layout or app component
  * Note: Requires 'npm install web-vitals'
  */
@@ -68,7 +73,53 @@ export async function initWebVitals() {
     onFCP(reportWebVitals);
     onLCP(reportWebVitals);
     onTTFB(reportWebVitals);
+
+    console.log('[Web Vitals] Initialized with performance budget integration');
   } catch (error) {
     console.error('Failed to initialize Web Vitals:', error);
   }
+}
+
+/**
+ * Get current Web Vitals metrics
+ * Useful for performance debugging and monitoring
+ */
+export function getCurrentWebVitals(): Promise<{
+  lcp?: number;
+  inp?: number;
+  cls?: number;
+  fcp?: number;
+  ttfb?: number;
+}> {
+  return new Promise(async (resolve) => {
+    if (typeof window === 'undefined') {
+      resolve({});
+      return;
+    }
+
+    try {
+      const webVitals = await import('web-vitals').catch(() => null);
+      
+      if (!webVitals) {
+        resolve({});
+        return;
+      }
+
+      const { onCLS, onINP, onFCP, onLCP, onTTFB } = webVitals;
+      const metrics: any = {};
+
+      // Collect current metrics
+      onCLS((metric) => { metrics.cls = metric.value; });
+      onINP((metric) => { metrics.inp = metric.value; });
+      onFCP((metric) => { metrics.fcp = metric.value; });
+      onLCP((metric) => { metrics.lcp = metric.value; });
+      onTTFB((metric) => { metrics.ttfb = metric.value; });
+
+      // Wait a bit for metrics to be collected
+      setTimeout(() => resolve(metrics), 100);
+    } catch (error) {
+      console.error('Failed to get current Web Vitals:', error);
+      resolve({});
+    }
+  });
 }

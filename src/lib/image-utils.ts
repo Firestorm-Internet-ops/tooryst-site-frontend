@@ -25,7 +25,7 @@ export const preloadImages = async (urls: string[]): Promise<void> => {
 export const generateResponsiveImageUrl = (
   baseUrl: string,
   width: number,
-  quality = 85
+  quality = 75 // Reduced from 85% to 75% for better performance
 ): string => {
   if (baseUrl.includes('unsplash.com')) {
     return `${baseUrl}&w=${width}&q=${quality}&auto=format&fit=crop`;
@@ -49,14 +49,14 @@ export const getResponsiveImageUrls = (baseUrl: string) => ({
   thumbnail: generateResponsiveImageUrl(baseUrl, 384),
 });
 
-// Intersection Observer for lazy loading
+// Intersection Observer for lazy loading with enhanced options
 export const createImageObserver = (
   callback: (entry: IntersectionObserverEntry) => void,
   options: IntersectionObserverInit = {}
 ): IntersectionObserver => {
   const defaultOptions: IntersectionObserverInit = {
     root: null,
-    rootMargin: '50px',
+    rootMargin: '100px', // Increased from 50px for better preloading
     threshold: 0.1,
     ...options,
   };
@@ -64,6 +64,105 @@ export const createImageObserver = (
   return new IntersectionObserver((entries) => {
     entries.forEach(callback);
   }, defaultOptions);
+};
+
+// Advanced lazy loading manager
+export class LazyImageManager {
+  private observer: IntersectionObserver | null = null;
+  private loadedImages = new Set<string>();
+  private loadingImages = new Set<string>();
+
+  constructor(options: IntersectionObserverInit = {}) {
+    if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+      this.observer = createImageObserver(
+        this.handleIntersection.bind(this),
+        {
+          rootMargin: '100px',
+          threshold: 0.1,
+          ...options,
+        }
+      );
+    }
+  }
+
+  private handleIntersection(entry: IntersectionObserverEntry): void {
+    if (entry.isIntersecting) {
+      const img = entry.target as HTMLImageElement;
+      const src = img.dataset.src;
+      
+      if (src && !this.loadedImages.has(src) && !this.loadingImages.has(src)) {
+        this.loadImage(img, src);
+      }
+    }
+  }
+
+  private async loadImage(img: HTMLImageElement, src: string): Promise<void> {
+    this.loadingImages.add(src);
+    
+    try {
+      // Preload the image
+      await preloadImage(src);
+      
+      // Update the image source
+      img.src = src;
+      img.classList.add('loaded');
+      img.classList.remove('loading');
+      
+      // Mark as loaded
+      this.loadedImages.add(src);
+      this.loadingImages.delete(src);
+      
+      // Stop observing this image
+      if (this.observer) {
+        this.observer.unobserve(img);
+      }
+      
+      // Dispatch load event
+      img.dispatchEvent(new Event('lazyload'));
+    } catch (error) {
+      console.warn('Failed to load lazy image:', src, error);
+      this.loadingImages.delete(src);
+      img.classList.add('error');
+      img.classList.remove('loading');
+    }
+  }
+
+  observe(img: HTMLImageElement): void {
+    if (this.observer) {
+      img.classList.add('lazy', 'loading');
+      this.observer.observe(img);
+    } else {
+      // Fallback for browsers without IntersectionObserver
+      const src = img.dataset.src;
+      if (src) {
+        this.loadImage(img, src);
+      }
+    }
+  }
+
+  unobserve(img: HTMLImageElement): void {
+    if (this.observer) {
+      this.observer.unobserve(img);
+    }
+  }
+
+  disconnect(): void {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+    this.loadedImages.clear();
+    this.loadingImages.clear();
+  }
+}
+
+// Global lazy image manager instance
+let globalLazyManager: LazyImageManager | null = null;
+
+export const getLazyImageManager = (): LazyImageManager => {
+  if (!globalLazyManager) {
+    globalLazyManager = new LazyImageManager();
+  }
+  return globalLazyManager;
 };
 
 // Check if image is in viewport

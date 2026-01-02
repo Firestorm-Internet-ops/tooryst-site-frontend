@@ -175,6 +175,6 @@ export class EnhancedAPIClient {
   }
 }
 
-// Export both the original client and enhanced client
-export { apiClient as default, EnhancedAPIClient };
+// Export the original client as default
+export default apiClient;
 

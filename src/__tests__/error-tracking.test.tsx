@@ -5,7 +5,7 @@
 
 import { render, screen } from '../test-utils';
 import { ErrorTracker, TrackedError, ErrorType, createAPIError, createValidationError, withErrorTracking } from '../utils/error-tracking';
-import { ErrorBoundary } from '../components/ErrorBoundary';
+import { ErrorBoundary } from '../components/error-boundaries/ErrorBoundary';
 import * as fc from 'fast-check';
 
 // Mock Sentry to avoid actual error reporting in tests

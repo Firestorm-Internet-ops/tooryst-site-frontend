@@ -36,6 +36,15 @@ function GlobeScene({
   const cityVectorsRef = useRef<{ city: CityMarker; vec: THREE.Vector3 }[]>([]);
   const { camera } = useThree();
 
+  // Performance optimization: throttle expensive visibility calculations
+  const frameCounterRef = useRef(0);
+  const CALC_INTERVAL = 10; // Run visibility calculation every 10 frames instead of every frame
+
+  // Reusable Vector3 objects to avoid garbage collection
+  const tempVec1 = useRef(new THREE.Vector3()).current;
+  const tempVec2 = useRef(new THREE.Vector3()).current;
+  const tempVec3 = useRef(new THREE.Vector3()).current;
+
   const validCities = useMemo(
     () => cities.filter((city) => city.lat != null && city.lng != null),
     [cities]
@@ -101,35 +110,40 @@ function GlobeScene({
   useFrame((_state, delta) => {
     if (!groupRef.current) return;
 
+    // Always rotate smoothly - this is the most important part
+    // Only pause if explicitly paused, otherwise keep rotating
+    if (!isPaused && globeRef.current) {
+      globeRef.current.rotation.y += delta * 0.5;
+    }
+
     const cityVectors = cityVectorsRef.current;
     if (!cityVectors.length) return;
 
-    if (!isPaused) {
-      groupRef.current.rotation.y += delta * 0.1;
+    // Throttle expensive visibility calculations
+    frameCounterRef.current++;
+    if (frameCounterRef.current % CALC_INTERVAL !== 0) {
+      return; // Skip expensive calculations most frames
     }
 
     // Compute which cities are most "in front" of the camera
-    const camPos = new THREE.Vector3();
-    camera.getWorldPosition(camPos);
-
-    const camDir = new THREE.Vector3();
-    camera.getWorldDirection(camDir); // camera forward in world space
-    const camFromCenter = camPos.clone().normalize();
+    camera.getWorldPosition(tempVec1); // Reuse tempVec1 for camPos
+    camera.getWorldDirection(tempVec2); // Reuse tempVec2 for camDir
+    tempVec1.normalize(); // camFromCenter
 
     const scored: { city: CityMarker; score: number }[] = [];
 
     for (const { city, vec } of cityVectors) {
-      const localPos = vec.clone();
-      const worldPos = localPos.clone();
-      groupRef.current.localToWorld(worldPos);
+      // Reuse tempVec3 for world position calculations
+      tempVec3.copy(vec);
+      groupRef.current.localToWorld(tempVec3);
 
       // Drop anything on the far side of the globe relative to the camera
-      const cityNormal = worldPos.clone().normalize();
-      const facingScore = cityNormal.dot(camFromCenter);
+      const cityNormal = tempVec3.clone().normalize(); // Need to clone here to keep worldPos
+      const facingScore = cityNormal.dot(tempVec1);
       if (facingScore <= 0.05) continue;
 
-      const toCity = worldPos.clone().sub(camPos).normalize();
-      const alignment = camDir.dot(toCity); // 1 means centered in view
+      const toCity = tempVec3.clone().sub(camera.position).normalize();
+      const alignment = tempVec2.dot(toCity); // 1 means centered in view
 
       // Blend view alignment with hemisphere facing so near-the-edge cities still count
       const score = alignment * 0.7 + facingScore * 0.3;
@@ -169,7 +183,9 @@ function GlobeScene({
 export function Globe3D({ cities }: Globe3DProps) {
   const [activeCities, setActiveCities] = useState<CityMarker[]>([]);
   const [isPaused, setIsPaused] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     return () => {
@@ -179,20 +195,26 @@ export function Globe3D({ cities }: Globe3DProps) {
     };
   }, []);
 
-  const handleMouseEnter = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
+  useEffect(() => {
+    if (isHovered) {
+      setIsPaused(true);
+    } else {
+      // Resume rotation after a short delay
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      hoverTimeoutRef.current = setTimeout(() => {
+        setIsPaused(false);
+      }, 200); // Slightly longer delay for smoother experience
     }
-    setIsPaused(true);
+  }, [isHovered]);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
   };
 
   const handleMouseLeave = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsPaused(false);
-    }, 100);
+    setIsHovered(false);
   };
 
   return (
@@ -226,21 +248,21 @@ export function Globe3D({ cities }: Globe3DProps) {
 
         {/* Desktop: Card on the right inside globe */}
         {activeCities.length > 0 && (
-          <div className="hidden lg:block absolute top-1/2 right-4 -translate-y-1/2 bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 shadow-xl z-10 border border-gray-200/50 w-[200px] max-h-[320px] overflow-y-auto space-y-2">
+          <div className="hidden lg:block absolute top-1/2 right-4 -translate-y-1/2 bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 lg:px-4 lg:py-3 shadow-xl z-10 border border-gray-200/50 w-[200px] lg:w-[240px] max-h-[320px] lg:max-h-[380px] overflow-y-auto space-y-2 lg:space-y-3">
             {activeCities.map((city) => (
               <div
                 key={city.slug ?? city.name}
-                className="flex flex-col gap-1 border-b last:border-b-0 border-gray-200/50 pb-2 last:pb-0"
+                className="flex flex-col gap-1 lg:gap-2 border-b last:border-b-0 border-gray-200/50 pb-2 lg:pb-3 last:pb-0"
               >
-                <p className="text-xs font-semibold text-gray-900">{city.name}</p>
+                <p className="text-xs lg:text-base font-semibold text-gray-900">{city.name}</p>
                 {typeof city.attractionCount === 'number' && (
-                  <p className="text-[10px] text-gray-700">
+                  <p className="text-[10px] lg:text-sm text-gray-700">
                     {city.attractionCount} attractions
                   </p>
                 )}
                 <a
                   href={city.slug ? `/${city.slug}` : '#'}
-                  className="mt-1 inline-flex items-center justify-center rounded-lg bg-primary-500 px-2 py-1 text-[10px] font-semibold text-white hover:bg-primary-600 transition-colors"
+                  className="mt-1 inline-flex items-center justify-center rounded-lg bg-primary-500 px-2 py-1 lg:px-3 lg:py-2 text-[10px] lg:text-sm font-semibold text-white hover:bg-primary-600 transition-colors"
                 >
                   {config.text.globe.viewCity}
                 </a>
@@ -252,22 +274,38 @@ export function Globe3D({ cities }: Globe3DProps) {
 
       {/* Tablet & Mobile: Horizontal slider below globe as separate layer */}
       {activeCities.length > 0 && (
-        <div className="lg:hidden bg-white/95 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg">
-          <div className="flex gap-2 overflow-x-auto px-3 py-2 snap-x snap-mandatory scrollbar-hide">
+        <div className="lg:hidden bg-white/95 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg relative">
+          <button
+            onClick={() => sliderRef.current?.scrollBy({ left: -220, behavior: 'smooth' })}
+            className="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-lg border border-gray-200/50 hover:bg-white transition-colors"
+          >
+            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={() => sliderRef.current?.scrollBy({ left: 220, behavior: 'smooth' })}
+            className="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-lg border border-gray-200/50 hover:bg-white transition-colors"
+          >
+            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          <div ref={sliderRef} className="flex gap-2 md:gap-3 overflow-x-auto px-3 py-2 md:px-4 md:py-3 snap-x snap-mandatory scrollbar-hide">
             {activeCities.map((city) => (
               <div
                 key={city.slug ?? city.name}
-                className="flex-shrink-0 snap-start bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-200/50 w-[200px]"
+                className="flex-shrink-0 snap-start bg-white rounded-lg px-3 py-2 md:px-4 md:py-3 shadow-sm border border-gray-200/50 w-[200px] md:w-[240px]"
               >
-                <p className="text-xs font-semibold text-gray-900 truncate">{city.name}</p>
+                <p className="text-xs md:text-sm font-semibold text-gray-900 truncate">{city.name}</p>
                 {typeof city.attractionCount === 'number' && (
-                  <p className="text-[10px] text-gray-700 mt-0.5">
+                  <p className="text-[10px] md:text-xs text-gray-700 mt-0.5 md:mt-1">
                     {city.attractionCount} attractions
                   </p>
                 )}
                 <a
                   href={city.slug ? `/${city.slug}` : '#'}
-                  className="mt-1.5 inline-flex items-center justify-center rounded-lg bg-primary-500 px-2 py-1 text-[10px] font-semibold text-white hover:bg-primary-600 transition-colors w-full"
+                  className="mt-1.5 md:mt-2 inline-flex items-center justify-center rounded-lg bg-primary-500 px-2 py-1 md:px-3 md:py-2 text-[10px] md:text-xs font-semibold text-white hover:bg-primary-600 transition-colors w-full"
                 >
                   {config.text.globe.viewCity}
                 </a>

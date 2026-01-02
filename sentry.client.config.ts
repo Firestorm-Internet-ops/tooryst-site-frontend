@@ -39,8 +39,8 @@ Sentry.init({
     }),
   ],
   
-  // Debug mode for development
-  debug: process.env.NODE_ENV === 'development',
+  // Debug mode for development (disabled to avoid source map warnings)
+  debug: false,
   
   // Release tracking
   release: process.env.NEXT_PUBLIC_SENTRY_RELEASE,

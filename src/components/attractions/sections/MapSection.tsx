@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useLoadScript } from '@react-google-maps/api';
+import { useJsApiLoader } from '@react-google-maps/api';
 import { AttractionPageResponse } from '@/types/attraction-page';
 import { SectionShell } from './SectionShell';
 import { config } from '@/lib/config';
@@ -24,8 +24,8 @@ export function AttractionMapSection({ data }: MapSectionProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const directionsRef = useRef<HTMLDivElement>(null);
 
-  // Use the same useLoadScript hook as CityMap to prevent duplicate script loading
-  const { isLoaded, loadError } = useLoadScript({
+  // Use the same useJsApiLoader hook as CityMap to prevent duplicate script loading
+  const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: config.googleMapsApiKey || '',
     libraries: GOOGLE_MAPS_LIBRARIES,
     id: 'google-map-script', // Same ID as CityMap
@@ -46,14 +46,20 @@ export function AttractionMapSection({ data }: MapSectionProps) {
       const destination = { lat: map.latitude, lng: map.longitude };
 
       // Create map
-      const mapInstance = new google.maps.Map(mapRef.current, {
+      const mapOptions: google.maps.MapOptions = {
         center: destination,
         zoom: 15,
-        mapId: config.googleMapsMapId,
         mapTypeControl: true,
         streetViewControl: true,
         fullscreenControl: true,
-      });
+      };
+
+      // Only set mapId if it's provided (required for Advanced Markers)
+      if (config.googleMapsMapId) {
+        mapOptions.mapId = config.googleMapsMapId;
+      }
+
+      const mapInstance = new google.maps.Map(mapRef.current, mapOptions);
 
       // Add marker for destination (using modern AdvancedMarkerElement if available, fallback to Marker)
       if (google.maps.marker?.AdvancedMarkerElement) {
@@ -82,7 +88,7 @@ export function AttractionMapSection({ data }: MapSectionProps) {
       const originInput = document.getElementById('origin-input') as HTMLInputElement;
       if (originInput) {
         const autocomplete = new google.maps.places.Autocomplete(originInput);
-        
+
         originInput.addEventListener('keypress', (e: KeyboardEvent) => {
           if (e.key === 'Enter') {
             e.preventDefault();
@@ -197,7 +203,7 @@ export function AttractionMapSection({ data }: MapSectionProps) {
           {/* Directions Sidebar */}
           <div className="lg:w-96 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 p-6 space-y-4">
             <h3 className="text-lg font-bold text-gray-900">Directions</h3>
-            
+
             {/* From Input */}
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-2">From</label>

@@ -27,6 +27,76 @@ const nextConfig: NextConfig = {
     // reactCompiler: true, // This is experimental and may not be available in your Next.js version
   },
 
+  // Webpack configuration for code splitting and vendor chunks
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Optimize chunks for better caching and loading
+    if (!dev && !isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization.splitChunks,
+          chunks: 'all',
+          cacheGroups: {
+            ...config.optimization.splitChunks.cacheGroups,
+            // Vendor chunk for common libraries
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              priority: 10,
+              chunks: 'all',
+              enforce: true,
+            },
+            // React and Next.js specific chunk
+            react: {
+              test: /[\\/]node_modules[\\/](react|react-dom|next)[\\/]/,
+              name: 'react-vendor',
+              priority: 20,
+              chunks: 'all',
+              enforce: true,
+            },
+            // UI library chunk
+            ui: {
+              test: /[\\/]node_modules[\\/](@mui|lucide-react|framer-motion)[\\/]/,
+              name: 'ui-vendor',
+              priority: 15,
+              chunks: 'all',
+              enforce: true,
+            },
+            // Map and 3D libraries chunk (heavy components)
+            maps: {
+              test: /[\\/]node_modules[\\/](leaflet|mapbox-gl|three|@react-three)[\\/]/,
+              name: 'maps-vendor',
+              priority: 25,
+              chunks: 'all',
+              enforce: true,
+            },
+            // Common chunk for shared code
+            common: {
+              name: 'common',
+              minChunks: 2,
+              priority: 5,
+              chunks: 'all',
+              enforce: true,
+            },
+          },
+        },
+      };
+    }
+
+    // Add bundle analyzer in development
+    if (dev && process.env.ANALYZE === 'true') {
+      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+      config.plugins.push(
+        new BundleAnalyzerPlugin({
+          analyzerMode: 'server',
+          openAnalyzer: true,
+        })
+      );
+    }
+
+    return config;
+  },
+
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -71,6 +141,14 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'cdn.example.com', // Add your CDN domain
+      },
+      {
+        protocol: 'https',
+        hostname: '*.nyt.com', // New York Times images
+      },
+      {
+        protocol: 'https',
+        hostname: '*.nytimes.com', // New York Times images
       },
     ],
     // Unoptimized images for development (remove in production)
@@ -132,10 +210,10 @@ const sentryWebpackPluginOptions = {
 
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
-  
+
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
-  
+
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
@@ -162,6 +240,9 @@ const sentryWebpackPluginOptions = {
   // https://docs.sentry.io/product/crons/
   // https://vercel.com/docs/cron-jobs
   automaticVercelMonitors: true,
+
+  // Disable source map uploading in development to avoid errors
+  disableSourceMapUpload: process.env.NODE_ENV === 'development',
 };
 
 export default process.env.NODE_ENV === 'production' 

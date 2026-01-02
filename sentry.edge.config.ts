@@ -9,8 +9,8 @@ Sentry.init({
   // Performance monitoring - minimal for edge
   tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.01 : 0.1,
   
-  // Debug mode for development
-  debug: process.env.NODE_ENV === 'development',
+  // Debug mode for development (disabled to avoid source map warnings)
+  debug: false,
   
   // Release tracking
   release: process.env.SENTRY_RELEASE,

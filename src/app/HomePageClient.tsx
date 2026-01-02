@@ -9,6 +9,7 @@ import { HeroSection } from '@/components/sections/HeroSection';
 import { AttractionsGrid } from '@/components/sections/AttractionsGrid';
 import type { AttractionSummary, City } from '@/types/api';
 import { config } from '@/lib/config';
+import { ComponentErrorBoundary, AsyncErrorBoundary } from '@/components/error-boundaries/ErrorBoundary';
 
 // Dynamically import Globe3D to avoid SSR issues with three-globe
 const Globe3D = dynamic(
@@ -176,15 +177,17 @@ export function HomePageClient({
 
   return (
     <div className="flex flex-col gap-12 bg-gradient-to-b from-white via-slate-50 to-white text-gray-900">
-      <HeroSection
-        backgroundImage={heroContent.backgroundImage}
-        onSearch={handleSearch}
-        eyebrow={heroContent.eyebrow}
-        heading={heroContent.heading}
-        subheading={heroContent.subheading}
-        highlights={heroContent.pillars}
-        searchPlaceholder={heroContent.inputPlaceholder}
-      />
+      <ComponentErrorBoundary context={{ component: 'hero-section' }}>
+        <HeroSection
+          backgroundImage={heroContent.backgroundImage}
+          onSearch={handleSearch}
+          eyebrow={heroContent.eyebrow}
+          heading={heroContent.heading}
+          subheading={heroContent.subheading}
+          highlights={heroContent.pillars}
+          searchPlaceholder={heroContent.inputPlaceholder}
+        />
+      </ComponentErrorBoundary>
 
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 md:px-6">
         <div className="flex flex-col gap-2">
@@ -193,7 +196,9 @@ export function HomePageClient({
           <p className="text-sm text-gray-600">{config.text.trending.subheading}</p>
         </div>
         {trendingAttractions.length > 0 ? (
-          <AttractionsGrid attractions={trendingAttractions} />
+          <ComponentErrorBoundary context={{ component: 'attractions-grid' }}>
+            <AttractionsGrid attractions={trendingAttractions} />
+          </ComponentErrorBoundary>
         ) : (
           <div className="rounded-3xl border border-gray-200 bg-white p-6 text-center text-gray-600 shadow-sm">
             {config.text.trending.empty}
@@ -246,7 +251,9 @@ export function HomePageClient({
               <h2 className="text-2xl font-display font-semibold text-gray-900 md:text-3xl">{config.text.globe.heading}</h2>
             </div>
           </div>
-          <Globe3D cities={globeCities} />
+          <AsyncErrorBoundary context={{ component: 'globe-3d' }}>
+            <Globe3D cities={globeCities} />
+          </AsyncErrorBoundary>
         </section>
       )}
     </div>

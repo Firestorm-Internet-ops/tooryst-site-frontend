@@ -9,8 +9,9 @@ import { QueryProvider } from '@/components/providers/QueryProvider';
 import { SkipToMain, SkipToSearch } from '@/components/ui/SkipLink';
 import { NavigationProgress } from '@/components/ui/NavigationProgress';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { PageErrorBoundary, SectionErrorBoundary } from '@/components/error-boundaries/ErrorBoundary';
 import { MonitoringProvider } from '@/components/providers/MonitoringProvider';
+// import { ServiceWorkerProvider } from '@/components/providers/ServiceWorkerProvider';
 import { config } from '@/lib/config';
 
 const inter = Inter({
@@ -47,8 +48,9 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="bg-gray-950 text-gray-50 antialiased">
         <GoogleAnalytics />
+        {/* <ServiceWorkerProvider /> */}
         <MonitoringProvider>
-          <ErrorBoundary>
+          <PageErrorBoundary context={{ section: 'root-layout' }}>
             <Suspense fallback={null}>
               <NavigationProgress />
             </Suspense>
@@ -56,20 +58,20 @@ export default function RootLayout({
             <SkipToSearch />
             <QueryProvider>
               <div className="flex min-h-screen flex-col bg-gray-950 text-gray-50">
-                <ErrorBoundary>
+                <SectionErrorBoundary context={{ section: 'header' }}>
                   <Header />
-                </ErrorBoundary>
+                </SectionErrorBoundary>
                 <main id="main-content" className="flex-1">
-                  <ErrorBoundary>
+                  <SectionErrorBoundary context={{ section: 'main-content' }}>
                     {children}
-                  </ErrorBoundary>
+                  </SectionErrorBoundary>
                 </main>
-                <ErrorBoundary>
+                <SectionErrorBoundary context={{ section: 'footer' }}>
                   <Footer />
-                </ErrorBoundary>
+                </SectionErrorBoundary>
               </div>
             </QueryProvider>
-          </ErrorBoundary>
+          </PageErrorBoundary>
         </MonitoringProvider>
       </body>
     </html>

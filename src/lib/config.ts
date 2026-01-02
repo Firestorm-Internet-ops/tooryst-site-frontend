@@ -109,9 +109,9 @@ export const config = {
   // Pagination & Limits
   pagination: {
     searchPageSize: parseInt(process.env.NEXT_PUBLIC_SEARCH_PAGE_SIZE || '12'),
-    citiesFetchLimit: parseInt(process.env.NEXT_PUBLIC_CITIES_FETCH_LIMIT || '999999'),
-    attractionsFetchLimit: parseInt(process.env.NEXT_PUBLIC_ATTRACTIONS_FETCH_LIMIT || '999999'),
-    countryDataLimit: parseInt(process.env.NEXT_PUBLIC_COUNTRY_DATA_LIMIT || '1000'),
+    citiesFetchLimit: parseInt(process.env.NEXT_PUBLIC_CITIES_FETCH_LIMIT || '100'),
+    attractionsFetchLimit: parseInt(process.env.NEXT_PUBLIC_ATTRACTIONS_FETCH_LIMIT || '100'),
+    countryDataLimit: parseInt(process.env.NEXT_PUBLIC_COUNTRY_DATA_LIMIT || '100'),
   },
 
   // Map Configuration

@@ -37,7 +37,12 @@ export function HeroSection({
   searchPlaceholder,
 }: HeroSectionProps) {
   const router = useRouter();
-  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Check if image is SVG (needs unoptimized flag for Next.js Image)
+  const isSvg = backgroundImage?.toLowerCase().endsWith('.svg');
+
+  // SVG images load instantly, raster images need loading state
+  const [imageLoaded, setImageLoaded] = useState(isSvg);
 
   // Validate background image URL
   const isValidImageUrl = backgroundImage && backgroundImage.trim() !== '';
@@ -64,6 +69,15 @@ export function HeroSection({
     setImageLoaded(true);
   };
 
+  // Update imageLoaded state when background image changes
+  useEffect(() => {
+    if (isSvg) {
+      setImageLoaded(true);
+    } else {
+      setImageLoaded(false);
+    }
+  }, [backgroundImage, isSvg]);
+
   return (
     <section
       data-testid="hero-section"
@@ -72,21 +86,37 @@ export function HeroSection({
       {/* Background Image */}
       {isValidImageUrl && (
         <div className="absolute inset-0">
-          <OptimizedImage
-            src={backgroundImage}
-            alt="Hero background"
-            fill
-            className={cn(
-              'object-cover transition-opacity duration-700',
-              imageLoaded ? 'opacity-100' : 'opacity-0'
-            )}
-            sizes={getImageSizes('hero')}
-            priority
-            quality={90}
-            placeholder="blur"
-            blurDataURL={generateBlurDataURL('#1e40af')}
-            onLoad={handleImageLoad}
-          />
+          {isSvg ? (
+            // Use regular img tag for SVG (no optimization needed)
+            <img
+              src={backgroundImage}
+              alt="Hero background"
+              className={cn(
+                'w-full h-full object-cover transition-opacity duration-700',
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              )}
+              onLoad={handleImageLoad}
+            />
+          ) : (
+            // Use OptimizedImage for raster images
+            <OptimizedImage
+              src={backgroundImage}
+              alt="Hero background"
+              fill
+              className={cn(
+                'object-cover transition-opacity duration-700',
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              )}
+              sizes={getImageSizes('hero')}
+              priority
+              lazy={false}
+              showSkeleton={false}
+              quality={90}
+              placeholder="blur"
+              blurDataURL={generateBlurDataURL('#1e40af')}
+              onLoad={handleImageLoad}
+            />
+          )}
         </div>
       )}
       

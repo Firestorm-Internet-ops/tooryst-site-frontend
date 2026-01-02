@@ -7,7 +7,7 @@ import { AttractionCard } from '@/components/cards/AttractionCard';
 import { config } from '@/lib/config';
 
 // Define libraries as a constant outside component to prevent reload warnings
-const GOOGLE_MAPS_LIBRARIES: ('places')[] = ['places'];
+const GOOGLE_MAPS_LIBRARIES: ("places" | "marker")[] = ['places', 'marker'];
 
 type AttractionMarker = {
   lat: number;
@@ -41,7 +41,7 @@ const defaultMapOptions = {
   streetViewControl: false,
   fullscreenControl: true,
   gestureHandling: 'cooperative' as const,
-  mapId: config.googleMapsMapId,
+  ...(config.googleMapsMapId && { mapId: config.googleMapsMapId }),
 };
 
 export function CityMap({
@@ -139,13 +139,13 @@ export function CityMap({
 
     // Calculate zoom level based on span
     const maxSpan = Math.max(latSpan, lngSpan);
-    
+
     if (maxSpan === 0) return zoom;
 
     // Empirical formula to convert span to zoom level using config thresholds
     const thresholds = config.map.zoomThresholds;
     let calculatedZoom = thresholds.default;
-    
+
     if (maxSpan > thresholds.veryLarge.span) calculatedZoom = thresholds.veryLarge.zoom;
     else if (maxSpan > thresholds.large.span) calculatedZoom = thresholds.large.zoom;
     else if (maxSpan > thresholds.medium.span) calculatedZoom = thresholds.medium.zoom;
@@ -161,18 +161,18 @@ export function CityMap({
   // Update map bounds when markers change
   const handleMapLoad = React.useCallback((map: any) => {
     mapRef.current = map;
-    
+
     if (validMarkers.length > 0 && center) {
       const bounds = new window.google.maps.LatLngBounds();
-      
+
       // Add city center
       bounds.extend(new window.google.maps.LatLng(center.lat, center.lng));
-      
+
       // Add all markers
       validMarkers.forEach((marker) => {
         bounds.extend(new window.google.maps.LatLng(marker.lat, marker.lng));
       });
-      
+
       // Fit bounds with padding from config
       const padding = config.map.boundsPadding;
       map.fitBounds(bounds, padding);
@@ -340,22 +340,22 @@ export function CityMap({
         role="region"
         aria-label={`Map of ${cityName}`}
       >
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={center}
-            zoom={calculateZoomLevel(validMarkers, center)}
-            options={defaultMapOptions}
-            onLoad={handleMapLoad}
-          >
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          center={center}
+          zoom={calculateZoomLevel(validMarkers, center)}
+          options={defaultMapOptions}
+          onLoad={handleMapLoad}
+        >
           {validMarkers.map((marker, index) => (
-              <Marker
-                key={`${marker.slug}-${index}`}
-                position={{ lat: marker.lat, lng: marker.lng }}
+            <Marker
+              key={`${marker.slug}-${index}`}
+              position={{ lat: marker.lat, lng: marker.lng }}
               title={marker.name}
-                onClick={() => handleMarkerClick(marker)}
-              />
-            ))}
-          </GoogleMap>
+              onClick={() => handleMarkerClick(marker)}
+            />
+          ))}
+        </GoogleMap>
 
         {activeMarker && (
           <div className="pointer-events-none absolute left-4 right-4 bottom-4 md:left-4 md:right-auto md:bottom-4 z-10 flex justify-start">
@@ -365,8 +365,8 @@ export function CityMap({
                   name: activeMarker.name,
                   slug: activeMarker.slug,
                   first_image_url: activeMarker.firstImageUrl ?? null,
-                  rating: activeMarker.rating !== null && activeMarker.rating !== undefined 
-                    ? Number(activeMarker.rating) 
+                  rating: activeMarker.rating !== null && activeMarker.rating !== undefined
+                    ? Number(activeMarker.rating)
                     : null,
                   review_count: activeMarker.review_count ?? null,
                   city_name: activeMarker.city_name ?? cityName,

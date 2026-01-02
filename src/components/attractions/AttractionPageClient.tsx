@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { AttractionPageResponse } from '@/types/attraction-page';
 import { StoryboardCardsGrid } from '@/components/attractions/storyboard/StoryboardCardsGrid';
 import { SectionsNavbar } from '@/components/attractions/sections/SectionsNavbar';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { SectionErrorBoundary } from '@/components/error-boundaries/ErrorBoundary';
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
 import { GetYourGuideScript } from '@/components/attractions/GetYourGuideScript';
@@ -131,30 +131,30 @@ export function AttractionPageClient({ pageData }: AttractionPageClientProps) {
         <div className="space-y-12 md:space-y-16">
           {/* Best Times */}
           {pageData.best_time && Array.isArray(pageData.best_time) && pageData.best_time.length > 0 && (
-            <ErrorBoundary>
+            <SectionErrorBoundary>
               <BestTimesSection data={pageData} />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           )}
 
           {/* Reviews */}
           {pageData.cards?.review && (
-            <ErrorBoundary>
+            <SectionErrorBoundary>
               <AttractionReviewsSection data={pageData} />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           )}
 
           {/* Visitor Info */}
           {pageData.visitor_info && (
-            <ErrorBoundary>
+            <SectionErrorBoundary>
               <VisitorInfoSection data={pageData} />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           )}
 
           {/* Tips */}
           {pageData.cards?.tips && (pageData.cards.tips.safety?.length > 0 || pageData.cards.tips.insider?.length > 0) && (
-            <ErrorBoundary>
+            <SectionErrorBoundary>
               <AttractionTipsSection data={pageData} />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           )}
 
           {/* GetYourGuide Widget - Experiences & Tours */}
@@ -195,30 +195,30 @@ export function AttractionPageClient({ pageData }: AttractionPageClientProps) {
 
           {/* Map & Directions */}
           {pageData.cards?.map && (
-            <ErrorBoundary>
+            <SectionErrorBoundary>
               <AttractionMapSection data={pageData} />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           )}
 
           {/* Social Videos */}
           {pageData.social_videos && Array.isArray(pageData.social_videos) && pageData.social_videos.length > 0 && (
-            <ErrorBoundary>
+            <SectionErrorBoundary>
               <SocialVideoSection data={pageData} />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           )}
 
           {/* Nearby Attractions - Full Width */}
           {pageData.nearby_attractions && Array.isArray(pageData.nearby_attractions) && pageData.nearby_attractions.length > 0 && (
-            <ErrorBoundary>
+            <SectionErrorBoundary>
               <NearbyAttractionsSection data={pageData} />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           )}
 
           {/* Audience Profiles */}
           {pageData.audience_profiles && Array.isArray(pageData.audience_profiles) && pageData.audience_profiles.length > 0 && (
-            <ErrorBoundary>
+            <SectionErrorBoundary>
               <AudienceProfilesSection data={pageData} />
-            </ErrorBoundary>
+            </SectionErrorBoundary>
           )}
         </div>
       </div>

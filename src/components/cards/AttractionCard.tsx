@@ -153,8 +153,8 @@ export function AttractionCard({
             </span>
           </div>
         )}
-        {attraction.rating != null && 
-         !isNaN(Number(attraction.rating)) && 
+        {attraction.rating != null &&
+         !isNaN(Number(attraction.rating)) &&
          Number(attraction.rating) > 0 && (
           <div className="absolute top-2 right-2 bg-primary-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
             {Number(attraction.rating).toFixed(config.ui.ratingDecimalPlaces)} ★

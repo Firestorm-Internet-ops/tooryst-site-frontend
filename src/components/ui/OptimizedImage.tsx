@@ -1,135 +1,442 @@
-'use client';
+/**
+ * Optimized Image Component with Lazy Loading and Skeleton Fallbacks
+ * Feature: frontend-quality-improvements, Task 4.1: Optimize Image Handling and Lazy Loading
+ * 
+ * Enhanced image component with:
+ * - Lazy loading with intersection observer
+ * - Skeleton loading states
+ * - Responsive image optimization
+ * - Error handling and fallbacks
+ * - Performance monitoring integration
+ */
 
+import * as React from 'react';
 import Image from 'next/image';
-import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { 
+  generateResponsiveImageUrl, 
+  getResponsiveImageUrls, 
+  generateBlurDataURL,
+  getImageSizes,
+  getImagePriority,
+  getLazyImageManager
+} from '@/lib/image-utils';
+import { PerformanceMonitor } from '@/utils/performance-monitoring';
 
-interface OptimizedImageProps {
+export interface OptimizedImageProps {
   src: string;
   alt: string;
-  fill?: boolean;
   width?: number;
   height?: number;
   className?: string;
-  sizes?: string;
   priority?: boolean;
   quality?: number;
-  placeholder?: 'blur' | 'empty';
-  blurDataURL?: string;
+  variant?: 'card' | 'hero' | 'thumbnail' | 'full';
+  lazy?: boolean;
+  showSkeleton?: boolean;
+  skeletonClassName?: string;
   onLoad?: () => void;
   onError?: () => void;
   fallbackSrc?: string;
+  blurDataURL?: string;
+  sizes?: string;
+  fill?: boolean;
+  objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
+  objectPosition?: string;
+  placeholder?: 'blur' | 'empty';
+  unoptimized?: boolean;
 }
 
-// Generate a simple blur placeholder
-const generateBlurDataURL = (width = 8, height = 8) => {
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-  if (ctx) {
-    ctx.fillStyle = '#f3f4f6';
-    ctx.fillRect(0, 0, width, height);
-  }
-  return canvas.toDataURL();
-};
+interface ImageSkeletonProps {
+  className?: string;
+  variant?: 'card' | 'hero' | 'thumbnail' | 'full';
+  aspectRatio?: string;
+}
 
-// Static blur data URL for SSR compatibility
-const BLUR_DATA_URL = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=";
+/**
+ * Image skeleton component for loading states
+ */
+function ImageSkeleton({ className, variant = 'card', aspectRatio }: ImageSkeletonProps) {
+  const skeletonClasses = cn(
+    'animate-pulse bg-gray-200 dark:bg-gray-700',
+    {
+      'aspect-video': variant === 'hero' && !aspectRatio,
+      'aspect-square': variant === 'thumbnail' && !aspectRatio,
+      'aspect-[4/3]': variant === 'card' && !aspectRatio,
+      'w-full h-full': variant === 'full',
+    },
+    className
+  );
 
+  const style = aspectRatio ? { aspectRatio } : undefined;
+
+  return (
+    <div className={skeletonClasses} style={style}>
+      <div className="flex items-center justify-center h-full">
+        <svg
+          className="w-8 h-8 text-gray-400 dark:text-gray-600"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fillRule="evenodd"
+            d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Optimized image component with lazy loading and performance monitoring
+ */
 export function OptimizedImage({
   src,
   alt,
-  fill = false,
   width,
   height,
   className,
-  sizes,
   priority = false,
-  quality = 85,
-  placeholder = 'blur',
-  blurDataURL = BLUR_DATA_URL,
+  quality = 75,
+  variant = 'card',
+  lazy = true,
+  showSkeleton = true,
+  skeletonClassName,
   onLoad,
   onError,
   fallbackSrc,
+  blurDataURL,
+  sizes,
+  fill = false,
+  objectFit = 'cover',
+  objectPosition = 'center',
+  placeholder = 'blur',
+  unoptimized = false,
+  ...props
 }: OptimizedImageProps) {
-  // Validate and normalize URL before using it
-  const normalizeImageSrc = (url: string): string => {
-    if (!url || url.trim() === '') {
-      return fallbackSrc || '/images/placeholder.jpg';
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [hasError, setHasError] = React.useState(false);
+  const [currentSrc, setCurrentSrc] = React.useState(src);
+  const loadStartTime = React.useRef<number>(0);
+  const imageRef = React.useRef<HTMLImageElement>(null);
+
+  // Generate optimized image URLs
+  const optimizedSrc = React.useMemo(() => {
+    if (unoptimized) return src;
+    
+    if (width) {
+      return generateResponsiveImageUrl(src, width, quality);
     }
+    
+    // Use default width based on variant
+    const defaultWidths = {
+      thumbnail: 384,
+      card: 640,
+      hero: 1920,
+      full: 1920,
+    };
+    
+    return generateResponsiveImageUrl(src, defaultWidths[variant], quality);
+  }, [src, width, quality, variant, unoptimized]);
 
-    try {
-      // Check if it's already a valid absolute URL
-      new URL(url);
-      return url;
-    } catch {
-      // Handle relative paths - convert to absolute paths
-      if (url.startsWith('./')) {
-        return url.replace('./', '/');
-      } else if (url.startsWith('../')) {
-        // For now, treat ../ as invalid and use fallback
-        return fallbackSrc || '/images/placeholder.jpg';
-      } else if (url.startsWith('/')) {
-        return url;
-      } else {
-        // Assume it's a relative path and prepend /
-        return `/${url}`;
-      }
-    }
-  };
+  // Generate responsive URLs for different breakpoints
+  const responsiveUrls = React.useMemo(() => {
+    if (unoptimized) return null;
+    return getResponsiveImageUrls(src);
+  }, [src, unoptimized]);
 
-  const validSrc = normalizeImageSrc(src);
-  const [imgSrc, setImgSrc] = useState(validSrc);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  // Generate blur placeholder
+  const blurPlaceholder = React.useMemo(() => {
+    if (blurDataURL) return blurDataURL;
+    if (placeholder === 'blur') return generateBlurDataURL();
+    return undefined;
+  }, [blurDataURL, placeholder]);
 
-  const handleLoad = () => {
+  // Get appropriate sizes attribute
+  const imageSizes = sizes || getImageSizes(variant);
+
+  // Handle image load
+  const handleLoad = React.useCallback(() => {
+    const loadTime = performance.now() - loadStartTime.current;
+    
+    // Track image load performance
+    PerformanceMonitor.trackImageLoad(alt || 'image', loadTime);
+    
     setIsLoading(false);
     onLoad?.();
-  };
+  }, [alt, onLoad]);
 
-  const handleError = () => {
+  // Handle image error
+  const handleError = React.useCallback(() => {
     setHasError(true);
     setIsLoading(false);
-    if (fallbackSrc && imgSrc !== fallbackSrc) {
-      setImgSrc(fallbackSrc);
+    
+    // Try fallback image if available
+    if (fallbackSrc && currentSrc !== fallbackSrc) {
+      setCurrentSrc(fallbackSrc);
       setHasError(false);
       setIsLoading(true);
+      return;
     }
+    
     onError?.();
-  };
+  }, [fallbackSrc, currentSrc, onError]);
 
-  const imageProps = {
-    src: imgSrc,
-    alt,
-    className: cn(
-      'transition-opacity duration-300',
-      isLoading && 'opacity-0',
-      !isLoading && 'opacity-100',
-      className
-    ),
-    onLoad: handleLoad,
-    onError: handleError,
-    quality,
-    placeholder,
-    blurDataURL,
-    ...(fill ? { fill: true } : { width, height }),
-    ...(sizes && { sizes }),
-    ...(priority && { priority: true }),
-  };
+  // Handle load start
+  const handleLoadStart = React.useCallback(() => {
+    loadStartTime.current = performance.now();
+    setIsLoading(true);
+    setHasError(false);
+  }, []);
+
+  // Set up lazy loading if enabled
+  React.useEffect(() => {
+    if (!lazy || priority || typeof window === 'undefined') return;
+
+    const lazyManager = getLazyImageManager();
+    const imgElement = imageRef.current;
+
+    if (imgElement) {
+      // Set up data-src for lazy loading
+      imgElement.dataset.src = optimizedSrc;
+      lazyManager.observe(imgElement);
+
+      return () => {
+        lazyManager.unobserve(imgElement);
+      };
+    }
+  }, [lazy, priority, optimizedSrc]);
+
+  // Error fallback component
+  if (hasError && !fallbackSrc) {
+    return (
+      <div
+        className={cn(
+          'flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600',
+          {
+            'aspect-video': variant === 'hero',
+            'aspect-square': variant === 'thumbnail',
+            'aspect-[4/3]': variant === 'card',
+            'w-full h-full': variant === 'full' || fill,
+          },
+          className
+        )}
+      >
+        <svg
+          className="w-8 h-8"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fillRule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <Image {...imageProps} />
-      {isLoading && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+    <div className={cn('relative overflow-hidden', className)}>
+      {/* Skeleton loading state */}
+      {isLoading && showSkeleton && (
+        <ImageSkeleton
+          className={cn('absolute inset-0 z-10', skeletonClassName)}
+          variant={variant}
+        />
       )}
-      {hasError && !fallbackSrc && (
-        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-          <div className="text-gray-400 text-sm">Image unavailable</div>
+
+      {/* Next.js optimized image */}
+      <Image
+        ref={imageRef}
+        src={lazy && !priority ? blurPlaceholder || '' : currentSrc}
+        alt={alt}
+        width={fill ? undefined : width}
+        height={fill ? undefined : height}
+        fill={fill}
+        sizes={imageSizes}
+        priority={priority}
+        quality={quality}
+        placeholder={placeholder}
+        blurDataURL={blurPlaceholder}
+        unoptimized={unoptimized}
+        className={cn(
+          'transition-opacity duration-300',
+          {
+            'opacity-0': isLoading,
+            'opacity-100': !isLoading,
+            'object-cover': objectFit === 'cover',
+            'object-contain': objectFit === 'contain',
+            'object-fill': objectFit === 'fill',
+            'object-none': objectFit === 'none',
+            'object-scale-down': objectFit === 'scale-down',
+          }
+        )}
+        style={{
+          objectPosition,
+        }}
+        onLoadStart={handleLoadStart}
+        onLoad={handleLoad}
+        onError={handleError}
+        {...props}
+      />
+
+      {/* Loading indicator for non-skeleton loading */}
+      {isLoading && !showSkeleton && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
         </div>
       )}
-    </>
+    </div>
+  );
+}
+
+/**
+ * Optimized image with responsive breakpoints
+ */
+export function ResponsiveImage({
+  src,
+  alt,
+  className,
+  variant = 'card',
+  ...props
+}: Omit<OptimizedImageProps, 'sizes'> & {
+  breakpoints?: {
+    mobile?: number;
+    tablet?: number;
+    desktop?: number;
+  };
+}) {
+  const breakpoints = props.breakpoints || {
+    mobile: 640,
+    tablet: 1024,
+    desktop: 1920,
+  };
+
+  const sizes = `(max-width: ${breakpoints.mobile}px) 100vw, (max-width: ${breakpoints.tablet}px) 50vw, 33vw`;
+
+  return (
+    <OptimizedImage
+      src={src}
+      alt={alt}
+      className={className}
+      variant={variant}
+      sizes={sizes}
+      {...props}
+    />
+  );
+}
+
+/**
+ * Image gallery component with lazy loading
+ */
+export interface ImageGalleryProps {
+  images: Array<{
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+  }>;
+  className?: string;
+  imageClassName?: string;
+  variant?: 'card' | 'thumbnail';
+  columns?: number;
+  gap?: number;
+  lazy?: boolean;
+}
+
+export function ImageGallery({
+  images,
+  className,
+  imageClassName,
+  variant = 'card',
+  columns = 3,
+  gap = 4,
+  lazy = true,
+}: ImageGalleryProps) {
+  return (
+    <div
+      className={cn(
+        'grid',
+        {
+          'grid-cols-1': columns === 1,
+          'grid-cols-2': columns === 2,
+          'grid-cols-3': columns === 3,
+          'grid-cols-4': columns === 4,
+          'grid-cols-5': columns === 5,
+          'grid-cols-6': columns === 6,
+          'gap-1': gap === 1,
+          'gap-2': gap === 2,
+          'gap-3': gap === 3,
+          'gap-4': gap === 4,
+          'gap-6': gap === 6,
+          'gap-8': gap === 8,
+        },
+        className
+      )}
+    >
+      {images.map((image, index) => (
+        <OptimizedImage
+          key={`${image.src}-${index}`}
+          src={image.src}
+          alt={image.alt}
+          width={image.width}
+          height={image.height}
+          className={imageClassName}
+          variant={variant}
+          lazy={lazy}
+          priority={getImagePriority(index, true)}
+        />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Hero image component with optimized loading
+ */
+export interface HeroImageProps extends Omit<OptimizedImageProps, 'variant'> {
+  overlay?: boolean;
+  overlayClassName?: string;
+  children?: React.ReactNode;
+}
+
+export function HeroImage({
+  overlay = false,
+  overlayClassName,
+  children,
+  className,
+  ...props
+}: HeroImageProps) {
+  return (
+    <div className={cn('relative', className)}>
+      <OptimizedImage
+        variant="hero"
+        priority={true}
+        lazy={false}
+        fill
+        {...props}
+      />
+      
+      {overlay && (
+        <div
+          className={cn(
+            'absolute inset-0 bg-black bg-opacity-40',
+            overlayClassName
+          )}
+        />
+      )}
+      
+      {children && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          {children}
+        </div>
+      )}
+    </div>
   );
 }

@@ -63,7 +63,7 @@ async function getTrendingAttractions(): Promise<AttractionSummary[]> {
     { items: [] },
     { timeout: 10000, revalidate: config.revalidateSeconds }
   );
-  const attractions = extractItems(payload).slice(0, limit);
+  const attractions = extractItems(payload).slice(0, 12); // Show only 12 attraction cards on homepage
   return attractions;
 }
 
