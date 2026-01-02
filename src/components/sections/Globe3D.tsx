@@ -1,11 +1,14 @@
 'use client';
 
-import { useRef, useEffect, useState, useMemo } from 'react';
+import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import Globe from 'three-globe';
 import * as THREE from 'three';
 import { config } from '@/lib/config';
+import { useGeolocation } from '@/hooks/useGeolocation';
+import { calculateDistance } from '@/utils/geo-utils';
 
 interface CityMarker {
   name: string;
@@ -25,20 +28,23 @@ function GlobeScene({
   cities,
   setActiveCities,
   isPaused,
+  userPosition,
 }: {
   cities: CityMarker[];
   setActiveCities: (cities: CityMarker[]) => void;
   isPaused: boolean;
+  userPosition: { latitude: number; longitude: number } | null;
 }) {
   const globeRef = useRef<Globe | null>(null);
   const groupRef = useRef<THREE.Group>(null);
   const activeCitiesRef = useRef<CityMarker[]>([]);
   const cityVectorsRef = useRef<{ city: CityMarker; vec: THREE.Vector3 }[]>([]);
+  const validCitiesRef = useRef<CityMarker[]>([]);
   const { camera } = useThree();
 
   // Performance optimization: throttle expensive visibility calculations
   const frameCounterRef = useRef(0);
-  const CALC_INTERVAL = 10; // Run visibility calculation every 10 frames instead of every frame
+  const CALC_INTERVAL = 5; // Run visibility calculation every 5 frames for responsive updates
 
   // Reusable Vector3 objects to avoid garbage collection
   const tempVec1 = useRef(new THREE.Vector3()).current;
@@ -107,65 +113,123 @@ function GlobeScene({
     };
   }, [validCities]);
 
+  // Update validCities ref for use in useFrame
+  useEffect(() => {
+    validCitiesRef.current = validCities;
+  }, [validCities]);
+
   useFrame((_state, delta) => {
     if (!groupRef.current) return;
 
     // Always rotate smoothly - this is the most important part
     // Only pause if explicitly paused, otherwise keep rotating
     if (!isPaused && globeRef.current) {
-      globeRef.current.rotation.y += delta * 0.5;
+      globeRef.current.rotation.y += delta * 0.15; // Slower rotation speed
     }
 
-    const cityVectors = cityVectorsRef.current;
-    if (!cityVectors.length) return;
+    // If we have user position, calculate closest cities
+    if (userPosition) {
+      const validCities = validCitiesRef.current;
+      if (!validCities.length) return;
 
-    // Throttle expensive visibility calculations
-    frameCounterRef.current++;
-    if (frameCounterRef.current % CALC_INTERVAL !== 0) {
-      return; // Skip expensive calculations most frames
-    }
+      // Throttle expensive calculations
+      frameCounterRef.current++;
+      if (frameCounterRef.current % CALC_INTERVAL !== 0) {
+        return; // Skip expensive calculations most frames
+      }
 
-    // Compute which cities are most "in front" of the camera
-    camera.getWorldPosition(tempVec1); // Reuse tempVec1 for camPos
-    camera.getWorldDirection(tempVec2); // Reuse tempVec2 for camDir
-    tempVec1.normalize(); // camFromCenter
+      const scored: { city: CityMarker; distance: number }[] = [];
 
-    const scored: { city: CityMarker; score: number }[] = [];
+      for (const city of validCities) {
+        if (!city.lat || !city.lng) continue;
+        const distance = calculateDistance(
+          userPosition.latitude,
+          userPosition.longitude,
+          city.lat,
+          city.lng
+        );
+        scored.push({ city, distance });
+      }
 
-    for (const { city, vec } of cityVectors) {
-      // Reuse tempVec3 for world position calculations
-      tempVec3.copy(vec);
-      groupRef.current.localToWorld(tempVec3);
+      const closestCities = scored
+        .filter(({ city }) => city.name)
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 4) // Show only 4 closest cities
+        .map(({ city }) => city);
 
-      // Drop anything on the far side of the globe relative to the camera
-      const cityNormal = tempVec3.clone().normalize(); // Need to clone here to keep worldPos
-      const facingScore = cityNormal.dot(tempVec1);
-      if (facingScore <= 0.05) continue;
+      const prev = activeCitiesRef.current;
+      const changed =
+        prev.length !== closestCities.length ||
+        prev.some((city, idx) => city !== closestCities[idx]);
 
-      const toCity = tempVec3.clone().sub(camera.position).normalize();
-      const alignment = tempVec2.dot(toCity); // 1 means centered in view
+      if (changed) {
+        activeCitiesRef.current = closestCities;
+        console.log('🌍 Closest cities changed:', closestCities.map(c => c.name).join(', '));
 
-      // Blend view alignment with hemisphere facing so near-the-edge cities still count
-      const score = alignment * 0.7 + facingScore * 0.3;
-      scored.push({ city, score });
-    }
+        // Force synchronous React update from Three.js render loop
+        flushSync(() => {
+          setActiveCities(closestCities);
+        });
+      }
+    } else {
+      // Fallback to original visibility-based logic when no user position
+      const cityVectors = cityVectorsRef.current;
+      if (!cityVectors.length) return;
 
-    // Require solid visibility to avoid mismatches (e.g., Madrid vs Melbourne)
-    const scoreThreshold = 0.55;
+      // Throttle expensive visibility calculations
+      frameCounterRef.current++;
+      if (frameCounterRef.current % CALC_INTERVAL !== 0) {
+        return; // Skip expensive calculations most frames
+      }
 
-    const topCities = scored
-      .filter(({ city, score }) => city.name && score > scoreThreshold)
-      .sort((a, b) => b.score - a.score)
-      .map(({ city }) => city);
+      // Compute which cities are most "in front" of the camera
+      camera.getWorldPosition(tempVec1); // Reuse tempVec1 for camPos
+      camera.getWorldDirection(tempVec2); // Reuse tempVec2 for camDir
+      tempVec1.normalize(); // camFromCenter
 
-    const prev = activeCitiesRef.current;
-    const changed =
-      prev.length !== topCities.length ||
-      prev.some((city, idx) => city !== topCities[idx]);
+      const scored: { city: CityMarker; score: number }[] = [];
 
-    if (changed) {
-      activeCitiesRef.current = topCities;
-      setActiveCities(topCities);
+      for (const { city, vec } of cityVectors) {
+        // Reuse tempVec3 for world position calculations
+        tempVec3.copy(vec);
+        groupRef.current.localToWorld(tempVec3);
+
+        // Drop anything on the far side of the globe relative to the camera
+        const cityNormal = tempVec3.clone().normalize(); // Need to clone here to keep worldPos
+        const facingScore = cityNormal.dot(tempVec1);
+        if (facingScore <= 0.05) continue;
+
+        const toCity = tempVec3.clone().sub(camera.position).normalize();
+        const alignment = tempVec2.dot(toCity); // 1 means centered in view
+
+        // Blend view alignment with hemisphere facing so near-the-edge cities still count
+        const score = alignment * 0.7 + facingScore * 0.3;
+        scored.push({ city, score });
+      }
+
+      // Require solid visibility to avoid mismatches (e.g., Madrid vs Melbourne)
+      const scoreThreshold = 0.55;
+
+      const topCities = scored
+        .filter(({ city, score }) => city.name && score > scoreThreshold)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 4) // Show only top 4 cities
+        .map(({ city }) => city);
+
+      const prev = activeCitiesRef.current;
+      const changed =
+        prev.length !== topCities.length ||
+        prev.some((city, idx) => city !== topCities[idx]);
+
+      if (changed) {
+        activeCitiesRef.current = topCities;
+        console.log('🌍 Visible cities changed:', topCities.map(c => c.name).join(', '));
+
+        // Force synchronous React update from Three.js render loop
+        flushSync(() => {
+          setActiveCities(topCities);
+        });
+      }
     }
   });
 
@@ -181,11 +245,22 @@ function GlobeScene({
 }
 
 export function Globe3D({ cities }: Globe3DProps) {
-  const [activeCities, setActiveCities] = useState<CityMarker[]>([]);
+  const { position: userPosition, loading: locationLoading, error: locationError } = useGeolocation();
+  const [activeCities, setActiveCities] = useState<CityMarker[]>(() =>
+    cities.filter(c => c.lat && c.lng && c.name).slice(0, 4)
+  );
   const [isPaused, setIsPaused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
+
+  // Memoize callback to prevent closure issues
+  const setActiveCitiesMemo = useCallback((newCities: CityMarker[]) => {
+    setActiveCities(newCities);
+  }, []);
+
+  // Debug: log when component renders with cities
+  console.log('🎨 Rendering with cities:', activeCities.length);
 
   useEffect(() => {
     return () => {
@@ -234,8 +309,9 @@ export function Globe3D({ cities }: Globe3DProps) {
           <PerspectiveCamera makeDefault position={[0, 0, 300]} fov={45} />
           <GlobeScene
             cities={cities}
-            setActiveCities={setActiveCities}
+            setActiveCities={setActiveCitiesMemo}
             isPaused={isPaused}
+            userPosition={userPosition}
           />
           <OrbitControls
             enableZoom

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { Card } from '@/components/ui/Card';
 import { AttractionCard } from '@/components/cards/AttractionCard';
 import { config } from '@/lib/config';
@@ -189,7 +189,7 @@ export function CityMap({
     }
   }, []);
 
-  const { isLoaded, loadError } = useLoadScript({
+  const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: apiKey || '',
     libraries: GOOGLE_MAPS_LIBRARIES, // Use constant to prevent reload warnings
     id: scriptId, // Use consistent script ID to prevent duplicate loads
