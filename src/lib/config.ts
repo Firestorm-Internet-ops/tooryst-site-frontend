@@ -34,31 +34,6 @@ export const config = {
     youtube: process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE || '',
   },
 
-  // Team Members
-  team: [
-    {
-      id: 1,
-      name: process.env.NEXT_PUBLIC_TEAM_MEMBER_1_NAME || 'John Smith',
-      role: process.env.NEXT_PUBLIC_TEAM_MEMBER_1_ROLE || 'Founder & CEO',
-      bio: process.env.NEXT_PUBLIC_TEAM_MEMBER_1_BIO || 'Travel enthusiast',
-      image: process.env.NEXT_PUBLIC_TEAM_MEMBER_1_IMAGE || '/images/team/default.jpg',
-    },
-    {
-      id: 2,
-      name: process.env.NEXT_PUBLIC_TEAM_MEMBER_2_NAME || 'Sarah Johnson',
-      role: process.env.NEXT_PUBLIC_TEAM_MEMBER_2_ROLE || 'CTO',
-      bio: process.env.NEXT_PUBLIC_TEAM_MEMBER_2_BIO || 'Tech lead',
-      image: process.env.NEXT_PUBLIC_TEAM_MEMBER_2_IMAGE || '/images/team/default.jpg',
-    },
-    {
-      id: 3,
-      name: process.env.NEXT_PUBLIC_TEAM_MEMBER_3_NAME || 'Michael Chen',
-      role: process.env.NEXT_PUBLIC_TEAM_MEMBER_3_ROLE || 'Product Manager',
-      bio: process.env.NEXT_PUBLIC_TEAM_MEMBER_3_BIO || 'Product strategist',
-      image: process.env.NEXT_PUBLIC_TEAM_MEMBER_3_IMAGE || '/images/team/default.jpg',
-    },
-  ],
-
   // Statistics
   stats: {
     destinations: parseInt(process.env.NEXT_PUBLIC_STAT_DESTINATIONS || '245'),

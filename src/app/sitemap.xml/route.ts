@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const FRONTEND_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+import { config } from '@/lib/config';
 
 export async function GET(request: NextRequest) {
   try {
-    // Use frontend URL from environment variables
-    const baseUrl = FRONTEND_URL;
+    // Use frontend URL from config
+    const baseUrl = config.appUrl;
 
     // Generate sitemap with URLs pointing to individual sitemaps
     const currentDate = new Date().toISOString().split('T')[0];
@@ -43,24 +41,24 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error generating sitemap index:', error);
 
-    // Return minimal sitemap with fallback URLs using environment variable
+    // Return minimal sitemap with fallback URLs using config
     const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>${FRONTEND_URL}/sitemap-static.xml</loc>
+    <loc>${config.appUrl}/sitemap-static.xml</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>${FRONTEND_URL}/sitemap-cities.xml</loc>
+    <loc>${config.appUrl}/sitemap-cities.xml</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${FRONTEND_URL}/sitemap-attractions.xml</loc>
+    <loc>${config.appUrl}/sitemap-attractions.xml</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>

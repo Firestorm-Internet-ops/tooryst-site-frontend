@@ -265,7 +265,7 @@ steps:
           --build-arg NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="$$GOOGLE_MAPS_API_KEY" \
           --build-arg NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID="1ddb8b2b125e4212a9964914" \
           --build-arg NEXT_PUBLIC_API_BASE_URL="https://api.tooryst.co/api/v1" \
-          --build-arg NEXT_PUBLIC_APP_URL="https://tooryst.co" \
+          --build-arg NEXT_PUBLIC_APP_URL="https://staging.tooryst.co" \
           --build-arg NEXT_PUBLIC_ENVIRONMENT="staging" \
           --build-arg NEXT_PUBLIC_SENTRY_DSN="https://8ffe2c57fa82a5110ffb4dc1483f7175@o4510596311547904.ingest.us.sentry.io/4510596912185344" \
           --build-arg NEXT_PUBLIC_SENTRY_ENVIRONMENT="staging" \
@@ -279,7 +279,7 @@ steps:
         echo "✓ Docker build completed successfully"
 
         # Verify image was created
-        docker images | grep us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend || {
+        docker images | grep us-central1-docker.pkg.dev/toorists/tooryst-repo-frontend/frontend-staging || {
           echo "ERROR: Docker image not found after build!"
           exit 1
         }
@@ -321,21 +321,6 @@ steps:
       - '5'
       - '--set-env-vars'
       - NODE_ENV=production
-    entrypoint: gcloud
-
-  # Step 4: Ensure unauthenticated access (fix for IAM race condition)
-  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    args:
-      - run
-      - services
-      - add-iam-policy-binding
-      - tooryst-frontend-staging
-      - '--region'
-      - us-central1
-      - '--member'
-      - allUsers
-      - '--role'
-      - roles/run.invoker
     entrypoint: gcloud
 
 images:
