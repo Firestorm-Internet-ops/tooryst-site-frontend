@@ -3,73 +3,57 @@ import { config } from '@/lib/config';
 
 export async function GET(request: NextRequest) {
   try {
-    // Use frontend URL from config
     const baseUrl = config.appUrl;
-
-    // Generate sitemap with URLs pointing to individual sitemaps
     const currentDate = new Date().toISOString().split('T')[0];
+
+    // 1. Linked the XSL for the frontend look
+    // 2. Used <sitemapindex> for Google Search Console
+    // 3. Added <lastmod> so the table isn't empty
     const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
     <loc>${baseUrl}/sitemap-static.xml</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
+  </sitemap>
+  <sitemap>
     <loc>${baseUrl}/sitemap-cities.xml</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
+  </sitemap>
+  <sitemap>
     <loc>${baseUrl}/sitemap-attractions.xml</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-</urlset>`;
+  </sitemap>
+</sitemapindex>`;
 
     return new NextResponse(sitemapXml, {
       status: 200,
       headers: {
         'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=3600, s-maxage=7200', // Cache for 1 hour, CDN for 2 hours
+        'Cache-Control': 'public, max-age=3600, s-maxage=7200',
       },
     });
   } catch (error) {
     console.error('Error generating sitemap index:', error);
 
-    // Return minimal sitemap with fallback URLs using config
     const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
     <loc>${config.appUrl}/sitemap-static.xml</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
+  </sitemap>
+  <sitemap>
     <loc>${config.appUrl}/sitemap-cities.xml</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
+  </sitemap>
+  <sitemap>
     <loc>${config.appUrl}/sitemap-attractions.xml</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-</urlset>`;
+  </sitemap>
+</sitemapindex>`;
 
     return new NextResponse(fallbackSitemap, {
       status: 200,
       headers: {
         'Content-Type': 'application/xml',
-        'Cache-Control': 'public, max-age=300', // Shorter cache on error
+        'Cache-Control': 'public, max-age=300',
       },
     });
   }

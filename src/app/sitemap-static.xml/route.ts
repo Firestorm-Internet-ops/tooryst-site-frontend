@@ -12,56 +12,38 @@ export async function GET(request: NextRequest) {
   <url>
     <loc>${baseUrl}/</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
   </url>
   <url>
     <loc>${baseUrl}/cities</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
   </url>
   <url>
     <loc>${baseUrl}/search</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>${baseUrl}/about</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/contact</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
   </url>
   <url>
     <loc>${baseUrl}/privacy-policy</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
   </url>
   <url>
     <loc>${baseUrl}/terms-of-service</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
   </url>
   <url>
     <loc>${baseUrl}/cookie-policy</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
   </url>
   <url>
     <loc>${baseUrl}/faq</loc>
     <lastmod>${currentDate}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
   </url>
 </urlset>`;
 
