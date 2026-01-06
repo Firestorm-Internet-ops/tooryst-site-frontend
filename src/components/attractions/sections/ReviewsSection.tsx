@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { AttractionPageResponse } from '@/types/attraction-page';
 import { SectionShell } from './SectionShell';
 import Image from 'next/image';
+import { getCDNImageURL } from '@/lib/cdn-image';
 
 interface ReviewsSectionProps {
   data: AttractionPageResponse;
@@ -73,7 +74,7 @@ function ReviewCard({ review: r, index }: ReviewCardProps) {
         {r.author_photo_url ? (
           <div className="relative">
             <Image
-              src={r.author_photo_url}
+              src={getCDNImageURL(r.author_photo_url, { width: 112, quality: 75, format: 'webp' })}
               alt={r.author_name}
               width={56}
               height={56}

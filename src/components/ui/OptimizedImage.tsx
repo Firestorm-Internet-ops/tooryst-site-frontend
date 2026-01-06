@@ -13,15 +13,16 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { 
-  generateResponsiveImageUrl, 
-  getResponsiveImageUrls, 
+import {
+  generateResponsiveImageUrl,
+  getResponsiveImageUrls,
   generateBlurDataURL,
   getImageSizes,
   getImagePriority,
   getLazyImageManager
 } from '@/lib/image-utils';
 import { PerformanceMonitor } from '@/utils/performance-monitoring';
+import { getCDNImageURL } from '@/lib/cdn-image';
 
 export interface OptimizedImageProps {
   src: string;
@@ -45,6 +46,7 @@ export interface OptimizedImageProps {
   objectPosition?: string;
   placeholder?: 'blur' | 'empty';
   unoptimized?: boolean;
+  fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 interface ImageSkeletonProps {
@@ -115,6 +117,7 @@ export function OptimizedImage({
   objectPosition = 'center',
   placeholder = 'blur',
   unoptimized = false,
+  fetchPriority,
   ...props
 }: OptimizedImageProps) {
   const [isLoading, setIsLoading] = React.useState(true);
@@ -126,11 +129,11 @@ export function OptimizedImage({
   // Generate optimized image URLs
   const optimizedSrc = React.useMemo(() => {
     if (unoptimized) return src;
-    
+
     if (width) {
-      return generateResponsiveImageUrl(src, width, quality);
+      return getCDNImageURL(src, { width, quality, format: 'webp' });
     }
-    
+
     // Use default width based on variant
     const defaultWidths = {
       thumbnail: 384,
@@ -138,15 +141,19 @@ export function OptimizedImage({
       hero: 1920,
       full: 1920,
     };
-    
-    return generateResponsiveImageUrl(src, defaultWidths[variant], quality);
+
+    return getCDNImageURL(src, { width: defaultWidths[variant], quality, format: 'webp' });
   }, [src, width, quality, variant, unoptimized]);
 
   // Generate responsive URLs for different breakpoints
   const responsiveUrls = React.useMemo(() => {
     if (unoptimized) return null;
-    return getResponsiveImageUrls(src);
-  }, [src, unoptimized]);
+    // Use CDN for responsive images
+    const sizes = [640, 750, 828, 1080, 1200, 1920];
+    return sizes
+      .map(width => `${getCDNImageURL(src, { width, quality, format: 'webp' })} ${width}w`)
+      .join(', ');
+  }, [src, quality, unoptimized]);
 
   // Generate blur placeholder
   const blurPlaceholder = React.useMemo(() => {
@@ -161,10 +168,10 @@ export function OptimizedImage({
   // Handle image load
   const handleLoad = React.useCallback(() => {
     const loadTime = performance.now() - loadStartTime.current;
-    
+
     // Track image load performance
     PerformanceMonitor.trackImageLoad(alt || 'image', loadTime);
-    
+
     setIsLoading(false);
     onLoad?.();
   }, [alt, onLoad]);
@@ -173,7 +180,7 @@ export function OptimizedImage({
   const handleError = React.useCallback(() => {
     setHasError(true);
     setIsLoading(false);
-    
+
     // Try fallback image if available
     if (fallbackSrc && currentSrc !== fallbackSrc) {
       setCurrentSrc(fallbackSrc);
@@ -181,7 +188,7 @@ export function OptimizedImage({
       setIsLoading(true);
       return;
     }
-    
+
     onError?.();
   }, [fallbackSrc, currentSrc, onError]);
 
@@ -265,6 +272,7 @@ export function OptimizedImage({
         placeholder={placeholder}
         blurDataURL={blurPlaceholder}
         unoptimized={unoptimized}
+        fetchPriority={fetchPriority}
         className={cn(
           'transition-opacity duration-300',
           {
@@ -420,9 +428,10 @@ export function HeroImage({
         priority={true}
         lazy={false}
         fill
+        fetchPriority="high"
         {...props}
       />
-      
+
       {overlay && (
         <div
           className={cn(
@@ -431,7 +440,7 @@ export function HeroImage({
           )}
         />
       )}
-      
+
       {children && (
         <div className="absolute inset-0 flex items-center justify-center">
           {children}

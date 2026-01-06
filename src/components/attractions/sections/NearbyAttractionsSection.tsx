@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Star, MapPin, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef, useState, useEffect, useCallback } from 'react';
+import { getCDNImageURL } from '@/lib/cdn-image';
 
 interface NearbyAttractionsSectionProps {
   data: AttractionPageResponse;
@@ -137,11 +138,12 @@ export function NearbyAttractionsSection({ data }: NearbyAttractionsSectionProps
                   <>
                     <div className="relative h-56 w-full overflow-hidden">
                       <Image
-                        src={getSafeImageUrl(attraction.image_url)!}
+                        src={getCDNImageURL(getSafeImageUrl(attraction.image_url)!, { width: 680, quality: 85, format: 'webp' })}
                         alt={attraction.name}
                         fill
                         className="object-cover group-hover/card:scale-110 transition-transform duration-700"
                         sizes="340px"
+                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Star, MapPin } from 'lucide-react';
 import { NearbyAttractionCard as NearbyAttractionCardType } from '@/types/attraction-page';
 import { getImageSizes, generateBlurDataURL } from '@/lib/image-utils';
+import { getCDNImageURL } from '@/lib/cdn-image';
 
 interface NearbyAttractionCardProps {
   nearby: NearbyAttractionCardType;
@@ -35,7 +36,7 @@ export function NearbyAttractionCard({ nearby }: NearbyAttractionCardProps) {
     <article className="relative rounded-3xl border border-gray-200 overflow-hidden group h-full min-h-[240px]">
       {nearby.hero_image_url && (
         <Image
-          src={nearby.hero_image_url}
+          src={getCDNImageURL(nearby.hero_image_url, { width: 800, quality: 85, format: 'webp' })}
           alt={nearby.name}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
