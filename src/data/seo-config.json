@@ -1,7 +1,7 @@
 {
   "global": {
     "siteName": "Tooryst",
-    "siteUrl": "https://tooryst.com",
+    "siteUrl": "https://tooryst.co",
     "defaultImage": "/herobg1.svg",
     "twitterHandle": "@bettervacation_",
     "facebookAppId": "",
@@ -12,28 +12,57 @@
     "homepage": {
       "title": "{siteName} | Discover the Best Time to Travel",
       "description": "Find the perfect time to visit any destination with live crowd signals, hyperlocal weather, and visitor sentiment. Plan smarter travels with real-time intelligence.",
-      "keywords": ["travel", "destinations", "attractions", "cities", "crowd levels", "weather insights", "travel planning", "tourism"],
+      "keywords": [
+        "travel",
+        "destinations",
+        "attractions",
+        "cities",
+        "crowd levels",
+        "weather insights",
+        "travel planning",
+        "tourism"
+      ],
       "image": "/herobg1.svg",
       "type": "website"
     },
     "city": {
       "title": "{cityName} Travel Guide | {siteName} - Best Time to Visit",
       "description": "Discover {cityName}'s top {attractionCount} attractions with real-time crowd data, weather insights, and local tips. Plan your perfect visit to {cityName}.",
-      "keywords": ["{cityName} travel", "{cityName} attractions", "{cityName} tourism", "visit {cityName}", "{cityName} guide", "best time visit {cityName}"],
+      "keywords": [
+        "{cityName} travel",
+        "{cityName} attractions",
+        "{cityName} tourism",
+        "visit {cityName}",
+        "{cityName} guide",
+        "best time visit {cityName}"
+      ],
       "image": "{cityImage}",
       "type": "place"
     },
     "attraction": {
       "title": "{attractionName} in {cityName} | {siteName} - Crowd & Weather Intel",
       "description": "Visit {attractionName} in {cityName} at the best time. Get real-time crowd levels, weather forecasts, opening hours, and insider tips for your perfect visit.",
-      "keywords": ["{attractionName}", "{cityName} attractions", "{attractionName} hours", "{attractionName} tickets", "visit {attractionName}", "{attractionName} crowd levels"],
+      "keywords": [
+        "{attractionName}",
+        "{cityName} attractions",
+        "{attractionName} hours",
+        "{attractionName} tickets",
+        "visit {attractionName}",
+        "{attractionName} crowd levels"
+      ],
       "image": "{attractionImage}",
       "type": "place"
     },
     "search": {
       "title": "Search Results for \"{query}\" | {siteName}",
       "description": "Find attractions and cities matching \"{query}\". Discover crowd levels, weather data, and travel intelligence for your search results.",
-      "keywords": ["search", "travel search", "{query}", "find attractions", "discover destinations"],
+      "keywords": [
+        "search",
+        "travel search",
+        "{query}",
+        "find attractions",
+        "discover destinations"
+      ],
       "image": "{defaultImage}",
       "type": "website",
       "noindex": true
@@ -42,28 +71,50 @@
       "about": {
         "title": "About {siteName} | Travel Intelligence Platform",
         "description": "Learn about {siteName}'s mission to provide real-time travel intelligence. Discover how we help millions of travelers make smarter decisions.",
-        "keywords": ["about tooryst", "travel intelligence", "company", "mission", "travel technology"],
+        "keywords": [
+          "about tooryst",
+          "travel intelligence",
+          "company",
+          "mission",
+          "travel technology"
+        ],
         "image": "{defaultImage}",
         "type": "website"
       },
       "contact": {
         "title": "Contact {siteName} | Get in Touch",
         "description": "Contact {siteName} for support, partnerships, or questions. We're here to help you discover and experience attractions like never before.",
-        "keywords": ["contact", "support", "partnership", "help", "customer service"],
+        "keywords": [
+          "contact",
+          "support",
+          "partnership",
+          "help",
+          "customer service"
+        ],
         "image": "{defaultImage}",
         "type": "website"
       },
       "privacy": {
         "title": "Privacy Policy | {siteName}",
         "description": "Read {siteName}'s privacy policy to understand how we collect, use, and protect your personal information.",
-        "keywords": ["privacy policy", "data protection", "privacy", "personal information"],
+        "keywords": [
+          "privacy policy",
+          "data protection",
+          "privacy",
+          "personal information"
+        ],
         "image": "{defaultImage}",
         "type": "website"
       },
       "terms": {
         "title": "Terms of Service | {siteName}",
         "description": "Read {siteName}'s terms of service and user agreement for using our travel intelligence platform.",
-        "keywords": ["terms of service", "user agreement", "terms", "conditions"],
+        "keywords": [
+          "terms of service",
+          "user agreement",
+          "terms",
+          "conditions"
+        ],
         "image": "{defaultImage}",
         "type": "website"
       }

@@ -53,7 +53,7 @@
 {
   "global": {
     "siteName": "Tooryst",
-    "siteUrl": "https://tooryst.com",
+    "siteUrl": "https://tooryst.co",
     "defaultImage": "https://...",
     "twitterHandle": "@bettervacation_"
   },
@@ -163,9 +163,9 @@ import { HowToStructuredData } from '@/components/seo/FAQStructuredData';
 4. **Schema Markup Validator**: https://validator.schema.org/
 
 ### Test URLs:
-- Homepage: `https://tooryst.com`
-- City: `https://tooryst.com/paris`
-- Attraction: `https://tooryst.com/paris/eiffel-tower`
+- Homepage: `https://tooryst.co`
+- City: `https://tooryst.co/paris`
+- Attraction: `https://tooryst.co/paris/eiffel-tower`
 
 ## 🚀 Next Steps (Optional Enhancements)
 

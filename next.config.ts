@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   // Performance optimizations
   compress: true,
   output: 'standalone', // Required for Docker deployment
-  
+
   // Build configuration
   typescript: {
     // Allow build to continue even with TypeScript errors during deployment
@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
     // Allow build to continue even with ESLint errors during deployment
     ignoreDuringBuilds: process.env.NODE_ENV === 'production',
   },
-  
+
   experimental: {
     optimizeCss: true, // Enable CSS optimization
     optimizePackageImports: [
@@ -190,7 +190,13 @@ const nextConfig: NextConfig = {
 
   // Redirects for performance (if needed)
   async redirects() {
-    return [];
+    return [
+      {
+        source: '/sitemap_index.xml',
+        destination: '/sitemap.xml',
+        permanent: true,
+      },
+    ];
   },
 
   // Rewrites for API optimization
@@ -245,6 +251,6 @@ const sentryWebpackPluginOptions = {
   disableSourceMapUpload: process.env.NODE_ENV === 'development',
 };
 
-export default process.env.NODE_ENV === 'production' 
+export default process.env.NODE_ENV === 'production'
   ? withSentryConfig(nextConfig, sentryWebpackPluginOptions)
   : nextConfig;

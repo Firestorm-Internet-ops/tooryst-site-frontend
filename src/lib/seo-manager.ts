@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { 
+import {
   generateHomepageMetadata,
   generateCityMetadata,
   generateAttractionMetadata,
@@ -18,7 +18,7 @@ import attractionTemplate from '@/data/seo/attraction-template.json';
 
 export class SEOManager {
   private static instance: SEOManager;
-  
+
   public static getInstance(): SEOManager {
     if (!SEOManager.instance) {
       SEOManager.instance = new SEOManager();
@@ -64,7 +64,7 @@ export class SEOManager {
   // Get SEO configuration for city pages
   getCitySEOConfig(city: CityData) {
     const template = cityTemplate;
-    
+
     // Replace template variables
     const replaceVariables = (text: string) => {
       return text
@@ -95,7 +95,7 @@ export class SEOManager {
   // Get SEO configuration for attraction pages
   getAttractionSEOConfig(attraction: AttractionData) {
     const template = attractionTemplate;
-    
+
     // Replace template variables
     const replaceVariables = (text: string) => {
       return text
@@ -152,8 +152,8 @@ export class SEOManager {
 
   // Generate robots.txt content
   generateRobotsTxt() {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tooryst.com';
-    
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tooryst.co';
+
     return `User-agent: *
 Allow: /
 
@@ -182,7 +182,7 @@ Allow: /`;
     };
 
     const size = dimensions[type];
-    
+
     // If it's an Unsplash image, add optimization parameters
     if (imageUrl.includes('unsplash.com')) {
       const separator = imageUrl.includes('?') ? '&' : '?';

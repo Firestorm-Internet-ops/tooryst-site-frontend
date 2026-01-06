@@ -16,7 +16,7 @@ export const config = {
   companyDescription: process.env.NEXT_PUBLIC_COMPANY_DESCRIPTION || 'Discover authentic travel experiences through community insights',
   companyTagline: process.env.NEXT_PUBLIC_COMPANY_TAGLINE || 'Your Guide to Unforgettable Destinations',
   companyFounded: process.env.NEXT_PUBLIC_COMPANY_FOUNDED || '2024',
-  companyWebsite: process.env.NEXT_PUBLIC_COMPANY_WEBSITE || 'https://tooryst.com',
+  companyWebsite: process.env.NEXT_PUBLIC_COMPANY_WEBSITE || 'https://tooryst.co',
 
   // Contact Information
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'travel@thebettervacation.com',
@@ -132,7 +132,7 @@ export const config = {
       emptyState: process.env.NEXT_PUBLIC_SEARCH_EMPTY_STATE || 'No cities or attractions available. Try searching for a specific city or attraction.',
       error: process.env.NEXT_PUBLIC_SEARCH_ERROR || 'Something went wrong. Try again.',
     },
-    
+
     // Filters
     filters: {
       all: process.env.NEXT_PUBLIC_FILTER_ALL || 'All',
