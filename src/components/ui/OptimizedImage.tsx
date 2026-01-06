@@ -167,13 +167,14 @@ export function OptimizedImage({
 
   // Handle image load
   const handleLoad = React.useCallback(() => {
-    const loadTime = performance.now() - loadStartTime.current;
-
-    // Track image load performance
-    PerformanceMonitor.trackImageLoad(alt || 'image', loadTime);
-
     setIsLoading(false);
     onLoad?.();
+
+    // Defer performance tracking to reduce TBT
+    setTimeout(() => {
+      const loadTime = performance.now() - loadStartTime.current;
+      PerformanceMonitor.trackImageLoad(alt || 'image', loadTime);
+    }, 2000); // Defer by 2 seconds
   }, [alt, onLoad]);
 
   // Handle image error
@@ -203,18 +204,21 @@ export function OptimizedImage({
   React.useEffect(() => {
     if (!lazy || priority || typeof window === 'undefined') return;
 
-    const lazyManager = getLazyImageManager();
-    const imgElement = imageRef.current;
+    // Defer lazy loading to reduce TBT
+    const lazyLoadTimeout = setTimeout(() => {
+      const lazyManager = getLazyImageManager();
+      const imgElement = imageRef.current;
 
-    if (imgElement) {
-      // Set up data-src for lazy loading
-      imgElement.dataset.src = optimizedSrc;
-      lazyManager.observe(imgElement);
+      if (imgElement) {
+        // Set up data-src for lazy loading
+        imgElement.dataset.src = optimizedSrc;
+        lazyManager.observe(imgElement);
+      }
+    }, 1000); // Defer by 1 second
 
-      return () => {
-        lazyManager.unobserve(imgElement);
-      };
-    }
+    return () => {
+      clearTimeout(lazyLoadTimeout);
+    };
   }, [lazy, priority, optimizedSrc]);
 
   // Error fallback component

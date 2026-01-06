@@ -86,43 +86,30 @@ export function HeroSection({
       {/* Background Image */}
       {isValidImageUrl && (
         <div className="absolute inset-0">
-          {isSvg ? (
-            // Use regular img tag for SVG (no optimization needed)
-            <img
-              src={backgroundImage}
-              alt="Hero background"
-              className={cn(
-                'w-full h-full object-cover transition-opacity duration-700',
-                imageLoaded ? 'opacity-100' : 'opacity-0'
-              )}
-              onLoad={handleImageLoad}
-            />
-          ) : (
-            // Use OptimizedImage for raster images
-            <OptimizedImage
-              src={backgroundImage}
-              alt="Hero background"
-              fill
-              className={cn(
-                'object-cover transition-opacity duration-700',
-                imageLoaded ? 'opacity-100' : 'opacity-0'
-              )}
-              sizes={getImageSizes('hero')}
-              priority
-              lazy={false}
-              showSkeleton={false}
-              quality={90}
-              placeholder="blur"
-              blurDataURL={generateBlurDataURL('#1e40af')}
-              onLoad={handleImageLoad}
-            />
-          )}
+          <OptimizedImage
+            src={backgroundImage}
+            alt="Hero background"
+            fill
+            className={cn(
+              'object-cover transition-opacity duration-700',
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            )}
+            sizes={getImageSizes('hero')}
+            priority
+            lazy={false}
+            showSkeleton={false}
+            quality={isSvg ? 100 : 90}
+            placeholder="blur"
+            blurDataURL={generateBlurDataURL('#1e40af')}
+            onLoad={handleImageLoad}
+            unoptimized={isSvg}
+          />
         </div>
       )}
-      
+
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
-      
+
       {/* Content */}
       <div className="relative z-10 mx-auto flex min-h-[80vh] w-full max-w-5xl flex-col items-center justify-center px-5 py-12 text-white sm:px-8">
         <div className="flex w-full flex-col items-center gap-4 text-center sm:gap-6">
@@ -134,16 +121,16 @@ export function HeroSection({
               onSearch={handleSearch}
               placeholder={searchPlaceholder ?? DEFAULT_CONTENT.searchPlaceholder}
             />
-        </div>
-        {highlights.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 px-4 sm:px-0">
-            {highlights.map((highlight) => (
-              <span key={highlight} className="rounded-full border border-white/20 px-2.5 sm:px-3 py-1 text-xs sm:text-xs text-white/80">
-                {highlight}
-              </span>
-            ))}
           </div>
-        )}
+          {highlights.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 px-4 sm:px-0">
+              {highlights.map((highlight) => (
+                <span key={highlight} className="rounded-full border border-white/20 px-2.5 sm:px-3 py-1 text-xs sm:text-xs text-white/80">
+                  {highlight}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="mt-12 sm:mt-16 flex flex-col items-center gap-2 text-white/70 pb-4">
           <span className="text-xs uppercase tracking-[0.3em]">Scroll down</span>

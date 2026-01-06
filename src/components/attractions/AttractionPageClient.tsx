@@ -37,10 +37,6 @@ const AttractionTipsSection = dynamic(() => import('@/components/attractions/sec
   loading: () => <SkeletonLoader height="h-64" />
 });
 
-const AttractionMapSection = dynamic(() => import('@/components/attractions/sections/MapSection').then(mod => ({ default: mod.AttractionMapSection })), {
-  loading: () => <SkeletonLoader height="h-80" />
-});
-
 const SocialVideoSection = dynamic(() => import('@/components/attractions/sections/SocialVideoSection').then(mod => ({ default: mod.SocialVideoSection })), {
   loading: () => <SkeletonLoader height="h-96" />
 });
@@ -51,6 +47,12 @@ const NearbyAttractionsSection = dynamic(() => import('@/components/attractions/
 
 const AudienceProfilesSection = dynamic(() => import('@/components/attractions/sections/AudienceProfilesSection').then(mod => ({ default: mod.AudienceProfilesSection })), {
   loading: () => <SkeletonLoader height="h-56" />
+});
+
+// Import intersection-based map component for better performance
+const LazyMapSectionWrapper = dynamic(() => import('@/components/attractions/sections/LazyMapSectionWrapper').then(mod => mod.LazyMapSectionWrapper), {
+  ssr: false,
+  loading: () => <SkeletonLoader height="h-80" />
 });
 
 interface AttractionPageClientProps {
@@ -90,11 +92,11 @@ export function AttractionPageClient({ pageData }: AttractionPageClientProps) {
           {/* <div className="absolute inset-0 rounded-3xl opacity-40">
             <TicketAnimation />
           </div> */}
-          
+
           {/* Decorative background elements */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100/20 rounded-full -mr-48 -mt-48 pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-50/30 rounded-full -ml-36 -mb-36 pointer-events-none"></div>
-          
+
           <div className="relative z-10">
             <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-700 delay-100">
               <div className="flex items-center gap-3 mb-4">
@@ -163,11 +165,11 @@ export function AttractionPageClient({ pageData }: AttractionPageClientProps) {
             {/* <div className="absolute inset-0 rounded-3xl opacity-40">
               <TicketAnimationEmerald />
             </div> */}
-            
+
             {/* Decorative background elements */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100/20 rounded-full -mr-48 -mt-48 pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 w-72 h-72 bg-emerald-50/30 rounded-full -ml-36 -mb-36 pointer-events-none"></div>
-            
+
             <div className="relative z-10">
               <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-700 delay-200">
                 <div className="flex items-center gap-3 mb-4">
@@ -193,10 +195,10 @@ export function AttractionPageClient({ pageData }: AttractionPageClientProps) {
             </div>
           </div>
 
-          {/* Map & Directions */}
+          {/* Map & Directions - Lazy loaded with intersection observer */}
           {pageData.cards?.map && (
             <SectionErrorBoundary>
-              <AttractionMapSection data={pageData} />
+              <LazyMapSectionWrapper data={pageData} />
             </SectionErrorBoundary>
           )}
 
