@@ -17,7 +17,7 @@ interface StoryboardCardsGridProps {
 export function StoryboardCardsGrid({ data }: StoryboardCardsGridProps) {
   // Debug: Log social video data
   console.log('Social video data:', data.cards.social_video);
-  
+
   return (
     <section className="pb-10">
       <div className="w-full px-4 lg:px-6">
@@ -52,6 +52,14 @@ export function StoryboardCardsGrid({ data }: StoryboardCardsGridProps) {
                     weather={data.cards.weather}
                     timezone={data.timezone}
                   />
+                </div>
+              )}
+              {!data.cards.weather && (
+                <div className="flex-1 cursor-pointer">
+                  <div className="rounded-3xl bg-gradient-to-br from-sky-900/40 via-slate-900/80 to-slate-900/90 border border-sky-700/50 p-5 md:p-6 h-full flex flex-col min-h-[260px] relative overflow-hidden">
+                    <p className="text-slate-400">Weather data not available</p>
+                    <p className="text-xs text-slate-500 mt-2">No weather information for this attraction</p>
+                  </div>
                 </div>
               )}
             </div>

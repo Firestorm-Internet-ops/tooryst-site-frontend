@@ -154,7 +154,7 @@ function GlobeScene({
       const closestCities = scored
         .filter(({ city }) => city.name)
         .sort((a, b) => a.distance - b.distance)
-        .slice(0, 4) // Show only 4 closest cities
+        .slice(0, 3) // Show only 3 closest cities
         .map(({ city }) => city);
 
       const prev = activeCitiesRef.current;
@@ -192,7 +192,11 @@ function GlobeScene({
       for (const { city, vec } of cityVectors) {
         // Reuse tempVec3 for world position calculations
         tempVec3.copy(vec);
-        groupRef.current.localToWorld(tempVec3);
+        if (globeRef.current) {
+          globeRef.current.localToWorld(tempVec3);
+        } else {
+          groupRef.current.localToWorld(tempVec3);
+        }
 
         // Drop anything on the far side of the globe relative to the camera
         const cityNormal = tempVec3.clone().normalize(); // Need to clone here to keep worldPos
@@ -213,7 +217,7 @@ function GlobeScene({
       const topCities = scored
         .filter(({ city, score }) => city.name && score > scoreThreshold)
         .sort((a, b) => b.score - a.score)
-        .slice(0, 4) // Show only top 4 cities
+        .slice(0, 3) // Show only 3 cities
         .map(({ city }) => city);
 
       const prev = activeCitiesRef.current;
@@ -247,7 +251,7 @@ function GlobeScene({
 export function Globe3D({ cities }: Globe3DProps) {
   const { position: userPosition, loading: locationLoading, error: locationError } = useGeolocation();
   const [activeCities, setActiveCities] = useState<CityMarker[]>(() =>
-    cities.filter(c => c.lat && c.lng && c.name).slice(0, 4)
+    cities.filter(c => c.lat && c.lng && c.name).slice(0, 3)
   );
   const [isPaused, setIsPaused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
