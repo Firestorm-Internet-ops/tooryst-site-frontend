@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { HeroImage } from '@/types/attraction-page';
 import { getImageSizes, generateBlurDataURL, preloadImages } from '@/lib/image-utils';
+import { getCDNImageURL } from '@/lib/cdn-image';
 
 interface HeroImageSliderProps {
   name: string;
@@ -71,12 +72,13 @@ export function HeroImageSlider({
     >
       <div className="relative h-full min-h-[320px] md:min-h-[384px]">
         <Image
-          src={current.url}
+          src={getCDNImageURL(current.url, { width: 1200, quality: 85, format: 'webp' })}
           alt={current.alt || name}
           fill
           className="object-cover"
           priority={true} // Hero images are always priority
           loading="eager"
+          fetchPriority="high" // Add fetchpriority for LCP
           placeholder="blur"
           blurDataURL={generateBlurDataURL()}
           sizes={getImageSizes('hero')}
@@ -121,9 +123,8 @@ export function HeroImageSlider({
                   key={i}
                   onClick={() => setIndex(i)}
                   aria-label={`Go to image ${i + 1}`}
-                  className={`h-1.5 w-1.5 rounded-full transition-all ${
-                    i === index ? 'bg-white w-4' : 'bg-white/40 hover:bg-white/60'
-                  }`}
+                  className={`h-1.5 w-1.5 rounded-full transition-all ${i === index ? 'bg-white w-4' : 'bg-white/40 hover:bg-white/60'
+                    }`}
                 />
               ))}
             </div>

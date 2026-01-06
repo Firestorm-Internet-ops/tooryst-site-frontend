@@ -13,6 +13,7 @@ import { PageErrorBoundary, SectionErrorBoundary } from '@/components/error-boun
 import { MonitoringProvider } from '@/components/providers/MonitoringProvider';
 // import { ServiceWorkerProvider } from '@/components/providers/ServiceWorkerProvider';
 import { config } from '@/lib/config';
+import { CDN_CONFIG } from '@/lib/cdn-image';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -46,6 +47,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning data-scroll-behavior="smooth">
+      <head>
+        {/* Preconnect to weserv.nl for faster image loading */}
+        {CDN_CONFIG.provider === 'weserv' && (
+          <link rel="preconnect" href={CDN_CONFIG.weserv} crossOrigin="anonymous" />
+        )}
+      </head>
       <body className="bg-gray-950 text-gray-50 antialiased">
         <GoogleAnalytics gaId="G-CW2LJ9QCNN" />
         {/* <ServiceWorkerProvider /> */}

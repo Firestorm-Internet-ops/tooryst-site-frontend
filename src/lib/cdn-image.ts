@@ -20,9 +20,9 @@ export interface ImageOptimizationOptions {
 /**
  * CDN providers configuration
  */
-const CDN_CONFIG = {
+export const CDN_CONFIG = {
   // Set your CDN provider here
-  provider: process.env.NEXT_PUBLIC_CDN_PROVIDER || 'nextjs', // 'nextjs' | 'cloudinary' | 'imagekit' | 'cloudfront'
+  provider: process.env.NEXT_PUBLIC_CDN_PROVIDER || 'weserv', // 'nextjs' | 'cloudinary' | 'imagekit' | 'cloudfront' | 'weserv'
 
   // CDN base URLs
   cloudinary: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
@@ -34,6 +34,7 @@ const CDN_CONFIG = {
   cloudfront: process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN
     ? `https://${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}`
     : '',
+  weserv: 'https://images.weserv.nl',
 };
 
 /**
@@ -59,7 +60,8 @@ export function getCDNImageURL(
     if (
       src.includes('res.cloudinary.com') ||
       src.includes('ik.imagekit.io') ||
-      src.includes(CDN_CONFIG.cloudfront)
+      src.includes(CDN_CONFIG.cloudfront) ||
+      src.includes('images.weserv.nl')
     ) {
       return src;
     }
@@ -74,6 +76,9 @@ export function getCDNImageURL(
 
     case 'cloudfront':
       return getCloudFrontURL(src, options);
+
+    case 'weserv':
+      return getWeservURL(src, options);
 
     case 'nextjs':
     default:
@@ -225,6 +230,43 @@ function getCloudFrontURL(
 
   const queryString = params.toString();
   return `${CDN_CONFIG.cloudfront}${imagePath}${queryString ? `?${queryString}` : ''}`;
+}
+
+/**
+ * Weserv.nl Image Proxy URL
+ */
+function getWeservURL(
+  src: string,
+  options: ImageOptimizationOptions
+): string {
+  const { width, quality = 75, format = 'auto' } = options;
+
+  // Weserv.nl supports URL-based image optimization
+  const params = new URLSearchParams();
+
+  // Set width if provided
+  if (width) {
+    params.set('w', width.toString());
+  }
+
+  // Set quality (weserv uses 0-100 scale)
+  params.set('q', quality.toString());
+
+  // Set format (weserv supports webp, avif, jpg, png)
+  if (format === 'webp') {
+    params.set('output', 'webp');
+  } else if (format === 'avif') {
+    params.set('output', 'avif');
+  } else if (format === 'jpg') {
+    params.set('output', 'jpg');
+  } else if (format === 'png') {
+    params.set('output', 'png');
+  }
+
+  // Encode the source URL
+  const encodedUrl = encodeURIComponent(src);
+
+  return `${CDN_CONFIG.weserv}?url=${encodedUrl}&${params.toString()}`;
 }
 
 /**

@@ -112,6 +112,14 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'images.weserv.nl',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wsrv.nl',
+      },
+      {
+        protocol: 'https',
         hostname: 'api.mapbox.com',
       },
       {
