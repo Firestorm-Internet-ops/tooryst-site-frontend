@@ -94,19 +94,20 @@ export function CityHeroCollage({
         {hasImages ? (
           <div className={`grid ${getGridClass(imagesToShow.length)} h-full gap-1`}>
             {imagesToShow.map((imageUrl, index) => (
-              <div key={index} className="relative overflow-hidden">
+              <div key={index} className="relative overflow-hidden bg-gray-200 aspect-[4/3]">
                 <Image
                   src={imageUrl}
                   alt={`${city.name} attraction ${index + 1}`}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 50vw, 33vw"
+                  priority={index === 0}
                 />
               </div>
             ))}
             {/* Fill remaining grid cells with last image if needed */}
             {imagesToShow.length === 5 && (
-              <div className="relative overflow-hidden col-span-1">
+              <div className="relative overflow-hidden col-span-1 bg-gray-200 aspect-[4/3]">
                 <Image
                   src={imagesToShow[imagesToShow.length - 1]}
                   alt={`${city.name} attraction`}

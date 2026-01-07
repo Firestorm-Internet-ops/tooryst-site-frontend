@@ -22,6 +22,9 @@ const nextConfig: NextConfig = {
       '@mui/material',
       '@mui/icons-material',
       'lucide-react',
+      'react-icons',
+      'framer-motion',
+      '@tanstack/react-query',
     ],
     // React Compiler should be configured here if needed
     // reactCompiler: true, // This is experimental and may not be available in your Next.js version

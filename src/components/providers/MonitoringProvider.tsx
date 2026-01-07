@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { initializeMonitoring } from '@/utils/monitoring-init';
 
 interface MonitoringProviderProps {
   children: React.ReactNode;
@@ -12,8 +11,10 @@ interface MonitoringProviderProps {
  */
 export function MonitoringProvider({ children }: MonitoringProviderProps) {
   useEffect(() => {
-    // Initialize monitoring systems on client side
-    initializeMonitoring();
+    // Dynamically import and initialize monitoring to keep it out of the critical path
+    import('@/utils/monitoring-init').then(({ initializeMonitoring }) => {
+      initializeMonitoring();
+    });
   }, []);
 
   return <>{children}</>;

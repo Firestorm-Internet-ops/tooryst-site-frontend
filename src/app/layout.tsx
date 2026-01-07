@@ -4,13 +4,22 @@ import { Suspense } from 'react';
 import './globals.css';
 import '../styles/crowd-levels.css';
 import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { SkipToMain, SkipToSearch } from '@/components/ui/SkipLink';
-import { NavigationProgress } from '@/components/ui/NavigationProgress';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { PageErrorBoundary, SectionErrorBoundary } from '@/components/error-boundaries/ErrorBoundary';
 import { MonitoringProvider } from '@/components/providers/MonitoringProvider';
+import dynamic from 'next/dynamic';
+
+const NavigationProgress = dynamic(
+  () => import('@/components/ui/NavigationProgress').then(mod => mod.NavigationProgress),
+  { ssr: false }
+);
+
+const Footer = dynamic(
+  () => import('@/components/layout/Footer').then(mod => mod.Footer),
+  { ssr: true } // Let SEO see the footer
+);
 // import { ServiceWorkerProvider } from '@/components/providers/ServiceWorkerProvider';
 import { config } from '@/lib/config';
 import { CDN_CONFIG } from '@/lib/cdn-image';
