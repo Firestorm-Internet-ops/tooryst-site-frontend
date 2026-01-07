@@ -20,7 +20,7 @@ export interface PerformanceBudget {
     fcp: { good: number; poor: number }; // First Contentful Paint (ms)
     ttfb: { good: number; poor: number }; // Time to First Byte (ms)
   };
-  
+
   // Custom performance metrics
   custom: {
     pageLoadTime: { good: number; poor: number }; // Total page load time (ms)
@@ -31,7 +31,7 @@ export interface PerformanceBudget {
     bundleSize: { good: number; poor: number }; // JavaScript bundle size (KB)
     imageLoadTime: { good: number; poor: number }; // Average image load time (ms)
   };
-  
+
   // Resource budgets
   resources: {
     totalRequests: { good: number; poor: number }; // Total number of requests
@@ -54,7 +54,7 @@ export const DEFAULT_PERFORMANCE_BUDGET: PerformanceBudget = {
     fcp: { good: 1800, poor: 3000 }, // FCP: Good < 1.8s, Poor > 3s
     ttfb: { good: 800, poor: 1800 }, // TTFB: Good < 800ms, Poor > 1.8s
   },
-  
+
   custom: {
     pageLoadTime: { good: 3000, poor: 5000 },      // Page load: Good < 3s, Poor > 5s
     domContentLoaded: { good: 1500, poor: 3000 },  // DOM ready: Good < 1.5s, Poor > 3s
@@ -64,7 +64,7 @@ export const DEFAULT_PERFORMANCE_BUDGET: PerformanceBudget = {
     bundleSize: { good: 200, poor: 500 },          // Bundle size: Good < 200KB, Poor > 500KB
     imageLoadTime: { good: 1000, poor: 3000 },     // Image load: Good < 1s, Poor > 3s
   },
-  
+
   resources: {
     totalRequests: { good: 75, poor: 150 },        // Total requests: Good < 75, Poor > 150
     totalSize: { good: 3000, poor: 5000 },         // Total size: Good < 3MB, Poor > 5MB
@@ -128,7 +128,14 @@ export class PerformanceBudgetValidator {
     value: number
   ): PerformanceRating {
     const budgetCategory = this.budget[category] as any;
-    const thresholds = budgetCategory[metric];
+    let thresholds = budgetCategory[metric];
+
+    // Handle dynamic custom metrics
+    if (!thresholds && category === 'custom') {
+      if (metric.endsWith('_load_time')) {
+        thresholds = budgetCategory['imageLoadTime'];
+      }
+    }
 
     if (!thresholds) {
       console.warn(`No budget threshold defined for ${category}.${metric}`);
@@ -155,7 +162,7 @@ export class PerformanceBudgetValidator {
   ): void {
     const budgetCategory = this.budget[category] as any;
     const thresholds = budgetCategory[metric];
-    
+
     if (!thresholds) return;
 
     const threshold = rating === 'poor' ? thresholds.poor : thresholds.good;
@@ -347,7 +354,7 @@ export class PerformanceBudgetValidator {
   getResult(): BudgetValidationResult {
     const score = this.calculateScore();
     const summary = this.getSummary();
-    
+
     return {
       passed: this.violations.length === 0 || score >= 80, // Pass if score >= 80
       score,

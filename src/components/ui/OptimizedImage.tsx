@@ -7,11 +7,15 @@
  * - Skeleton loading states
  * - Responsive image optimization
  * - Error handling and fallbacks
+
  * - Performance monitoring integration
  */
 
+'use client';
+
 import * as React from 'react';
 import Image from 'next/image';
+
 import { cn } from '@/lib/utils';
 import {
   generateResponsiveImageUrl,
@@ -170,9 +174,11 @@ export function OptimizedImage({
     setIsLoading(false);
     onLoad?.();
 
+    const endTime = performance.now();
+
     // Defer performance tracking to reduce TBT
     setTimeout(() => {
-      const loadTime = performance.now() - loadStartTime.current;
+      const loadTime = endTime - loadStartTime.current;
       PerformanceMonitor.trackImageLoad(alt || 'image', loadTime);
     }, 2000); // Defer by 2 seconds
   }, [alt, onLoad]);
@@ -253,7 +259,7 @@ export function OptimizedImage({
   }
 
   return (
-    <div className={cn('relative overflow-hidden', className)}>
+    <div className={cn('relative overflow-hidden', className, { 'w-full h-full': fill })}>
       {/* Skeleton loading state */}
       {isLoading && showSkeleton && (
         <ImageSkeleton

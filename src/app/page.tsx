@@ -1,103 +1,53 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 
-import { HomePageClient, FeaturedCity } from './HomePageClient';
+import { HeroSection } from '@/components/sections/HeroSection';
+import { TrendingAttractionsSection, FeaturedCitiesSection, GlobeSection } from '@/components/home/HomeSections';
+import { getFeaturedCities, getTrendingAttractions } from '@/lib/home-data';
 import homeContent from '@/content/home.json';
-import type { AttractionSummary, City } from '@/types/api';
-import { config } from '@/lib/config';
 import { seoManager } from '@/lib/seo-manager';
 import { OrganizationStructuredData, WebsiteStructuredData } from '@/components/seo/StructuredData';
-import { safeFetchFromApi, extractItems } from '@/lib/api-utils';
-
-type PaginatedPayload<T> = {
-  items?: T[];
-  data?: T[];
-};
-
-type DestinationMarker = {
-  name: string;
-  region?: string;
-  country?: string;
-  lat?: number;
-  lng?: number;
-  slug?: string;
-  attractionCount?: number;
-};
-
-function cityImageForIndex(index: number): string {
-  return `${config.images.fallbackCity}&sat=${index}`;
-}
-
-async function getFeaturedCities(): Promise<FeaturedCity[]> {
-  // Fetch a larger pool of cities, then pick the top 10 by attraction_count
-  const payload = await safeFetchFromApi<PaginatedPayload<City>>(
-    `/cities?limit=${config.pagination.citiesFetchLimit}`, 
-    { items: [] },
-    { timeout: 10000, revalidate: config.revalidateSeconds }
-  );
-  const allCities = extractItems(payload);
-
-  // Return empty array if no cities found
-  if (allCities.length === 0) {
-    return [];
-  }
-
-  const topCities = allCities
-    .slice()
-    .sort((a, b) => (b.attraction_count ?? 0) - (a.attraction_count ?? 0))
-    .slice(0, 10);
-
-  return topCities.map((city, index) => ({
-    ...city,
-    heroImage: cityImageForIndex(index),
-    description: `${city.name}`,
-    rating: city.rating ?? null,
-    lat: city.latitude ?? city.lat ?? null,
-    lng: city.longitude ?? city.lng ?? null,
-  }));
-}
-
-async function getTrendingAttractions(): Promise<AttractionSummary[]> {
-  const limit = config.pagination.attractionsFetchLimit;
-  const payload = await safeFetchFromApi<PaginatedPayload<AttractionSummary>>(
-    `/attractions?limit=${limit}`,
-    { items: [] },
-    { timeout: 10000, revalidate: config.revalidateSeconds }
-  );
-  const attractions = extractItems(payload).slice(0, 12); // Show only 12 attraction cards on homepage
-  return attractions;
-}
-
-function buildDestinations(cities: FeaturedCity[]): DestinationMarker[] {
-  return cities.map((city) => ({
-    name: city.name,
-    region: city.country,
-    country: city.country,
-    lat: city.latitude ?? city.lat ?? undefined,
-    lng: city.longitude ?? city.lng ?? undefined,
-    slug: city.slug,
-    attractionCount: city.attraction_count,
-  }));
-}
+import { ComponentErrorBoundary } from '@/components/error-boundaries/ErrorBoundary';
 
 export const metadata: Metadata = seoManager.generateHomepageMetadata();
 
-export default async function HomePage() {
-  const [featuredCities, trendingAttractions] = await Promise.all([
-    getFeaturedCities(),
-    getTrendingAttractions(),
-  ]);
+function LoadingSection({ height = "h-96" }: { height?: string }) {
+  return (
+    <div className={`mx-auto w-full max-w-6xl px-4 md:px-6 ${height} animate-pulse bg-gray-50 rounded-3xl border border-gray-100/50`} />
+  );
+}
 
-  const destinations = buildDestinations(featuredCities);
+export default function HomePage() {
+  // Start fetches immediately without awaiting them
+  // This allows the initial HTML to be sent immediately while data loads
+  const featuredCitiesPromise = getFeaturedCities();
+  const trendingAttractionsPromise = getTrendingAttractions();
 
   return (
     <>
-      <main className="bg-white text-gray-900">
-        <HomePageClient
-          heroContent={homeContent.hero}
-          featuredCities={featuredCities}
-          trendingAttractions={trendingAttractions}
-          destinations={destinations}
-        />
+      <main className="bg-gradient-to-b from-white via-slate-50 to-white text-gray-900 flex flex-col gap-12 pb-12">
+        <ComponentErrorBoundary context={{ component: 'hero-section' }}>
+          <HeroSection
+            backgroundImage={homeContent.hero.backgroundImage}
+            eyebrow={homeContent.hero.eyebrow}
+            heading={homeContent.hero.heading}
+            subheading={homeContent.hero.subheading}
+            highlights={homeContent.hero.pillars}
+            searchPlaceholder={homeContent.hero.inputPlaceholder}
+          />
+        </ComponentErrorBoundary>
+
+        <Suspense fallback={<LoadingSection height="h-[600px]" />}>
+          <TrendingAttractionsSection promise={trendingAttractionsPromise} />
+        </Suspense>
+
+        <Suspense fallback={<LoadingSection height="h-48" />}>
+          <FeaturedCitiesSection promise={featuredCitiesPromise} />
+        </Suspense>
+
+        <Suspense fallback={<LoadingSection height="h-[600px]" />}>
+          <GlobeSection promise={featuredCitiesPromise} />
+        </Suspense>
       </main>
       <OrganizationStructuredData />
       <WebsiteStructuredData />

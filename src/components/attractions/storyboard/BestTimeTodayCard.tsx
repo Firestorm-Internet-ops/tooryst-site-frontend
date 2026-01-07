@@ -145,7 +145,7 @@ function calculateIsOpenNow(
       minute: '2-digit',
       hour12: false,
     });
-    
+
     // Format as HH:MM string directly
     const timeString = formatter.format(now);
     const [currentHour, currentMinute] = timeString.split(':').map(Number);
@@ -191,7 +191,7 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
   // Get current day name in the city's timezone
   const dayName = useMemo(() => {
     let tz = timezone;
-    
+
     if (!tz && latitude != null && longitude != null) {
       try {
         tz = tzLookup(latitude, longitude);
@@ -199,7 +199,7 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
         // Use default
       }
     }
-    
+
     if (tz) {
       try {
         return new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long' }).format(new Date());
@@ -207,14 +207,15 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
         // Use default
       }
     }
-    
+
     return new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
   }, [timezone, latitude, longitude]);
 
   // Get opening hours from visitor info for today
   const todayOpeningHours = useMemo(() => {
-    if (!visitorInfo?.opening_hours || !Array.isArray(visitorInfo.opening_hours)) return null;
-    return visitorInfo.opening_hours.find(
+    const hours = visitorInfo?.opening_hours;
+    if (!Array.isArray(hours)) return null;
+    return hours.find(
       (hour) => hour.day.toLowerCase() === dayName?.toLowerCase()
     );
   }, [visitorInfo, dayName]);
@@ -223,7 +224,7 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
   const { isOpenNow, isOpenText } = useMemo(() => {
     let open = false;
     let text = 'Closed now';
-    
+
     if (todayOpeningHours) {
       if (todayOpeningHours.is_closed) {
         open = false;
@@ -237,7 +238,7 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
       open = calculateIsOpenNow(timezone, bestTime.today_opening_time, bestTime.today_closing_time);
       text = open ? 'Open now' : 'Closed now';
     }
-    
+
     return { isOpenNow: open, isOpenText: text };
   }, [todayOpeningHours, timezone, bestTime.today_opening_time, bestTime.today_closing_time]);
 
@@ -340,9 +341,8 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
           {/* Status chip (right) */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs md:text-sm bg-slate-800 text-slate-100 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 hover:bg-slate-700">
             <span
-              className={`h-2 w-2 rounded-full ${
-                isOpenNow ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
-              } transition-all duration-300`}
+              className={`h-2 w-2 rounded-full ${isOpenNow ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
+                } transition-all duration-300`}
             />
             <span>{isOpenText}</span>
           </div>
@@ -370,10 +370,10 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
                 const mainHeaderHeight = 64;
                 const sectionsNavbarHeight = 72;
                 const totalOffset = mainHeaderHeight + sectionsNavbarHeight + 16;
-                
+
                 const elementPosition = section.getBoundingClientRect().top + window.pageYOffset;
                 const offsetPosition = elementPosition - totalOffset;
-                
+
                 window.scrollTo({
                   top: offsetPosition,
                   behavior: 'smooth',

@@ -183,7 +183,7 @@ export function AttractionCard({
         ) : (
           attraction.rating !== null && (
             <div className="mt-auto">
-              <RatingStars rating={attraction.rating} />
+              <RatingStars rating={attraction.rating} showText={true} />
             </div>
           )
         )}

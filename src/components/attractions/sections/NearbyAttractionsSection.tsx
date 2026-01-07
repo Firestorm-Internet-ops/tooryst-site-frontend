@@ -137,14 +137,23 @@ export function NearbyAttractionsSection({ data }: NearbyAttractionsSectionProps
                 {getSafeImageUrl(attraction.image_url) ? (
                   <>
                     <div className="relative h-56 w-full overflow-hidden">
-                      <Image
-                        src={getCDNImageURL(getSafeImageUrl(attraction.image_url)!, { width: 680, quality: 85, format: 'webp' })}
-                        alt={attraction.name}
-                        fill
-                        className="object-cover group-hover/card:scale-110 transition-transform duration-700"
-                        sizes="340px"
-                        loading="lazy"
-                      />
+                      {(() => {
+                        const rawUrl = getSafeImageUrl(attraction.image_url)!;
+                        const isGoogleMaps = typeof rawUrl === 'string' && rawUrl.includes('maps.googleapis.com');
+                        const imageUrl = isGoogleMaps ? rawUrl : getCDNImageURL(rawUrl, { width: 680, quality: 85, format: 'webp' });
+
+                        return (
+                          <Image
+                            src={imageUrl}
+                            alt={attraction.name}
+                            fill
+                            className="object-cover group-hover/card:scale-110 transition-transform duration-700"
+                            sizes="340px"
+                            loading="lazy"
+                            unoptimized={!attraction.slug || isGoogleMaps}
+                          />
+                        );
+                      })()}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
                       {/* Rating Badge */}

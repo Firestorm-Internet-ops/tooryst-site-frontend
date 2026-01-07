@@ -34,19 +34,31 @@ export function NearbyAttractionCard({ nearby }: NearbyAttractionCardProps) {
 
   return (
     <article className="relative rounded-3xl border border-gray-200 overflow-hidden group h-full min-h-[240px]">
-      {nearby.hero_image_url && (
-        <Image
-          src={getCDNImageURL(nearby.hero_image_url, { width: 800, quality: 85, format: 'webp' })}
-          alt={nearby.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes={getImageSizes('card')}
-          loading="lazy"
-          placeholder="blur"
-          blurDataURL={generateBlurDataURL()}
-          quality={85}
-        />
-      )}
+      {(() => {
+        if (!nearby.hero_image_url) return null;
+
+        const rawUrl = nearby.hero_image_url;
+        const isGoogleMaps = typeof rawUrl === 'string' && rawUrl.includes('maps.googleapis.com');
+
+        const imageUrl = isGoogleMaps
+          ? rawUrl
+          : getCDNImageURL(rawUrl, { width: 800, quality: 85, format: 'webp' });
+
+        return (
+          <Image
+            src={imageUrl}
+            alt={nearby.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes={getImageSizes('card')}
+            loading="lazy"
+            placeholder="blur"
+            blurDataURL={generateBlurDataURL()}
+            quality={85}
+            unoptimized={!nearby.slug || isGoogleMaps}
+          />
+        );
+      })()}
 
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
@@ -57,7 +69,7 @@ export function NearbyAttractionCard({ nearby }: NearbyAttractionCardProps) {
           <h3 className="text-base md:text-lg font-semibold text-white line-clamp-2">
             {nearby.name}
           </h3>
-          
+
           <div className="flex items-center gap-3 text-sm text-white/90">
             {nearby.distance_km !== null && nearby.distance_km !== undefined && (
               <span className="flex items-center gap-1">

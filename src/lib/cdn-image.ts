@@ -56,6 +56,7 @@ export function getCDNImageURL(
 
   // Handle external URLs that are already optimized
   if (src.startsWith('http') && !src.includes('localhost')) {
+
     // If it's already from our CDN, return as-is
     if (
       src.includes('res.cloudinary.com') ||

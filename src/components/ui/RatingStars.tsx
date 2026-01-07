@@ -33,7 +33,7 @@ export function RatingStars({ rating, size = 'medium', showText }: RatingStarsPr
           <Star key={`empty-${idx}`} className={`${starSize} text-gray-300`} aria-label="empty-star" />
         ))}
       </div>
-      {showText && <span className="text-sm font-medium text-gray-600">{rating.toFixed(1)}</span>}
+      {showText && <span className="text-sm font-medium text-gray-600">({rating.toFixed(1)})</span>}
     </div>
   );
 }

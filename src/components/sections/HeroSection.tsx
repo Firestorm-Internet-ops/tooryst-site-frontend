@@ -85,7 +85,7 @@ export function HeroSection({
     >
       {/* Background Image */}
       {isValidImageUrl && (
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 w-full h-full">
           <OptimizedImage
             src={backgroundImage}
             alt="Hero background"
@@ -140,4 +140,3 @@ export function HeroSection({
     </section>
   );
 }
-

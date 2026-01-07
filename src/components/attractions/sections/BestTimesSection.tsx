@@ -50,7 +50,7 @@ export function BestTimesSection({ data }: BestTimesSectionProps) {
   const { displayTimezone, dayName } = useMemo(() => {
     let tz = timezone;
     let dayNameStr = '';
-    
+
     if (!tz && lat != null && lng != null) {
       try {
         tz = tzLookup(lat, lng);
@@ -65,7 +65,7 @@ export function BestTimesSection({ data }: BestTimesSectionProps) {
         // Use default
       }
     }
-    
+
     return { displayTimezone: tz, dayName: dayNameStr };
   }, [timezone, lat, lng]);
 
@@ -95,11 +95,13 @@ export function BestTimesSection({ data }: BestTimesSectionProps) {
   const today = bestTimeDays.find((day) => day.day_name?.toLowerCase() === dayName?.toLowerCase()) || bestTimeDays[0];
 
   // Get closing time from visitor info for today
-  const todayOpeningHours = data.visitor_info?.opening_hours?.find(
-    (hour) => hour.day.toLowerCase() === dayName?.toLowerCase()
-  );
+  const todayOpeningHours = Array.isArray(data.visitor_info?.opening_hours)
+    ? data.visitor_info.opening_hours.find(
+      (hour) => hour.day.toLowerCase() === dayName?.toLowerCase()
+    )
+    : undefined;
   const closingTimeStr = todayOpeningHours?.close_time;
-  
+
   // Parse closing time to get hour (e.g., "18:00" -> 18)
   const closingHour = closingTimeStr ? parseInt(closingTimeStr.split(':')[0], 10) : null;
 
@@ -111,21 +113,21 @@ export function BestTimesSection({ data }: BestTimesSectionProps) {
       return hourNum < closingHour;
     });
   }
-  
+
   // Format best time span - use the correct day's data
-  const bestTimeSpan = today?.best_time_today 
+  const bestTimeSpan = today?.best_time_today
     ? today.best_time_today.replace(/^(\d{1,2}:\d{2})\s*-\s*\1$/, '$1')
     : null;
-  
+
   // Get reason text from the correct day
   const reasonText = today?.reason_text;
 
   // Find max crowd level for chart scaling
   const maxCrowdLevel = hourlyData.length > 0
     ? Math.max(...hourlyData.map((h) => {
-        const val = h.value ?? 0;
-        return typeof val === 'string' ? parseFloat(val) || 0 : val || 0;
-      }), 100)
+      const val = h.value ?? 0;
+      return typeof val === 'string' ? parseFloat(val) || 0 : val || 0;
+    }), 100)
     : 100;
 
   return (
@@ -151,7 +153,7 @@ export function BestTimesSection({ data }: BestTimesSectionProps) {
               )}
             </div>
           </div>
-          
+
           {reasonText && (
             <div>
               <p className="text-sm text-gray-700 leading-relaxed">
@@ -159,7 +161,7 @@ export function BestTimesSection({ data }: BestTimesSectionProps) {
               </p>
             </div>
           )}
-          
+
           {/* Opening Hours Info */}
           {todayOpeningHours && !todayOpeningHours.is_closed && (
             <div className="mt-4 pt-4 border-t border-primary-200">
@@ -235,9 +237,8 @@ export function BestTimesSection({ data }: BestTimesSectionProps) {
                           <div className="relative w-full h-full flex flex-col justify-end">
                             {/* Colored Bar - Starts from bottom (0%) */}
                             <div
-                              className={`w-full ${barColor} transition-all duration-500 rounded-t flex items-start justify-center pt-0.5 sm:pt-1 relative focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                                isCurrentHour ? 'animate-pulse opacity-80' : ''
-                              }`}
+                              className={`w-full ${barColor} transition-all duration-500 rounded-t flex items-start justify-center pt-0.5 sm:pt-1 relative focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isCurrentHour ? 'animate-pulse opacity-80' : ''
+                                }`}
                               style={{ height: barHeight, minHeight: level > 0 ? '2px' : '0' }}
                               tabIndex={-1}
                               aria-hidden="true"

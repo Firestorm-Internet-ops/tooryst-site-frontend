@@ -165,9 +165,33 @@ interface BackendAttractionResponse {
 }
 
 /**
+ * Safely parse a value that might be a JSON string or an object/array
+ */
+function safeJsonParse<T>(value: any, fallback: T): T {
+  if (value === null || value === undefined) return fallback;
+  if (typeof value !== 'string') return value as T;
+
+  try {
+    return JSON.parse(value) as T;
+  } catch (e) {
+    console.warn('Failed to parse JSON field:', e, value);
+    return fallback;
+  }
+}
+
+/**
  * Transforms backend attraction response to frontend AttractionPageResponse format
  */
 export function transformAttractionData(data: BackendAttractionResponse): AttractionPageResponse {
+  // Safe parsing for visitor_info fields
+  const visitorInfo = data.visitor_info;
+  const parsedVisitorInfo = visitorInfo ? {
+    ...visitorInfo,
+    contact_info: safeJsonParse(visitorInfo.contact_info, {}),
+    opening_hours: safeJsonParse(visitorInfo.opening_hours, []),
+    highlights: safeJsonParse(visitorInfo.highlights, []),
+  } : null;
+
   return {
     attraction_id: data.id,
     slug: data.slug,
@@ -397,11 +421,11 @@ export function transformAttractionData(data: BackendAttractionResponse): Attrac
         })),
       } : null,
 
-      about: data.visitor_info ? {
-        short_description: data.visitor_info.short_description,
+      about: parsedVisitorInfo ? {
+        short_description: parsedVisitorInfo.short_description,
         long_description: null,
-        recommended_duration_minutes: data.visitor_info.recommended_duration_minutes,
-        highlights: data.visitor_info.highlights,
+        recommended_duration_minutes: parsedVisitorInfo.recommended_duration_minutes,
+        highlights: parsedVisitorInfo.highlights,
       } : null,
 
       nearby_attraction: data.nearby_attractions?.[0] ? {
@@ -413,14 +437,14 @@ export function transformAttractionData(data: BackendAttractionResponse): Attrac
         hero_image_url: data.nearby_attractions[0].image_url,
       } : null,
     },
-    visitor_info: data.visitor_info ? {
-      contact_info: data.visitor_info.contact_info || {},
-      accessibility_info: data.visitor_info.accessibility_info || null,
-      best_season: data.visitor_info.best_season || null,
-      opening_hours: data.visitor_info.opening_hours || [],
-      short_description: data.visitor_info.short_description || null,
-      recommended_duration_minutes: data.visitor_info.recommended_duration_minutes || null,
-      highlights: data.visitor_info.highlights || [],
+    visitor_info: parsedVisitorInfo ? {
+      contact_info: parsedVisitorInfo.contact_info || {},
+      accessibility_info: parsedVisitorInfo.accessibility_info || null,
+      best_season: parsedVisitorInfo.best_season || null,
+      opening_hours: parsedVisitorInfo.opening_hours || [],
+      short_description: parsedVisitorInfo.short_description || null,
+      recommended_duration_minutes: parsedVisitorInfo.recommended_duration_minutes || null,
+      highlights: parsedVisitorInfo.highlights || [],
     } : null,
     widgets: data.widgets ? {
       widget_primary: data.widgets.widget_primary || null,

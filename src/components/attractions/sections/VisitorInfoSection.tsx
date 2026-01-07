@@ -16,13 +16,13 @@ export function VisitorInfoSection({ data }: VisitorInfoSectionProps) {
   if (!visitorInfo) return null;
 
   const contactInfo = visitorInfo.contact_info || {};
-  const openingHours = visitorInfo.opening_hours || [];
+  const openingHours = Array.isArray(visitorInfo.opening_hours) ? visitorInfo.opening_hours : [];
   const bestSeason = visitorInfo.best_season;
-  
+
   // Get today's day name in the attraction's timezone
   const todayDayName = useMemo(() => {
     let tz = data.timezone;
-    
+
     if (!tz && data.cards?.map?.latitude != null && data.cards?.map?.longitude != null) {
       try {
         tz = tzLookup(data.cards.map.latitude, data.cards.map.longitude);
@@ -30,7 +30,7 @@ export function VisitorInfoSection({ data }: VisitorInfoSectionProps) {
         // Use default
       }
     }
-    
+
     if (tz) {
       try {
         return new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'long' }).format(new Date());
@@ -38,7 +38,7 @@ export function VisitorInfoSection({ data }: VisitorInfoSectionProps) {
         // Use default
       }
     }
-    
+
     return new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
   }, [data.timezone, data.cards?.map?.latitude, data.cards?.map?.longitude]);
 
@@ -133,15 +133,13 @@ export function VisitorInfoSection({ data }: VisitorInfoSectionProps) {
                   return (
                     <div
                       key={idx}
-                      className={`flex items-center justify-between py-2 px-3 rounded-lg border-b border-gray-200 last:border-0 transition-colors ${
-                        isToday
+                      className={`flex items-center justify-between py-2 px-3 rounded-lg border-b border-gray-200 last:border-0 transition-colors ${isToday
                           ? 'bg-primary-50 border-primary-200 border-2 -mx-1'
                           : ''
-                      }`}
+                        }`}
                     >
-                      <span className={`text-sm font-medium ${
-                        isToday ? 'text-primary-900' : 'text-gray-900'
-                      }`}>
+                      <span className={`text-sm font-medium ${isToday ? 'text-primary-900' : 'text-gray-900'
+                        }`}>
                         {hour.day}
                         {isToday && (
                           <span className="ml-2 text-xs font-semibold text-primary-600 bg-primary-100 px-2 py-0.5 rounded-full">
@@ -150,15 +148,13 @@ export function VisitorInfoSection({ data }: VisitorInfoSectionProps) {
                         )}
                       </span>
                       {hour.is_closed ? (
-                        <span className={`text-sm ${
-                          isToday ? 'text-primary-700' : 'text-gray-500'
-                        }`}>
+                        <span className={`text-sm ${isToday ? 'text-primary-700' : 'text-gray-500'
+                          }`}>
                           Closed
                         </span>
                       ) : (
-                        <span className={`text-sm font-medium ${
-                          isToday ? 'text-primary-900' : 'text-gray-700'
-                        }`}>
+                        <span className={`text-sm font-medium ${isToday ? 'text-primary-900' : 'text-gray-700'
+                          }`}>
                           {hour.open_time && hour.close_time
                             ? `${hour.open_time} - ${hour.close_time}`
                             : 'Hours vary'}
