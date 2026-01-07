@@ -12,8 +12,7 @@ import { MonitoringProvider } from '@/components/providers/MonitoringProvider';
 import dynamic from 'next/dynamic';
 
 const NavigationProgress = dynamic(
-  () => import('@/components/ui/NavigationProgress').then(mod => mod.NavigationProgress),
-  { ssr: false }
+  () => import('@/components/ui/NavigationProgress').then(mod => mod.NavigationProgress)
 );
 
 const Footer = dynamic(
