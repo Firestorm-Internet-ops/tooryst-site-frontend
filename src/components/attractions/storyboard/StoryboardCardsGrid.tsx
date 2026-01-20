@@ -24,6 +24,7 @@ export function StoryboardCardsGrid({ data }: StoryboardCardsGridProps) {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 h-full">
               <HeroImageSlider
+                id={data.attraction_id}
                 name={data.name}
                 city={data.city}
                 country={data.country}

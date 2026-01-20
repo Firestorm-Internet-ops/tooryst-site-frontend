@@ -40,7 +40,7 @@ export function AttractionsGrid({
             city_name: attraction.city,
           }}
           variant="grid"
-          priority={index < 4} // Prioritize first 4 images above the fold
+          priority={index < 2}
           index={index}
         />
       ))}

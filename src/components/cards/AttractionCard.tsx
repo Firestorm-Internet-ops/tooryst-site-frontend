@@ -35,8 +35,8 @@ export function AttractionCard({
   const imageUrl = hasImage ? (attraction.first_image_url as string) : config.images.fallbackAttraction;
   const isPlaceholder = !hasImage;
 
-  // Determine if this image should be prioritized (first 3 images)
-  const shouldPrioritize = priority || index < 3;
+  // Determine if this image should be prioritized
+  const shouldPrioritize = priority;
 
   // Show placeholder if no image and no name
   if (isPlaceholder && !attraction.name) {

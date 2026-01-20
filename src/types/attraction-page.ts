@@ -4,6 +4,9 @@ export type HeroImage = {
   url: string;
   alt?: string;
   position?: number;
+  // GCS storage fields
+  gcs_url_hero?: string;  // 1600px WebP (all 10 slider images)
+  gcs_url_card?: string;  // 400px WebP (only first image, for card thumbnail)
 };
 
 export type BestTimeCard = {

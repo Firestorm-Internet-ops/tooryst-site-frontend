@@ -5,8 +5,10 @@ import Image from 'next/image';
 import { HeroImage } from '@/types/attraction-page';
 import { getImageSizes, generateBlurDataURL, preloadImages } from '@/lib/image-utils';
 import { getCDNImageURL } from '@/lib/cdn-image';
+import { useHeroImages } from '@/hooks/useHeroImages';
 
 interface HeroImageSliderProps {
+  id?: number;
   name: string;
   city?: string;
   country?: string;
@@ -14,18 +16,40 @@ interface HeroImageSliderProps {
 }
 
 export function HeroImageSlider({
+  id,
   name,
   city,
   country,
-  images,
+  images: initialImages,
 }: HeroImageSliderProps) {
-  // Sort images by position and filter valid ones
+  // Fetch additional hero images from Redis cache/API
+  const { images: fetchedHeroImages, isLoading } = useHeroImages(id || 0);
+
+  // Combine initial images (GCS/DB) with fetched images (Redis/API)
   const sorted = React.useMemo(() => {
-    return [...images]
+    // Start with initial images
+    let baseImages = [...initialImages];
+
+    // If we have fetched images and they are different, prefer them as they are optimized
+    if (fetchedHeroImages && fetchedHeroImages.length > 0) {
+      // Create objects that match the HeroImage type
+      const mappedFetched = fetchedHeroImages.map((img: any) => ({
+        url: img.data, // This is the base64 WebP
+        alt: img.alt || name,
+        position: img.position
+      }));
+
+      // Merge: Keep initial first image (for LCP) but use fetched for others
+      // or just use fetched if available. Actually, the plan says:
+      // "Replace GCS image with full carousel once loaded"
+      baseImages = mappedFetched;
+    }
+
+    return baseImages
       .filter((img) => img?.url && typeof img.url === 'string' && img.url.trim().length > 0)
       .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-      .slice(0, 10); // Limit to 10 images
-  }, [images]);
+      .slice(0, 10);
+  }, [initialImages, fetchedHeroImages, name]);
 
   const [index, setIndex] = React.useState(0);
   const [isPaused, setIsPaused] = React.useState(false);
@@ -34,7 +58,7 @@ export function HeroImageSlider({
   // Preload next few images for smooth transitions
   React.useEffect(() => {
     if (sorted.length > 1) {
-      const nextImages = sorted.slice(1, 4).map(img => img.url); // Preload next 3 images
+      const nextImages = sorted.slice(1, 4).map(img => img.url);
       preloadImages(nextImages).then(() => {
         setImagesPreloaded(true);
       });
@@ -55,7 +79,7 @@ export function HeroImageSlider({
 
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % sorted.length);
-    }, 5000); // Auto-advance every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [sorted.length, isPaused]);
@@ -63,6 +87,12 @@ export function HeroImageSlider({
   if (!sorted.length) return null;
 
   const current = sorted[index];
+
+  // Helper to determine if we should use CDN URL or standard URL (for base64)
+  const getImageUrl = (url: string) => {
+    if (url.startsWith('data:')) return url;
+    return getCDNImageURL(url, { width: 1200, quality: 85, format: 'webp' });
+  };
 
   return (
     <article
@@ -72,17 +102,17 @@ export function HeroImageSlider({
     >
       <div className="relative h-full min-h-[320px] md:min-h-[384px]">
         <Image
-          src={getCDNImageURL(current.url, { width: 1200, quality: 85, format: 'webp' })}
+          src={getImageUrl(current.url)}
           alt={current.alt || name}
           fill
           className="object-cover"
-          priority={true} // Hero images are always priority
+          priority={true}
           loading="eager"
-          fetchPriority="high" // Add fetchpriority for LCP
-          placeholder="blur"
-          blurDataURL={generateBlurDataURL()}
+          fetchPriority="high"
+          placeholder={current.url.startsWith('data:') ? undefined : "blur"}
+          blurDataURL={current.url.startsWith('data:') ? undefined : generateBlurDataURL()}
           sizes={getImageSizes('hero')}
-          quality={90} // Higher quality for hero images
+          quality={90}
         />
 
         {/* Dark gradient overlay */}

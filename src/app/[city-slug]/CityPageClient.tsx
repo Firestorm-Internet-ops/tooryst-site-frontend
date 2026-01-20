@@ -11,6 +11,7 @@ import { AttractionsGrid } from '@/components/sections/AttractionsGrid';
 import { Pagination } from '@/components/ui/Pagination';
 import { AttractionSummary, CityDetail } from '@/types/api';
 import dynamic from 'next/dynamic';
+import { usePrefetchHeroImages } from '@/hooks/usePrefetchHeroImages';
 
 // Dynamically import CityMap to avoid SSR issues with Leaflet
 const CityMap = dynamic(
@@ -48,6 +49,10 @@ export function CityPageClient({
   const debounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const lockRef = React.useRef(false);
   const [currentPage, setCurrentPage] = React.useState(initialPage);
+
+  // Prefetch hero images for attractions in this city
+  const attractionIds = React.useMemo(() => allAttractions.map(a => a.id), [allAttractions]);
+  usePrefetchHeroImages(attractionIds);
 
   // Pagination logic using pre-fetched allAttractions
   const totalAttractions = allAttractions.length;

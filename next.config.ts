@@ -168,6 +168,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.nytimes.com', // New York Times images
       },
+      {
+        protocol: 'https',
+        hostname: 'images.tooryst.co',
+      },
     ],
     // Unoptimized images for development (remove in production)
     unoptimized: false,

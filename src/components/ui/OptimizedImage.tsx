@@ -210,21 +210,14 @@ export function OptimizedImage({
   React.useEffect(() => {
     if (!lazy || priority || typeof window === 'undefined') return;
 
-    // Defer lazy loading to reduce TBT
-    const lazyLoadTimeout = setTimeout(() => {
-      const lazyManager = getLazyImageManager();
-      const imgElement = imageRef.current;
+    const lazyManager = getLazyImageManager();
+    const imgElement = imageRef.current;
 
-      if (imgElement) {
-        // Set up data-src for lazy loading
-        imgElement.dataset.src = optimizedSrc;
-        lazyManager.observe(imgElement);
-      }
-    }, 1000); // Defer by 1 second
-
-    return () => {
-      clearTimeout(lazyLoadTimeout);
-    };
+    if (imgElement) {
+      // Set up data-src for lazy loading
+      imgElement.dataset.src = optimizedSrc;
+      lazyManager.observe(imgElement);
+    }
   }, [lazy, priority, optimizedSrc]);
 
   // Error fallback component

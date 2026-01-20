@@ -30,12 +30,12 @@ export const generateResponsiveImageUrl = (
   if (baseUrl.includes('unsplash.com')) {
     return `${baseUrl}&w=${width}&q=${quality}&auto=format&fit=crop`;
   }
-  
+
   // For local images, use Next.js Image Optimization API
   if (baseUrl.startsWith('/images/')) {
     return `/_next/image?url=${encodeURIComponent(baseUrl)}&w=${width}&q=${quality}`;
   }
-  
+
   // For other external image services, return original URL
   // In production, you might want to use your own image optimization service
   return baseUrl;
@@ -56,8 +56,8 @@ export const createImageObserver = (
 ): IntersectionObserver => {
   const defaultOptions: IntersectionObserverInit = {
     root: null,
-    rootMargin: '100px', // Increased from 50px for better preloading
-    threshold: 0.1,
+    rootMargin: '200px', // Increased from 100px for better prefetching
+    threshold: 0.01,
     ...options,
   };
 
@@ -77,8 +77,8 @@ export class LazyImageManager {
       this.observer = createImageObserver(
         this.handleIntersection.bind(this),
         {
-          rootMargin: '100px',
-          threshold: 0.1,
+          rootMargin: '200px',
+          threshold: 0.01,
           ...options,
         }
       );
@@ -89,8 +89,8 @@ export class LazyImageManager {
     if (entry.isIntersecting) {
       const img = entry.target as HTMLImageElement;
       const src = img.dataset.src;
-      
-      if (src && !this.loadedImages.has(src) && !this.loadingImages.has(src)) {
+
+      if (src) {
         this.loadImage(img, src);
       }
     }
@@ -98,25 +98,25 @@ export class LazyImageManager {
 
   private async loadImage(img: HTMLImageElement, src: string): Promise<void> {
     this.loadingImages.add(src);
-    
+
     try {
       // Preload the image
       await preloadImage(src);
-      
+
       // Update the image source
       img.src = src;
       img.classList.add('loaded');
       img.classList.remove('loading');
-      
+
       // Mark as loaded
       this.loadedImages.add(src);
       this.loadingImages.delete(src);
-      
+
       // Stop observing this image
       if (this.observer) {
         this.observer.unobserve(img);
       }
-      
+
       // Dispatch load event
       img.dispatchEvent(new Event('lazyload'));
     } catch (error) {

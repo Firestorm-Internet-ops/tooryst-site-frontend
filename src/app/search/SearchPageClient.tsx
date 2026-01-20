@@ -9,6 +9,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { AttractionsGrid } from '@/components/sections/AttractionsGrid';
 import { Card } from '@/components/ui/Card';
 import { config } from '@/lib/config';
+import { usePrefetchHeroImages } from '@/hooks/usePrefetchHeroImages';
 
 export type SearchFilter = 'cities' | 'attractions';
 
@@ -93,6 +94,10 @@ export function SearchPageClient({
     attractions: attractions.length,
   };
 
+  // Prefetch hero images for attractions in search results
+  const attractionIds = useMemo(() => attractions.map(a => a.id), [attractions]);
+  usePrefetchHeroImages(attractionIds);
+
   const dataByFilter: Record<SearchFilter, unknown[]> = {
     cities,
     attractions,
@@ -161,7 +166,7 @@ export function SearchPageClient({
             <span className="text-sm font-medium text-primary-600 mt-1">
               {config.text.cityCard.viewButton}
             </span>
-            </button>
+          </button>
         </Card>
       ))}
     </div>
@@ -171,7 +176,7 @@ export function SearchPageClient({
     const cities = items.filter(isCity) as City[];
     const attractions = items.filter(isAttraction) as AttractionSummary[];
 
-          return (
+    return (
       <div className="flex flex-col gap-8">
         {/* Cities Section */}
         {cities.length > 0 && (
@@ -226,9 +231,9 @@ export function SearchPageClient({
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </div>
-              </div>
+                    </div>
                   </button>
-            </Card>
+                </Card>
               ))}
             </div>
           </div>
@@ -243,14 +248,14 @@ export function SearchPageClient({
                 {config.text.sections.attractions} ({attractions.length})
               </h3>
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-primary-200 to-transparent" />
-              </div>
-            <AttractionsGrid 
-              attractions={attractions} 
+            </div>
+            <AttractionsGrid
+              attractions={attractions}
             />
-              </div>
+          </div>
         )}
-    </div>
-  );
+      </div>
+    );
   };
 
   const renderResults = () => {
@@ -288,8 +293,8 @@ export function SearchPageClient({
 
     if (currentFilter === 'attractions') {
       return (
-        <AttractionsGrid 
-          attractions={paginatedItems as AttractionSummary[]} 
+        <AttractionsGrid
+          attractions={paginatedItems as AttractionSummary[]}
         />
       );
     }
@@ -340,9 +345,8 @@ export function SearchPageClient({
               onClick={() => handleFilterChange(filter)}
               role="tab"
               aria-selected={currentFilter === filter}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                currentFilter === filter ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${currentFilter === filter ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
             >
               {filterLabel} ({counts[filter]})
             </button>

@@ -22,7 +22,7 @@ export interface ImageOptimizationOptions {
  */
 export const CDN_CONFIG = {
   // Set your CDN provider here
-  provider: process.env.NEXT_PUBLIC_CDN_PROVIDER || 'weserv', // 'nextjs' | 'cloudinary' | 'imagekit' | 'cloudfront' | 'weserv'
+  provider: process.env.NEXT_PUBLIC_CDN_PROVIDER || 'weserv', // 'nextjs' | 'cloudinary' | 'imagekit' | 'cloudfront' | 'weserv' | 'gcs'
 
   // CDN base URLs
   cloudinary: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
@@ -35,6 +35,8 @@ export const CDN_CONFIG = {
     ? `https://${process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN}`
     : '',
   weserv: 'https://images.weserv.nl',
+  // GCS CDN URL (Cloudflare in front of GCS bucket)
+  gcs: process.env.NEXT_PUBLIC_GCS_CDN_URL || 'https://images.tooryst.co',
 };
 
 /**
@@ -62,7 +64,8 @@ export function getCDNImageURL(
       src.includes('res.cloudinary.com') ||
       src.includes('ik.imagekit.io') ||
       src.includes(CDN_CONFIG.cloudfront) ||
-      src.includes('images.weserv.nl')
+      src.includes('images.weserv.nl') ||
+      src.includes(CDN_CONFIG.gcs)
     ) {
       return src;
     }
@@ -81,10 +84,36 @@ export function getCDNImageURL(
     case 'weserv':
       return getWeservURL(src, options);
 
+    case 'gcs':
+      return getGCSImageURL(src, options);
+
     case 'nextjs':
     default:
       return getNextJSImageURL(src, options);
   }
+}
+
+/**
+ * GCS CDN URL (images already optimized as WebP)
+ * For GCS-hosted images, we return them directly as they're pre-optimized
+ * For external URLs, we fall back to weserv for optimization
+ */
+function getGCSImageURL(
+  src: string,
+  options: ImageOptimizationOptions
+): string {
+  // If src is already a GCS URL, return it directly (already optimized WebP)
+  if (src.includes(CDN_CONFIG.gcs)) {
+    return src;
+  }
+
+  // If src is a relative path starting with /attractions/, construct GCS URL
+  if (src.startsWith('/attractions/')) {
+    return `${CDN_CONFIG.gcs}${src}`;
+  }
+
+  // For external URLs (like old Google Places URLs), fall back to weserv
+  return getWeservURL(src, options);
 }
 
 /**
@@ -332,4 +361,53 @@ export function preloadImage(src: string, options: ImageOptimizationOptions = {}
  */
 export function preloadImages(images: Array<{ src: string; options?: ImageOptimizationOptions }>): void {
   images.forEach(({ src, options }) => preloadImage(src, options));
+}
+
+/**
+ * Hero image type with optional GCS URLs
+ */
+export interface HeroImageWithGCS {
+  url: string;
+  alt?: string;
+  position?: number;
+  gcs_url_card?: string;
+  gcs_url_hero?: string;
+}
+
+/**
+ * Get the best available URL for a hero image with fallback logic
+ *
+ * Priority:
+ * 1. GCS URL for the requested size (already optimized WebP)
+ * 2. GCS URL for other size (scaled by browser)
+ * 3. Original URL through CDN optimization
+ * 4. Placeholder image
+ */
+export function getHeroImageURL(
+  image: HeroImageWithGCS,
+  size: 'card' | 'hero' = 'hero'
+): string {
+  // Priority 1: GCS URL for preferred size
+  if (size === 'hero' && image.gcs_url_hero) {
+    return image.gcs_url_hero;
+  }
+  if (size === 'card' && image.gcs_url_card) {
+    return image.gcs_url_card;
+  }
+
+  // Priority 2: GCS URL for other size (browser will scale)
+  if (image.gcs_url_hero) return image.gcs_url_hero;
+  if (image.gcs_url_card) return image.gcs_url_card;
+
+  // Priority 3: Original URL through CDN
+  if (image.url) {
+    return getCDNImageURL(image.url, {
+      width: size === 'hero' ? 1600 : 400,
+      format: 'webp',
+      quality: 85
+    });
+  }
+
+  // Priority 4: Placeholder
+  return '/images/placeholder-attraction.webp';
 }

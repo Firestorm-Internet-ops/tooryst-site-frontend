@@ -10,6 +10,7 @@ import { AttractionsGrid } from '@/components/sections/AttractionsGrid';
 import type { AttractionSummary, City } from '@/types/api';
 import { config } from '@/lib/config';
 import { ComponentErrorBoundary, AsyncErrorBoundary } from '@/components/error-boundaries/ErrorBoundary';
+import { usePrefetchHeroImages } from '@/hooks/usePrefetchHeroImages';
 
 // Dynamically import Globe3D to avoid SSR issues with three-globe
 const Globe3D = dynamic(
@@ -59,6 +60,10 @@ export function HomePageClient({
 }: HomePageClientProps) {
   const router = useRouter();
 
+  // Prefetch hero images for trending attractions
+  const trendingIds = useMemo(() => trendingAttractions.map(a => a.id), [trendingAttractions]);
+  usePrefetchHeroImages(trendingIds);
+
   const handleSearch = (query: string) => {
     const trimmed = query.trim();
     if (!trimmed) return;
@@ -89,7 +94,7 @@ export function HomePageClient({
           attractionCount: city.attraction_count,
         };
       });
-    
+
     return cities;
   }, [destinations, featuredCities]);
 
@@ -108,7 +113,7 @@ export function HomePageClient({
           highlights={heroContent.pillars}
           searchPlaceholder={heroContent.inputPlaceholder}
         />
-        
+
         <section className="mx-auto w-full max-w-4xl px-4 md:px-6 py-12">
           <div className="rounded-3xl border-2 border-dashed border-gray-300 bg-white shadow-sm">
             <div className="p-8 md:p-12">
@@ -127,7 +132,7 @@ export function HomePageClient({
                   </p>
                 </div>
               </div>
-              
+
               <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
                 <p className="font-semibold text-gray-900 mb-4 text-center">
                   📋 {config.text.emptyState.setupTitle}
