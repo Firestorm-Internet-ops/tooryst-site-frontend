@@ -107,7 +107,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
 
   if (!query) {
     return {
-      title: 'Search | Storyboard',
+      title: 'Search | Tooryst',
       description: 'Search cities and attractions on Storyboard.',
       robots: { index: false, follow: true },
     };
@@ -118,14 +118,14 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
     results.cities.length + results.attractions.length;
 
   return {
-    title: `Search results for "${query}" | Storyboard`,
+    title: `Search results for "${query}" | Tooryst`,
     description:
       total > 0
         ? `Found ${total} results matching “${query}”.`
         : `No destinations matched “${query}”.`,
     robots: { index: false, follow: true },
     openGraph: {
-      title: `Search results for "${query}" | Storyboard`,
+      title: `Search results for "${query}" | Tooryst`,
       description:
         total > 0
           ? `Explore ${total} destinations matching “${query}”.`

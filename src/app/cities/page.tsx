@@ -11,17 +11,17 @@ const REVALIDATE_SECONDS = config.revalidateSeconds;
 
 async function fetchCities(): Promise<City[]> {
   const url = `${API_BASE_URL}/cities?limit=${config.pagination.citiesFetchLimit}`;
-  
+
   try {
     const response = await fetch(url, {
       next: { revalidate: REVALIDATE_SECONDS },
     });
-    
+
     if (!response.ok) {
       console.error(`[Cities] API returned ${response.status}: ${response.statusText} for ${url}`);
       return [];
     }
-    
+
     const payload = (await response.json()) as PaginatedResponse<City> | City[];
     if (Array.isArray(payload)) {
       return payload;
@@ -40,11 +40,11 @@ async function fetchCities(): Promise<City[]> {
 }
 
 export const metadata: Metadata = {
-  title: 'Explore Cities | Storyboard',
+  title: 'Explore Cities | Tooryst',
   description: 'Discover travel intelligence for cities worldwide. Find crowd levels, weather insights, and visitor sentiment.',
   keywords: ['cities', 'destinations', 'travel', 'crowd levels', 'weather'],
   openGraph: {
-    title: 'Explore Cities | Storyboard',
+    title: 'Explore Cities | Tooryst',
     description: 'Discover travel intelligence for cities worldwide.',
     url: `${APP_URL}/cities`,
     siteName: 'Storyboard',

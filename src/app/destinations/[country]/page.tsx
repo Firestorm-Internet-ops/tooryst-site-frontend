@@ -33,19 +33,19 @@ export async function generateMetadata(
   const countryParam = resolvedParams.country?.toLowerCase();
   if (!countryParam) {
     return {
-      title: 'Destination not found | Storyboard',
+      title: 'Destination not found | Tooryst',
     };
   }
 
   const country = await fetchCountry(countryParam);
   if (!country) {
     return {
-      title: 'Destination not found | Storyboard',
-      description: 'Explore verified travel intelligence on Storyboard.',
+      title: 'Destination not found | Tooryst',
+      description: 'Explore verified travel intelligence on Tooryst.',
     };
   }
 
-  const title = `${country.name} Travel Guide | Storyboard`;
+  const title = `${country.name} Travel Guide | Tooryst`;
   const description = `Explore ${country.citiesCount ?? 'the top'} cities and ${country.attractionsCount ?? 'countless'} attractions across ${country.name}.`;
   const canonical = `${APP_BASE_URL}/destinations/${countryParam}`;
   const imageUrl = config.images.fallbackCity;

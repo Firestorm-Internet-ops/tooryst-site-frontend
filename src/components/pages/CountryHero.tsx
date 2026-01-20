@@ -23,24 +23,24 @@ import { config } from '@/lib/config';
 export function CountryHero({ country, mostVisitedCity, heroImageUrl }: CountryHeroProps) {
   const flagEmoji = country.code
     ? country.code
-        .toUpperCase()
-        .replace(/./g, (char) =>
-          String.fromCodePoint((char.charCodeAt(0) % 32) + 0x1f1e5)
-        )
+      .toUpperCase()
+      .replace(/./g, (char) =>
+        String.fromCodePoint((char.charCodeAt(0) % 32) + 0x1f1e5)
+      )
     : '🌍';
 
   const backgroundStyle = heroImageUrl
     ? {
-        backgroundImage: `${config.gradients.heroOverlay}, url(${heroImageUrl})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }
+      backgroundImage: `${config.gradients.heroOverlay}, url(${heroImageUrl})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    }
     : { backgroundImage: config.gradients.defaultBackground };
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: `${country.name} • Storyboard`,
+        title: `${country.name} • Tooryst`,
         text: `Discover top cities and attractions in ${country.name}`,
         url: `/destinations/${country.name.toLowerCase()}`,
       });

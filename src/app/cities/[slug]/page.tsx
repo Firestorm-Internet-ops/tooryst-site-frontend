@@ -44,19 +44,19 @@ export async function generateMetadata(
   const slug = resolvedParams?.slug?.toLowerCase();
   if (!slug) {
     return {
-      title: 'City not found | Storyboard',
+      title: 'City not found | Tooryst',
     };
   }
 
   const city = await fetchCity(slug);
   if (!city) {
     return {
-      title: 'City not found | Storyboard',
-      description: 'Explore verified travel intelligence on Storyboard.',
+      title: 'City not found | Tooryst',
+      description: 'Explore verified travel intelligence on Tooryst.',
     };
   }
 
-  const title = `${city.name} | Storyboard Travel Guide`;
+  const title = `${city.name} | Tooryst Travel Guide`;
   const description = `Discover ${city.attraction_count ?? 'the best'} attractions, maps, and live travel intel for ${city.name}.`;
   const canonical = `${APP_BASE_URL}/cities/${slug}`;
   const imageUrl = config.images.fallbackCity;
@@ -93,19 +93,19 @@ export default async function CityPage({ params, searchParams }: CityPageProps) 
   // Handle Next.js 15+ where params might be a promise
   const resolvedParams = params && typeof params === 'object' && 'then' in params ? await params : params;
   const slug = resolvedParams?.slug?.toLowerCase();
-  
+
   if (!slug) {
     notFound();
   }
-  
+
   // Pre-fetch the city to check if it exists
   const city = await fetchCity(slug);
   if (!city) {
     notFound();
   }
-  
-  const resolvedSearchParams = searchParams && typeof searchParams === 'object' && 'then' in searchParams 
-    ? await searchParams 
+
+  const resolvedSearchParams = searchParams && typeof searchParams === 'object' && 'then' in searchParams
+    ? await searchParams
     : searchParams;
   const pageParam = resolvedSearchParams?.page;
   const initialPage =
