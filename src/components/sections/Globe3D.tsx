@@ -164,7 +164,6 @@ function GlobeScene({
 
       if (changed) {
         activeCitiesRef.current = closestCities;
-        console.log('🌍 Closest cities changed:', closestCities.map(c => c.name).join(', '));
 
         // Force synchronous React update from Three.js render loop
         flushSync(() => {
@@ -227,7 +226,6 @@ function GlobeScene({
 
       if (changed) {
         activeCitiesRef.current = topCities;
-        console.log('🌍 Visible cities changed:', topCities.map(c => c.name).join(', '));
 
         // Force synchronous React update from Three.js render loop
         flushSync(() => {
@@ -264,7 +262,6 @@ export function Globe3D({ cities }: Globe3DProps) {
   }, []);
 
   // Debug: log when component renders with cities
-  console.log('🎨 Rendering with cities:', activeCities.length);
 
   useEffect(() => {
     return () => {

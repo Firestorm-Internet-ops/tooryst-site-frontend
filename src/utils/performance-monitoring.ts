@@ -1,22 +1,18 @@
-import * as Sentry from '@sentry/nextjs';
 import React from 'react';
 import { getPerformanceMonitor, recordPerformanceMetric } from './performance-budget';
 
+type SeverityLevel = 'fatal' | 'error' | 'warning' | 'log' | 'info' | 'debug';
+
 /**
- * Performance monitoring utility with Sentry integration and budget validation
+ * Performance monitoring utility (Sentry removed, console logging only)
  */
 export class PerformanceMonitor {
   /**
-   * Start a performance transaction
+   * Start a performance transaction (noop without Sentry)
    */
   static startTransaction(name: string, op: string = 'navigation'): any {
     if (typeof window === 'undefined') return undefined;
-
-    // Use the newer Sentry.startSpan API instead of deprecated startTransaction
-    return Sentry.startSpan({
-      name,
-      op,
-    }, (span) => span);
+    return undefined;
   }
 
   /**
@@ -31,80 +27,45 @@ export class PerformanceMonitor {
       // Cumulative Layout Shift
       onCLS((metric: any) => {
         recordPerformanceMetric('cls', metric.value, 'webVitals');
-        
-        Sentry.addBreadcrumb({
-          category: 'web-vital',
-          message: `CLS: ${metric.value}`,
-          level: 'info',
-          data: metric,
-        });
 
         if (metric.value > 0.1) {
-          Sentry.captureMessage(`Poor CLS: ${metric.value}`, 'warning');
+          console.warn(`Poor CLS: ${metric.value}`);
         }
       });
 
       // Interaction to Next Paint (replaces FID in v5)
       onINP((metric: any) => {
         recordPerformanceMetric('inp', metric.value, 'webVitals');
-        
-        Sentry.addBreadcrumb({
-          category: 'web-vital',
-          message: `INP: ${metric.value}ms`,
-          level: 'info',
-          data: metric,
-        });
 
         if (metric.value > 200) {
-          Sentry.captureMessage(`Poor INP: ${metric.value}ms`, 'warning');
+          console.warn(`Poor INP: ${metric.value}ms`);
         }
       });
 
       // First Contentful Paint
       onFCP((metric: any) => {
         recordPerformanceMetric('fcp', metric.value, 'webVitals');
-        
-        Sentry.addBreadcrumb({
-          category: 'web-vital',
-          message: `FCP: ${metric.value}ms`,
-          level: 'info',
-          data: metric,
-        });
 
         if (metric.value > 1800) {
-          Sentry.captureMessage(`Poor FCP: ${metric.value}ms`, 'warning');
+          console.warn(`Poor FCP: ${metric.value}ms`);
         }
       });
 
       // Largest Contentful Paint
       onLCP((metric: any) => {
         recordPerformanceMetric('lcp', metric.value, 'webVitals');
-        
-        Sentry.addBreadcrumb({
-          category: 'web-vital',
-          message: `LCP: ${metric.value}ms`,
-          level: 'info',
-          data: metric,
-        });
 
         if (metric.value > 2500) {
-          Sentry.captureMessage(`Poor LCP: ${metric.value}ms`, 'warning');
+          console.warn(`Poor LCP: ${metric.value}ms`);
         }
       });
 
       // Time to First Byte
       onTTFB((metric: any) => {
         recordPerformanceMetric('ttfb', metric.value, 'webVitals');
-        
-        Sentry.addBreadcrumb({
-          category: 'web-vital',
-          message: `TTFB: ${metric.value}ms`,
-          level: 'info',
-          data: metric,
-        });
 
         if (metric.value > 800) {
-          Sentry.captureMessage(`Poor TTFB: ${metric.value}ms`, 'warning');
+          console.warn(`Poor TTFB: ${metric.value}ms`);
         }
       });
     } catch (error) {
@@ -118,16 +79,6 @@ export class PerformanceMonitor {
   static trackCustomMetric(name: string, value: number, unit: string = 'ms'): void {
     // Record in performance budget system
     recordPerformanceMetric(name, value, 'custom');
-    
-    Sentry.addBreadcrumb({
-      category: 'performance',
-      message: `${name}: ${value}${unit}`,
-      level: 'info',
-      data: { name, value, unit },
-    });
-
-    // Set custom measurement
-    Sentry.setMeasurement(name, value, unit);
   }
 
   /**
@@ -136,16 +87,6 @@ export class PerformanceMonitor {
   static trackResourceMetric(name: string, value: number, unit: string = 'KB'): void {
     // Record in performance budget system
     recordPerformanceMetric(name, value, 'resources');
-    
-    Sentry.addBreadcrumb({
-      category: 'resource',
-      message: `${name}: ${value}${unit}`,
-      level: 'info',
-      data: { name, value, unit },
-    });
-
-    // Set custom measurement
-    Sentry.setMeasurement(name, value, unit);
   }
 
   /**
@@ -156,13 +97,13 @@ export class PerformanceMonitor {
     fn: () => Promise<T>
   ): Promise<T> {
     const startTime = performance.now();
-    
+
     try {
       const result = await fn();
       const duration = performance.now() - startTime;
-      
+
       this.trackCustomMetric(name, duration);
-      
+
       return result;
     } catch (error) {
       const duration = performance.now() - startTime;
@@ -176,13 +117,13 @@ export class PerformanceMonitor {
    */
   static measure<T>(name: string, fn: () => T): T {
     const startTime = performance.now();
-    
+
     try {
       const result = fn();
       const duration = performance.now() - startTime;
-      
+
       this.trackCustomMetric(name, duration);
-      
+
       return result;
     } catch (error) {
       const duration = performance.now() - startTime;
@@ -208,42 +149,42 @@ export class PerformanceMonitor {
 
     trackWhenIdle(() => {
       const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-      
+
       if (navigation) {
         // Track various load metrics
         const domContentLoaded = navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart;
         const loadComplete = navigation.loadEventEnd - navigation.loadEventStart;
         const totalLoadTime = navigation.loadEventEnd - navigation.fetchStart;
-        
+
         this.trackCustomMetric('domContentLoaded', domContentLoaded);
         this.trackCustomMetric('pageLoadTime', totalLoadTime);
         this.trackCustomMetric(`${pageName}_dom_content_loaded`, domContentLoaded);
         this.trackCustomMetric(`${pageName}_load_complete`, loadComplete);
         this.trackCustomMetric(`${pageName}_total_load_time`, totalLoadTime);
-        
+
         // Track resource timing
         const resources = performance.getEntriesByType('resource');
         const totalResourceTime = resources.reduce((total, resource) => {
           return total + (resource.responseEnd - resource.startTime);
         }, 0);
-        
+
         const avgResourceTime = resources.length > 0 ? totalResourceTime / resources.length : 0;
-        
+
         this.trackCustomMetric('resourceLoadTime', avgResourceTime);
         this.trackCustomMetric(`${pageName}_total_resource_time`, totalResourceTime);
         this.trackResourceMetric('totalRequests', resources.length, 'count');
-        
+
         // Calculate resource sizes by type
         let totalSize = 0;
         let jsSize = 0;
         let cssSize = 0;
         let imageSize = 0;
         let fontSize = 0;
-        
+
         resources.forEach((resource: PerformanceResourceTiming) => {
           const size = resource.transferSize || 0;
           totalSize += size;
-          
+
           if (resource.name.includes('.js') || resource.name.includes('javascript')) {
             jsSize += size;
           } else if (resource.name.includes('.css') || resource.name.includes('stylesheet')) {
@@ -254,7 +195,7 @@ export class PerformanceMonitor {
             fontSize += size;
           }
         });
-        
+
         // Convert bytes to KB and track
         this.trackResourceMetric('totalSize', Math.round(totalSize / 1024));
         this.trackResourceMetric('jsSize', Math.round(jsSize / 1024));
@@ -270,22 +211,10 @@ export class PerformanceMonitor {
    */
   static trackAPICall(endpoint: string, method: string, duration: number, status: number): void {
     const metricName = `api_${method.toLowerCase()}_${endpoint.replace(/[^a-zA-Z0-9]/g, '_')}`;
-    
+
     // Track API response time in custom metrics
     this.trackCustomMetric('apiResponseTime', duration);
     this.trackCustomMetric(metricName, duration);
-    
-    Sentry.addBreadcrumb({
-      category: 'api',
-      message: `${method} ${endpoint} - ${status} (${duration}ms)`,
-      level: status >= 400 ? 'error' : 'info',
-      data: {
-        endpoint,
-        method,
-        duration,
-        status,
-      },
-    });
   }
 
   /**
@@ -325,7 +254,7 @@ export class PerformanceMonitor {
 export function usePerformanceMonitoring(componentName: string) {
   React.useEffect(() => {
     const startTime = performance.now();
-    
+
     return () => {
       const mountDuration = performance.now() - startTime;
       PerformanceMonitor.trackComponentMount(componentName, mountDuration);
@@ -404,9 +333,9 @@ export function usePerformanceBudget() {
   React.useEffect(() => {
     // Check budget on mount and periodically
     checkBudget();
-    
+
     const interval = setInterval(checkBudget, 30000); // Check every 30 seconds
-    
+
     return () => clearInterval(interval);
   }, [checkBudget]);
 

@@ -1,5 +1,3 @@
-import * as Sentry from '@sentry/nextjs';
-
 /**
  * Error types for classification
  */
@@ -12,6 +10,11 @@ export enum ErrorType {
   NOT_FOUND_ERROR = 'NOT_FOUND_ERROR',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
+
+/**
+ * Severity levels for error tracking
+ */
+export type SeverityLevel = 'fatal' | 'error' | 'warning' | 'log' | 'info' | 'debug';
 
 /**
  * Error context interface for enriching error reports
@@ -47,16 +50,16 @@ export class TrackedError extends Error {
 }
 
 /**
- * Centralized error tracking utility
+ * Centralized error tracking utility (Sentry removed, console logging only)
  */
 export class ErrorTracker {
   /**
-   * Track an error with Sentry and console logging
+   * Track an error with console logging
    */
   static trackError(
     error: Error | TrackedError,
     context: ErrorContext = {},
-    level: Sentry.SeverityLevel = 'error'
+    level: SeverityLevel = 'error'
   ): void {
     // Enrich context with additional information
     const enrichedContext = {
@@ -66,53 +69,8 @@ export class ErrorTracker {
       url: typeof window !== 'undefined' ? window.location.href : undefined,
     };
 
-    // Set Sentry context
-    Sentry.withScope((scope) => {
-      scope.setLevel(level);
-      
-      // Add error type if it's a TrackedError
-      if (error instanceof TrackedError) {
-        scope.setTag('errorType', error.type);
-        scope.setContext('errorDetails', {
-          type: error.type,
-          timestamp: error.timestamp.toISOString(),
-          ...error.context,
-        });
-      }
-
-      // Add general context
-      scope.setContext('errorContext', enrichedContext);
-
-      // Add user context if available
-      if (enrichedContext.userId) {
-        scope.setUser({ id: enrichedContext.userId });
-      }
-
-      // Add component context if available
-      if (enrichedContext.component) {
-        scope.setTag('component', enrichedContext.component);
-      }
-
-      // Add action context if available
-      if (enrichedContext.action) {
-        scope.setTag('action', enrichedContext.action);
-      }
-
-      // Capture the error
-      Sentry.captureException(error);
-    });
-
-    // Console logging for development
-    if (process.env.NODE_ENV === 'development') {
-      console.group(`🚨 Error Tracked: ${error.message}`);
-      console.error('Error:', error);
-      console.log('Context:', enrichedContext);
-      if (error instanceof TrackedError) {
-        console.log('Type:', error.type);
-        console.log('Timestamp:', error.timestamp);
-      }
-      console.groupEnd();
-    }
+    // Console logging
+    console.error('Error Tracked:', error);
   }
 
   /**
@@ -120,41 +78,21 @@ export class ErrorTracker {
    */
   static trackMessage(
     message: string,
-    level: Sentry.SeverityLevel = 'info',
+    level: SeverityLevel = 'info',
     context: ErrorContext = {}
   ): void {
-    Sentry.withScope((scope) => {
-      scope.setLevel(level);
-      scope.setContext('messageContext', context as any);
-      
-      if (context.component) {
-        scope.setTag('component', context.component);
-      }
-      
-      if (context.action) {
-        scope.setTag('action', context.action);
-      }
-
-      Sentry.captureMessage(message);
-    });
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`📝 Message Tracked (${level}): ${message}`, context);
-    }
   }
 
   /**
-   * Set user context for error tracking
+   * Set user context for error tracking (no-op without Sentry)
    */
   static setUser(user: { id: string; email?: string; username?: string }): void {
-    Sentry.setUser(user);
   }
 
   /**
-   * Clear user context
+   * Clear user context (no-op without Sentry)
    */
   static clearUser(): void {
-    Sentry.setUser(null);
   }
 
   /**
@@ -163,16 +101,9 @@ export class ErrorTracker {
   static addBreadcrumb(
     message: string,
     category: string = 'custom',
-    level: Sentry.SeverityLevel = 'info',
+    level: SeverityLevel = 'info',
     data?: Record<string, any>
   ): void {
-    Sentry.addBreadcrumb({
-      message,
-      category,
-      level,
-      data,
-      timestamp: Date.now() / 1000,
-    });
   }
 }
 

@@ -208,15 +208,11 @@ export function transformAttractionData(data: BackendAttractionResponse): Attrac
       } : undefined,
 
       best_time: (() => {
-        console.log('[BestTime] RAW best_time data:', data.best_time);
-
         if (!data.best_time) {
-          console.log('[BestTime] No best_time data from backend for:', data.name);
           return undefined;
         }
 
         if (!data.best_time.regular_days || data.best_time.regular_days.length === 0) {
-          console.log('[BestTime] No regular_days array found!');
           return undefined;
         }
 
@@ -261,21 +257,10 @@ export function transformAttractionData(data: BackendAttractionResponse): Attrac
         // Convert to backend's day numbering (0=Monday, 1=Tuesday, ..., 6=Sunday)
         const dayInt = todayDayOfWeek === 0 ? 6 : todayDayOfWeek - 1;
 
-        console.log('[BestTime] Processing for:', data.name, {
-          timezone,
-          todayIso,
-          todayDayOfWeek,
-          dayInt,
-          hasSpecialDays: !!data.best_time.special_days?.length,
-          hasRegularDays: !!data.best_time.regular_days?.length,
-          regularDaysAvailable: data.best_time.regular_days?.map((d: any) => `${d.day_name}(${d.day_int})`),
-        });
-
         // First, check special_days for today's specific date
         const specialDay = data.best_time.special_days?.find(day => day.date === todayIso);
 
         if (specialDay) {
-          console.log('[BestTime] Found special day data:', specialDay);
           return {
             is_open_today: specialDay.is_open_today,
             today_local_date: specialDay.date,
@@ -292,25 +277,12 @@ export function transformAttractionData(data: BackendAttractionResponse): Attrac
         }
 
         // Otherwise, use regular_days pattern for today's day-of-week
-        console.log('[BestTime] Looking for day_int:', dayInt, 'in regular_days');
-        console.log('[BestTime] regular_days array:', JSON.stringify(data.best_time.regular_days, null, 2));
-
         const regularDay = data.best_time.regular_days?.find(day => {
           const matches = day.day_int === dayInt;
-          console.log(`[BestTime] Checking ${day.day_name}(${day.day_int}) === ${dayInt}? ${matches}`);
           return matches;
         });
 
         if (regularDay) {
-          console.log('[BestTime] ✅ Found matching regular day:', {
-            day_name: regularDay.day_name,
-            day_int: regularDay.day_int,
-            is_open: regularDay.is_open_today,
-            best_time: regularDay.best_time_today,
-            crowd_level: regularDay.crowd_level_today,
-            opening: regularDay.today_opening_time,
-            closing: regularDay.today_closing_time,
-          });
           return {
             is_open_today: regularDay.is_open_today,
             today_local_date: todayIso, // Use today's date even for regular patterns
@@ -326,8 +298,6 @@ export function transformAttractionData(data: BackendAttractionResponse): Attrac
           };
         }
 
-        console.log('[BestTime] ❌ No exact match for day_int:', dayInt);
-
         // FALLBACK: Use closest available day from regular_days
         const availableDays = data.best_time.regular_days || [];
         if (availableDays.length > 0) {
@@ -336,12 +306,6 @@ export function transformAttractionData(data: BackendAttractionResponse): Attrac
             const currentDiff = Math.abs(day.day_int - dayInt);
             const closestDiff = Math.abs(closest.day_int - dayInt);
             return currentDiff < closestDiff ? day : closest;
-          });
-
-          console.log('[BestTime] ⚠️ Using fallback day:', {
-            requested: dayInt,
-            using: closestDay.day_int,
-            day_name: closestDay.day_name
           });
 
           return {
@@ -359,7 +323,6 @@ export function transformAttractionData(data: BackendAttractionResponse): Attrac
           };
         }
 
-        console.log('[BestTime] No regular_days available at all');
         return undefined; // No data available
       })(),
 

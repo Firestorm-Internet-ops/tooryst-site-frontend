@@ -4,16 +4,15 @@
  * Comprehensive Error Boundary Components
  * Feature: frontend-quality-improvements, Task 5.3: Add Comprehensive Error Boundaries to Component Tree
  *
- * Error boundary components with Sentry integration including:
+ * Error boundary components (Sentry removed, console logging only):
  * - React Error Boundary with fallback UI
- * - Sentry error reporting integration
+ * - Console error reporting
  * - Context-aware error handling
  * - Recovery mechanisms and retry logic
  * - Performance monitoring integration
  */
 
 import React, { Component } from 'react';
-import * as Sentry from '@sentry/nextjs';
 import { PerformanceMonitor } from '@/utils/performance-monitoring';
 
 /**
@@ -92,12 +91,12 @@ export function DefaultErrorFallback({
     if (error.message.includes('ChunkLoadError') || error.message.includes('Loading chunk')) {
       return 'Failed to load application resources. This might be due to a network issue or an application update.';
     }
-    
+
     if (error.message.includes('Network Error') || error.message.includes('fetch')) {
       return 'Network connection error. Please check your internet connection and try again.';
     }
-    
-    return 'An unexpected error occurred. Our team has been notified and is working to fix this issue.';
+
+    return 'An unexpected error occurred. Please try refreshing the page.';
   };
 
   const getErrorIcon = () => {
@@ -139,11 +138,11 @@ export function DefaultErrorFallback({
     <div className={containerClasses[level as keyof typeof containerClasses] || containerClasses.component}>
       <div className={contentClasses[level as keyof typeof contentClasses] || contentClasses.component}>
         {getErrorIcon()}
-        
+
         <h2 className="text-xl font-semibold text-gray-900 mb-2">
           {getErrorTitle()}
         </h2>
-        
+
         <p className="text-gray-600 mb-6">
           {getErrorMessage()}
         </p>
@@ -244,10 +243,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     const { onError, level = 'component', context } = this.props;
-    
+
     // Generate unique error ID
     const errorId = `${level}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-    
+
     // Update state with error info and ID
     this.setState({
       errorInfo,
@@ -267,35 +266,17 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       ...context,
     };
 
-    // Report to Sentry with enhanced context
-    Sentry.withScope((scope) => {
-      scope.setTag('errorBoundary', level);
-      scope.setTag('errorId', errorId);
-      scope.setLevel('error');
-      scope.setContext('errorBoundary', enhancedContext);
-      scope.setContext('errorInfo', {
-        componentStack: errorInfo.componentStack,
-      });
-      
-      if (context) {
-        scope.setContext('additionalContext', context);
-      }
-      
-      Sentry.captureException(error);
-    });
+    // Log error to console (Sentry removed)
+    console.group(`🚨 Error Boundary (${level})`);
+    console.error('Error:', error);
+    console.error('Error Info:', errorInfo);
+    console.error('Context:', enhancedContext);
+    console.error('Error ID:', errorId);
+    console.groupEnd();
 
     // Call custom error handler
     if (onError) {
       onError(error, errorInfo, errorId);
-    }
-
-    // Log error for development
-    if (process.env.NODE_ENV === 'development') {
-      console.group(`🚨 Error Boundary (${level})`);
-      console.error('Error:', error);
-      console.error('Error Info:', errorInfo);
-      console.error('Context:', enhancedContext);
-      console.groupEnd();
     }
   }
 
@@ -385,43 +366,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 }
 
 /**
- * Sentry-integrated Error Boundary using withErrorBoundary HOC
- */
-export function SentryErrorBoundary({
-  children,
-  fallback,
-  level = 'component',
-  ...props
-}: ErrorBoundaryProps) {
-  const WrappedComponent = () => <>{children}</>;
-  
-  const SentryWrapped = Sentry.withErrorBoundary(WrappedComponent, {
-    fallback: ({ error, resetError }) => {
-      const FallbackComponent = fallback || DefaultErrorFallback;
-      return (
-        <FallbackComponent
-          error={error}
-          errorInfo={null}
-          errorId={null}
-          retry={resetError}
-          canRetry={true}
-          retryCount={0}
-          maxRetries={3}
-          level={level}
-          showDetails={false}
-        />
-      );
-    },
-    beforeCapture: (scope: Sentry.Scope) => {
-      scope.setTag('errorBoundary', level);
-      scope.setLevel('error');
-    },
-  });
-
-  return <SentryWrapped />;
-}
-
-/**
  * Higher-order component for wrapping components with error boundaries
  */
 export function withErrorBoundary<P extends object>(
@@ -435,24 +379,22 @@ export function withErrorBoundary<P extends object>(
   );
 
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
-  
+
   return WrappedComponent;
 }
 
 /**
- * Hook for error boundary context
+ * Hook for error handler
  */
 export function useErrorHandler() {
   return React.useCallback((error: Error, errorInfo?: any) => {
-    // Report error to Sentry
-    Sentry.withScope((scope) => {
-      scope.setTag('source', 'useErrorHandler');
-      scope.setLevel('error');
-      if (errorInfo) {
-        scope.setContext('errorInfo', errorInfo);
-      }
-      Sentry.captureException(error);
-    });
+    // Log error to console (Sentry removed)
+    console.group('🚨 Error Handler');
+    console.error('Error:', error);
+    if (errorInfo) {
+      console.error('Error Info:', errorInfo);
+    }
+    console.groupEnd();
 
     // Re-throw error to be caught by error boundary
     throw error;
@@ -493,9 +435,9 @@ export function ComponentErrorBoundary({ children, ...props }: Omit<ErrorBoundar
 // Async component error boundary
 export function AsyncErrorBoundary({ children, ...props }: Omit<ErrorBoundaryProps, 'level'>) {
   return (
-    <ErrorBoundary 
-      level="component" 
-      maxRetries={2} 
+    <ErrorBoundary
+      level="component"
+      maxRetries={2}
       retryDelay={2000}
       context={{ type: 'async-component' }}
       {...props}

@@ -22,10 +22,10 @@ interface LoadingSpinnerProps {
   className?: string;
 }
 
-export function LoadingSpinner({ 
-  size = 'md', 
-  message = 'Loading...', 
-  className = '' 
+export function LoadingSpinner({
+  size = 'md',
+  message = 'Loading...',
+  className = ''
 }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: 'h-4 w-4',
@@ -50,10 +50,10 @@ interface ComponentSkeletonProps {
   className?: string;
 }
 
-export function ComponentSkeleton({ 
-  type, 
-  height = 'h-96', 
-  className = '' 
+export function ComponentSkeleton({
+  type,
+  height = 'h-96',
+  className = ''
 }: ComponentSkeletonProps) {
   const getSkeletonContent = () => {
     switch (type) {
@@ -70,7 +70,7 @@ export function ComponentSkeleton({
             <div className="absolute bottom-1/3 right-1/3 w-3 h-3 bg-red-400 rounded-full animate-pulse" />
           </div>
         );
-      
+
       case '3d-globe':
         return (
           <div className="relative w-full h-full bg-gradient-to-br from-blue-50 via-blue-100 to-white rounded-3xl overflow-hidden border border-blue-100">
@@ -84,7 +84,7 @@ export function ComponentSkeleton({
             <div className="absolute top-3/4 left-3/4 w-2 h-2 bg-red-400 rounded-full animate-ping" style={{ animationDelay: '1s' }} />
           </div>
         );
-      
+
       case 'chart':
         return (
           <div className="relative w-full h-full bg-gray-50 rounded-lg overflow-hidden">
@@ -96,7 +96,7 @@ export function ComponentSkeleton({
             <div className="absolute bottom-12 left-32 w-4 h-20 bg-gray-300 rounded animate-pulse" />
           </div>
         );
-      
+
       default:
         return (
           <div className="w-full h-full bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">
@@ -161,7 +161,7 @@ export class CodeSplitErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       const { fallback: Fallback } = this.props;
-      
+
       if (Fallback) {
         return <Fallback error={this.state.error} retry={this.retry} />;
       }
@@ -223,13 +223,13 @@ export function createDynamicComponent<T extends ComponentType<any>>(
     try {
       const module = await importFn();
       const loadTime = performance.now() - startTime;
-      
+
       // Track performance
       PerformanceMonitor.trackCustomMetric(
         chunkName ? `chunk-${chunkName}` : 'dynamic-component-load',
         loadTime
       );
-      
+
       onLoadEnd?.(loadTime);
       return module;
     } catch (error) {
@@ -306,7 +306,7 @@ export function usePreloadComponent(
     try {
       await importFn();
       const loadTime = performance.now() - startTime;
-      
+
       PerformanceMonitor.trackCustomMetric('component-preload', loadTime);
       setIsPreloaded(true);
     } catch (error) {
@@ -348,7 +348,7 @@ export function useIntersectionLoad(options: IntersectionObserverInit = {}) {
       ([entry]) => {
         const isVisible = entry.isIntersecting;
         setIsIntersecting(isVisible);
-        
+
         if (isVisible && !hasIntersected) {
           setHasIntersected(true);
         }
@@ -391,7 +391,4 @@ export function generateChunkName(componentName: string, category?: string): str
  * Bundle analyzer helper for development
  */
 export function logChunkInfo(chunkName: string, size?: number) {
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[Code Splitting] Loaded chunk: ${chunkName}${size ? ` (${size}KB)` : ''}`);
-  }
 }

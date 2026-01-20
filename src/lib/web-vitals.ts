@@ -21,7 +21,7 @@ export function reportWebVitals(metric: WebVitalMetric) {
   if (process.env.NODE_ENV === 'production') {
     // Send to your analytics service
     const body = JSON.stringify(metric);
-    
+
     // Use `navigator.sendBeacon()` if available, falling back to `fetch()`
     if (navigator.sendBeacon) {
       navigator.sendBeacon('/api/metrics', body);
@@ -41,11 +41,6 @@ export function reportWebVitals(metric: WebVitalMetric) {
 
   // Log in development
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[Web Vitals] ${metric.name}:`, {
-      value: metric.value.toFixed(2),
-      rating: metric.rating,
-      delta: metric.delta.toFixed(2),
-    });
   }
 }
 
@@ -60,7 +55,7 @@ export async function initWebVitals() {
   try {
     // Dynamically import to avoid build errors if web-vitals is not installed
     const webVitals = await import('web-vitals').catch(() => null);
-    
+
     if (!webVitals) {
       console.warn('web-vitals package not installed. Install with: npm install web-vitals');
       return;
@@ -73,8 +68,6 @@ export async function initWebVitals() {
     onFCP(reportWebVitals);
     onLCP(reportWebVitals);
     onTTFB(reportWebVitals);
-
-    console.log('[Web Vitals] Initialized with performance budget integration');
   } catch (error) {
     console.error('Failed to initialize Web Vitals:', error);
   }
@@ -99,7 +92,7 @@ export function getCurrentWebVitals(): Promise<{
 
     try {
       const webVitals = await import('web-vitals').catch(() => null);
-      
+
       if (!webVitals) {
         resolve({});
         return;

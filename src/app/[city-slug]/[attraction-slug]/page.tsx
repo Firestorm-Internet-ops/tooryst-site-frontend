@@ -22,7 +22,6 @@ async function getAttraction(slug: string): Promise<AttractionPageResponse> {
     }
 
     const data = await res.json();
-    console.log('API Response:', data);
     return transformAttractionData(data);
   } catch (error) {
     throw error;
@@ -31,10 +30,10 @@ async function getAttraction(slug: string): Promise<AttractionPageResponse> {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { 'city-slug': citySlug, 'attraction-slug': attractionSlug } = await params;
-  
+
   try {
     const pageData = await getAttraction(attractionSlug);
-    
+
     // Check if pageData exists and has required properties
     if (!pageData || !pageData.name) {
       console.error('Invalid attraction data:', pageData);
@@ -43,11 +42,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         description: 'Explore verified travel intelligence on Tooryst.',
       };
     }
-    
+
     // Debug: Log the hero image URL
     const heroImageUrl = pageData.cards?.hero_images?.images?.[0]?.url;
-    console.log(`Attraction ${pageData.name} hero image:`, heroImageUrl);
-    
+
     // Use the SEO manager to generate metadata
     return await seoManager.generateAttractionMetadata({
       name: pageData.name,

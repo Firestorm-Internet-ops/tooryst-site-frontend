@@ -27,7 +27,7 @@ export class APIErrorHandler {
     };
 
     const classifiedError = ErrorHandler.handle(error, enhancedContext);
-    
+
     // For certain errors, we might want to trigger specific actions
     if (classifiedError instanceof AuthenticationError) {
       // Clear authentication state
@@ -49,7 +49,7 @@ export class APIErrorHandler {
   ): AxiosResponse<T> {
     // Check for business logic errors in successful HTTP responses
     const data = response.data as any;
-    
+
     if (data && typeof data === 'object') {
       // Handle common API error patterns
       if (data.error || data.success === false) {
@@ -66,7 +66,7 @@ export class APIErrorHandler {
             userMessage: data.userMessage,
           }
         );
-        
+
         ErrorHandler.handle(apiError, context);
         throw apiError;
       }
@@ -74,10 +74,10 @@ export class APIErrorHandler {
       // Handle validation errors in successful responses
       if (data.validationErrors || data.fieldErrors) {
         const validationErrors = data.validationErrors || data.fieldErrors;
-        const firstError = Array.isArray(validationErrors) 
-          ? validationErrors[0] 
+        const firstError = Array.isArray(validationErrors)
+          ? validationErrors[0]
           : validationErrors;
-        
+
         if (firstError) {
           const validationError = ErrorHandler.handle(
             new Error(firstError.message || 'Validation failed'),
@@ -131,7 +131,7 @@ export class APIErrorHandler {
     if (url.includes('/search')) return 'search';
     if (url.includes('/auth')) return 'authentication';
     if (url.includes('/user')) return 'user';
-    
+
     return undefined;
   }
 }
@@ -213,7 +213,7 @@ export class APIRetryHandler {
     if (error instanceof APIError) {
       return error.isRetryable();
     }
-    
+
     if (error instanceof NetworkError) {
       return error.context.retryable !== false;
     }
@@ -268,11 +268,6 @@ export class APIRetryHandler {
         // Wait before retrying
         const delay = this.calculateRetryDelay(attempt, baseDelay);
         await new Promise(resolve => setTimeout(resolve, delay));
-
-        // Log retry attempt
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`Retrying request (attempt ${attempt + 2}/${maxAttempts}) after ${delay}ms`);
-        }
       }
     }
 

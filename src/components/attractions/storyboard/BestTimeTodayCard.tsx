@@ -167,11 +167,10 @@ function calculateIsOpenNow(
 }
 
 export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitude, visitorInfo }: BestTimeTodayCardProps) {
-  console.log('[BestTimeTodayCard] Rendering for:', name, { bestTime, timezone, latitude, longitude });
+
 
   // Show fallback UI if no data available
   if (!bestTime) {
-    console.log('[BestTimeTodayCard] No bestTime data - showing fallback UI');
     return (
       <article className="rounded-3xl bg-gradient-to-br from-slate-800/90 via-slate-850/90 to-slate-900/90 border border-slate-700/50 p-4 md:p-5 flex flex-col relative overflow-hidden min-h-[260px]">
         {/* Content */}
@@ -246,19 +245,6 @@ export function BestTimeTodayCard({ bestTime, name, timezone, latitude, longitud
   const bestWindow = bestTime.best_time_text
     ? bestTime.best_time_text.replace(/^(\d{1,2}:\d{2})\s*-\s*\1$/, '$1')
     : null;
-
-  console.log('[BestTimeTodayCard] Rendering with data:', {
-    timezone,
-    dayName,
-    best_time_text: bestTime.best_time_text,
-    bestWindow,
-    crowd_level_today: bestTime.crowd_level_today,
-    is_open_today: bestTime.is_open_today,
-    opening_time: bestTime.today_opening_time,
-    closing_time: bestTime.today_closing_time,
-    isOpenNow,
-    isOpenText,
-  });
 
   const crowd = getCrowdStyle(bestTime.crowd_level_today, bestTime.crowd_level_label_today);
 

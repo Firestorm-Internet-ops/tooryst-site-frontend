@@ -43,7 +43,10 @@ export function AttractionMapSection({ data }: MapSectionProps) {
       if (!mapRef.current || !directionsRef.current || !window.google) return;
 
       const google = window.google;
-      const destination = { lat: map.latitude, lng: map.longitude };
+      const destination = {
+        lat: Number(map.latitude),
+        lng: Number(map.longitude)
+      };
 
       // Create map
       const mapOptions: google.maps.MapOptions = {
@@ -61,15 +64,15 @@ export function AttractionMapSection({ data }: MapSectionProps) {
 
       const mapInstance = new google.maps.Map(mapRef.current, mapOptions);
 
-      // Add marker for destination (using modern AdvancedMarkerElement if available, fallback to Marker)
-      if (google.maps.marker?.AdvancedMarkerElement) {
+      // Add marker for destination (using modern AdvancedMarkerElement if available and mapId is present)
+      if (google.maps.marker?.AdvancedMarkerElement && config.googleMapsMapId) {
         new google.maps.marker.AdvancedMarkerElement({
           position: destination,
           map: mapInstance,
           title: map.address || 'Attraction',
         });
       } else {
-        // Fallback to deprecated Marker for older API versions
+        // Fallback to deprecated Marker for older API versions or when mapId is missing
         new google.maps.Marker({
           position: destination,
           map: mapInstance,
@@ -184,7 +187,8 @@ export function AttractionMapSection({ data }: MapSectionProps) {
           <div className="w-full h-[500px] flex items-center justify-center bg-gray-100">
             <div className="text-center p-6">
               <p className="text-red-600 font-semibold mb-2">Error loading map</p>
-              <p className="text-sm text-gray-600">Please try refreshing the page</p>
+              <p className="text-sm text-gray-600 mb-2">{loadError.message}</p>
+              <p className="text-xs text-gray-500">Please verify your API key and referrer settings.</p>
             </div>
           </div>
         </div>

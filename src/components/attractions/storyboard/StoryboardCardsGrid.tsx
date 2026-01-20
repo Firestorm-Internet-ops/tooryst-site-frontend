@@ -15,9 +15,6 @@ interface StoryboardCardsGridProps {
 }
 
 export function StoryboardCardsGrid({ data }: StoryboardCardsGridProps) {
-  // Debug: Log social video data
-  console.log('Social video data:', data.cards.social_video);
-
   return (
     <section className="pb-10">
       <div className="w-full px-4 lg:px-6">

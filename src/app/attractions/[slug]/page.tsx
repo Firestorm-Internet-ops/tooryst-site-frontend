@@ -25,10 +25,7 @@ async function getAttraction(slug: string): Promise<AttractionPageResponse> {
     }
 
     const data = await res.json();
-    console.log('API Response:', data);
-    console.log('API Response - best_time field:', data.best_time);
     const transformed = transformAttractionData(data);
-    console.log('Transformed data - cards.best_time:', transformed.cards.best_time);
     return transformed;
   } catch (error) {
     throw error;
@@ -41,8 +38,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   try {
     const { slug } = await params;
     const pageData = await getAttraction(slug);
-    const attractionName = pageData.attraction?.name || 'Attraction';
-    const city = pageData.attraction?.city || '';
+    const attractionName = pageData.name || 'Attraction';
+    const city = pageData.city || '';
 
     return {
       title: `${attractionName} ${city ? `- ${city}` : ''} | Tooryst`,

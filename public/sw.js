@@ -8,7 +8,7 @@
  * - Offline fallback pages
  */
 
-const CACHE_VERSION = 'tooryst-v1';
+const CACHE_VERSION = 'tooryst-v2';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -33,16 +33,13 @@ const CACHE_LIMITS = {
  * Install event - cache static assets
  */
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker...');
 
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('[SW] Caching static assets');
         return cache.addAll(STATIC_ASSETS);
       })
       .then(() => {
-        console.log('[SW] Static assets cached');
         return self.skipWaiting();
       })
       .catch((error) => {
@@ -55,7 +52,6 @@ self.addEventListener('install', (event) => {
  * Activate event - clean up old caches
  */
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating service worker...');
 
   event.waitUntil(
     caches.keys()
@@ -67,13 +63,11 @@ self.addEventListener('activate', (event) => {
               return name.startsWith('tooryst-') && !name.startsWith(CACHE_VERSION);
             })
             .map((name) => {
-              console.log('[SW] Deleting old cache:', name);
               return caches.delete(name);
             })
         );
       })
       .then(() => {
-        console.log('[SW] Service worker activated');
         return self.clients.claim();
       })
   );
@@ -208,17 +202,20 @@ async function handleStaticRequest(request) {
   const cache = await caches.open(STATIC_CACHE);
   const cached = await cache.match(request);
 
-  if (cached) {
+  // Only use cached response if it was successful
+  if (cached && cached.ok) {
     return cached;
   }
 
   try {
     const response = await fetch(request);
-    if (response && response.status === 200) {
+    // Only cache successful responses
+    if (response && response.status === 200 && response.ok) {
       cache.put(request, response.clone());
     }
     return response;
   } catch (error) {
+    console.error('Service worker fetch failed:', error);
     return new Response('', { status: 404, statusText: 'Not found' });
   }
 }
@@ -304,5 +301,3 @@ self.addEventListener('message', (event) => {
     );
   }
 });
-
-console.log('[SW] Service worker script loaded');

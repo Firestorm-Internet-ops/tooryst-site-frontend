@@ -1,12 +1,14 @@
 'use client';
 
-import { AttractionPageResponse } from '@/types/attraction-page';
+import { AttractionPageResponse, NearbyAttraction } from '@/types/attraction-page';
 import { SectionShell } from './SectionShell';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, MapPin, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { getCDNImageURL } from '@/lib/cdn-image';
+import { EnhancedAPIClient } from '@/lib/api';
+import { config } from '@/lib/config';
 
 interface NearbyAttractionsSectionProps {
   data: AttractionPageResponse;
@@ -20,7 +22,10 @@ function formatReviewCount(count: number): string {
 }
 
 export function NearbyAttractionsSection({ data }: NearbyAttractionsSectionProps) {
-  const nearbyAttractions = data.nearby_attractions || [];
+  const initialAttractions = data.nearby_attractions || [];
+  const [nearbyAttractions, setNearbyAttractions] = useState<NearbyAttraction[]>(initialAttractions);
+  const [isEnriching, setIsEnriching] = useState(false);
+  const [enrichmentComplete, setEnrichmentComplete] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -46,6 +51,102 @@ export function NearbyAttractionsSection({ data }: NearbyAttractionsSectionProps
     }
   }, []);
 
+  // Phase 1: Console.log initial data
+  useEffect(() => {
+    console.log('=== PHASE 1: Initial attraction data loaded ===');
+    console.log('Attraction:', data.name);
+    console.log('Initial nearby attractions:', initialAttractions);
+    console.log('Total nearby attractions:', initialAttractions.length);
+
+    const googlePlacesCount = initialAttractions.filter(
+      a => a.link && a.link.includes('google.com/maps')
+    ).length;
+    console.log('Google Places attractions to enrich:', googlePlacesCount);
+
+    if (googlePlacesCount > 0) {
+      console.log('Google Places attractions:',
+        initialAttractions
+          .filter(a => a.link && a.link.includes('google.com/maps'))
+          .map(a => ({ name: a.name, link: a.link, current_image: a.image_url }))
+      );
+    }
+  }, []); // Only run once on mount
+
+  // Phase 2: Console.log enrichment
+  useEffect(() => {
+    if (enrichmentComplete) return; // Don't re-run if already enriched
+
+    const enrichAttractions = async () => {
+      // Check if there are Google Places to enrich
+      const hasGooglePlaces = initialAttractions.some(
+        a => a.link && a.link.includes('google.com/maps')
+      );
+
+      if (!hasGooglePlaces) {
+        console.log('=== No Google Places to enrich, skipping Phase 2 ===');
+        return;
+      }
+
+      console.log('=== PHASE 2: Starting Google Places enrichment ===');
+      console.log('Making API call to:', `${config.apiBaseUrl}/attractions/${data.slug}/sections`);
+      setIsEnriching(true);
+
+      try {
+        // Make second API call to get enriched data
+        const response = await EnhancedAPIClient.get<any>(
+          `/attractions/${data.slug}/sections`,
+          {},
+          { retries: 1, useCircuitBreaker: false }
+        );
+
+        console.log('=== PHASE 2: API response received ===');
+        console.log('Full API response:', response);
+
+        // Extract nearby attractions from sections
+        const nearbySection = response.sections?.find(
+          (s: any) => s.section_type === 'nearby_attractions'
+        );
+
+        if (nearbySection?.content?.items) {
+          const enrichedAttractions = nearbySection.content.items;
+
+          console.log('=== PHASE 2: Enriched nearby attractions loaded ===');
+          console.log('Enriched attractions:', enrichedAttractions);
+
+          // Log comparison
+          const enrichedCount = enrichedAttractions.filter(
+            (a: NearbyAttraction) =>
+              a.image_url && a.image_url.includes('places.googleapis.com')
+          ).length;
+          console.log(`Successfully enriched ${enrichedCount} attractions with fresh Google Places images`);
+
+          if (enrichedCount > 0) {
+            console.log('Enriched Google Places attractions:',
+              enrichedAttractions
+                .filter((a: NearbyAttraction) => a.image_url && a.image_url.includes('places.googleapis.com'))
+                .map((a: NearbyAttraction) => ({ name: a.name, enriched_image: a.image_url }))
+            );
+          }
+
+          // Update state with enriched data
+          setNearbyAttractions(enrichedAttractions);
+          setEnrichmentComplete(true);
+        } else {
+          console.warn('=== PHASE 2: No nearby attractions found in response ===');
+        }
+      } catch (error) {
+        console.error('=== PHASE 2: Enrichment failed ===', error);
+        // Keep using initial data on error
+      } finally {
+        setIsEnriching(false);
+      }
+    };
+
+    // Delay enrichment slightly to ensure Phase 1 logs appear first
+    const timer = setTimeout(enrichAttractions, 500);
+    return () => clearTimeout(timer);
+  }, [initialAttractions, data.slug, enrichmentComplete]);
+
   useEffect(() => {
     checkScrollability();
     const container = scrollContainerRef.current;
@@ -53,7 +154,7 @@ export function NearbyAttractionsSection({ data }: NearbyAttractionsSectionProps
       container.addEventListener('scroll', checkScrollability);
       return () => container.removeEventListener('scroll', checkScrollability);
     }
-  }, [nearbyAttractions]);
+  }, [nearbyAttractions, checkScrollability]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
@@ -74,6 +175,16 @@ export function NearbyAttractionsSection({ data }: NearbyAttractionsSectionProps
       subtitle="Other places to explore in the area."
     >
       <div className="relative group h-full flex flex-col min-h-0">
+        {/* Enrichment Loading Indicator */}
+        {isEnriching && (
+          <div className="mb-3 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
+            <span className="text-sm text-blue-700 font-medium">
+              Enriching Google Places images...
+            </span>
+          </div>
+        )}
+
         {/* Navigation Buttons */}
         {canScrollLeft && (
           <button

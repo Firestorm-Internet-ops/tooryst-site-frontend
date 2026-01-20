@@ -15,17 +15,17 @@ export function initializeMonitoring(): void {
   // Add global error handler for unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
-    
+
     // Import ErrorTracker dynamically to avoid circular dependencies
     import('./error-tracking').then(({ ErrorTracker, TrackedError, ErrorType }) => {
-      const error = event.reason instanceof Error 
-        ? event.reason 
+      const error = event.reason instanceof Error
+        ? event.reason
         : new TrackedError(
-            String(event.reason),
-            ErrorType.UNKNOWN_ERROR,
-            { action: 'unhandled_promise_rejection' }
-          );
-      
+          String(event.reason),
+          ErrorType.UNKNOWN_ERROR,
+          { action: 'unhandled_promise_rejection' }
+        );
+
       ErrorTracker.trackError(error, {
         action: 'unhandled_promise_rejection',
         additionalData: {
@@ -38,7 +38,7 @@ export function initializeMonitoring(): void {
   // Add global error handler for JavaScript errors
   window.addEventListener('error', (event) => {
     console.error('Global error:', event.error);
-    
+
     // Import ErrorTracker dynamically to avoid circular dependencies
     import('./error-tracking').then(({ ErrorTracker }) => {
       ErrorTracker.trackError(event.error || new Error(event.message), {
@@ -60,6 +60,4 @@ export function initializeMonitoring(): void {
       'timestamp'
     );
   });
-
-  console.log('🔍 Monitoring systems initialized');
 }
