@@ -172,9 +172,19 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.tooryst.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'api.tooryst.co',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+      },
     ],
     // Unoptimized images for development (remove in production)
     unoptimized: false,
+    // remotePatterns is already correctly configured for googleusercontent.com
   },
 
   // Headers for caching

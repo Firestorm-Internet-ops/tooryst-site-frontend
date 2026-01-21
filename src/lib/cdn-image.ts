@@ -56,9 +56,13 @@ export function getCDNImageURL(
     fit = 'cover'
   } = options;
 
-  // Handle external URLs that are already optimized
-  if (src.startsWith('http') && !src.includes('localhost')) {
+  // Localhost URLs should be returned directly - they're proxy endpoints that redirect to CDN
+  if (src.includes('localhost')) {
+    return src;
+  }
 
+  // Handle external URLs that are already optimized
+  if (src.startsWith('http')) {
     // If it's already from our CDN, return as-is
     if (
       src.includes('res.cloudinary.com') ||

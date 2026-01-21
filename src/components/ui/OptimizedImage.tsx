@@ -130,9 +130,13 @@ export function OptimizedImage({
   const loadStartTime = React.useRef<number>(0);
   const imageRef = React.useRef<HTMLImageElement>(null);
 
+  // Automatically unoptimize Google Photos to prevent 403 errors
+  const isGooglePhoto = src.includes('googleusercontent.com') || src.includes('ggpht.com');
+  const shouldUnoptimize = unoptimized || isGooglePhoto;
+
   // Generate optimized image URLs
   const optimizedSrc = React.useMemo(() => {
-    if (unoptimized) return src;
+    if (shouldUnoptimize) return src;
 
     if (width) {
       return getCDNImageURL(src, { width, quality, format: 'webp' });
@@ -147,17 +151,17 @@ export function OptimizedImage({
     };
 
     return getCDNImageURL(src, { width: defaultWidths[variant], quality, format: 'webp' });
-  }, [src, width, quality, variant, unoptimized]);
+  }, [src, width, quality, variant, shouldUnoptimize]);
 
   // Generate responsive URLs for different breakpoints
   const responsiveUrls = React.useMemo(() => {
-    if (unoptimized) return null;
+    if (shouldUnoptimize) return null;
     // Use CDN for responsive images
     const sizes = [640, 750, 828, 1080, 1200, 1920];
     return sizes
       .map(width => `${getCDNImageURL(src, { width, quality, format: 'webp' })} ${width}w`)
       .join(', ');
-  }, [src, quality, unoptimized]);
+  }, [src, quality, shouldUnoptimize]);
 
   // Generate blur placeholder
   const blurPlaceholder = React.useMemo(() => {
@@ -274,7 +278,6 @@ export function OptimizedImage({
         quality={quality}
         placeholder={placeholder}
         blurDataURL={blurPlaceholder}
-        unoptimized={unoptimized}
         fetchPriority={fetchPriority}
         className={cn(
           'transition-opacity duration-300',

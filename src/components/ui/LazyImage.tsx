@@ -43,6 +43,7 @@ export function LazyImage({
             'opacity-0': !isLoaded,
             'opacity-100': isLoaded,
           }, className)}
+          unoptimized={src.includes('googleusercontent.com') || src.includes('ggpht.com')}
           {...props}
         />
       )}
