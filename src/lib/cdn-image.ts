@@ -273,6 +273,12 @@ function getWeservURL(
   src: string,
   options: ImageOptimizationOptions
 ): string {
+  // Local/relative paths can't be proxied through weserv.nl
+  // Fall back to Next.js image optimization
+  if (src.startsWith('/') || !src.startsWith('http')) {
+    return getNextJSImageURL(src, options);
+  }
+
   const { width, quality = 75, format = 'auto' } = options;
 
   // Weserv.nl supports URL-based image optimization
