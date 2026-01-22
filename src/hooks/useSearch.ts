@@ -79,6 +79,8 @@ export function useSearch(query: string, options?: UseSearchOptions) {
     staleTime: 1000 * 60 * 10,
     gcTime: 1000 * 60 * 10,
     initialData: initialResults,
+    // Prevent immediate refetch on client hydration - treat SSR data as fresh
+    initialDataUpdatedAt: initialResults ? Date.now() : undefined,
   });
 
   const results = searchData || EMPTY_RESULTS;

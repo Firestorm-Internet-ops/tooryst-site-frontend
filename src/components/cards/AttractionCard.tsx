@@ -34,6 +34,7 @@ export function AttractionCard({
   const hasImage = attraction.first_image_url && attraction.first_image_url.trim() !== '';
   const imageUrl = hasImage ? (attraction.first_image_url as string) : config.images.fallbackAttraction;
   const isPlaceholder = !hasImage;
+  const isCardWebpMissing = !hasImage;
 
   // Determine if this image should be prioritized
   const shouldPrioritize = priority;
@@ -52,24 +53,17 @@ export function AttractionCard({
   if (variant === 'popup') {
     return (
       <div className="w-full bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow text-left overflow-hidden">
-        <div className={`relative h-28 w-full overflow-hidden ${isPlaceholder ? 'bg-gradient-to-br from-gray-100 to-gray-200' : ''}`}>
+        <div className="relative h-28 w-full overflow-hidden">
           <OptimizedImage
             src={imageUrl}
             alt={attraction.name}
             fill
-            className={`object-cover ${isPlaceholder ? 'opacity-40' : ''}`}
+            className="object-cover"
             variant="thumbnail"
             priority={shouldPrioritize}
             lazy={!shouldPrioritize}
             quality={85}
           />
-          {isPlaceholder && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-xs font-medium text-gray-500 bg-white/80 px-2 py-1 rounded">
-                Coming Soon
-              </span>
-            </div>
-          )}
           {onClose && (
             <button
               type="button"
@@ -131,24 +125,17 @@ export function AttractionCard({
       showLoadingSpinner={true}
       className="bg-white rounded-2xl shadow hover:shadow-lg transition-shadow text-left w-full h-full overflow-hidden group m-0 p-0 flex flex-col"
     >
-      <div className={`relative h-48 w-full overflow-hidden rounded-t-2xl flex-shrink-0 ${isPlaceholder ? 'bg-gradient-to-br from-gray-100 to-gray-200' : ''}`}>
+      <div className="relative h-48 w-full overflow-hidden rounded-t-2xl flex-shrink-0">
         <OptimizedImage
           src={imageUrl}
           alt={attraction.name}
           fill
-          className={`object-cover transition-transform duration-200 ${isPlaceholder ? 'opacity-40' : 'group-hover:scale-105'}`}
+          className="object-cover transition-transform duration-200 group-hover:scale-105"
           variant="card"
           priority={shouldPrioritize}
           lazy={!shouldPrioritize}
           quality={85}
         />
-        {isPlaceholder && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-sm font-medium text-gray-500 bg-white/80 px-3 py-1 rounded">
-              Coming Soon
-            </span>
-          </div>
-        )}
         {attraction.rating != null &&
           !isNaN(Number(attraction.rating)) &&
           Number(attraction.rating) > 0 && (
@@ -174,18 +161,10 @@ export function AttractionCard({
               )}
           </p>
         )}
-        {isPlaceholder ? (
-          <div className="mt-auto pt-2">
-            <span className="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
-              Coming Soon
-            </span>
+        {attraction.rating !== null && (
+          <div className="mt-auto">
+            <RatingStars rating={attraction.rating} showText={true} />
           </div>
-        ) : (
-          attraction.rating !== null && (
-            <div className="mt-auto">
-              <RatingStars rating={attraction.rating} showText={true} />
-            </div>
-          )
         )}
       </div>
     </NavigationLink>
