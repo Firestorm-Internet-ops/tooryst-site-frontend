@@ -86,22 +86,22 @@ export function SearchPageClient({
       initialResults: enableInitialResults,
     });
 
-  const cities = (results && typeof results === 'object' && 'cities' in results) ? results.cities : [];
-  const attractions = (results && typeof results === 'object' && 'attractions' in results) ? results.attractions : [];
+  const cities = useMemo(() => (results && typeof results === 'object' && 'cities' in results) ? results.cities : [], [results]);
+  const attractions = useMemo(() => (results && typeof results === 'object' && 'attractions' in results) ? results.attractions : [], [results]);
 
-  const counts = {
+  const counts = useMemo(() => ({
     cities: cities.length,
     attractions: attractions.length,
-  };
+  }), [cities, attractions]);
 
   // Prefetch hero images for attractions in search results
   const attractionIds = useMemo(() => attractions.map(a => a.id), [attractions]);
   usePrefetchHeroImages(attractionIds);
 
-  const dataByFilter: Record<SearchFilter, unknown[]> = {
+  const dataByFilter: Record<SearchFilter, unknown[]> = useMemo(() => ({
     cities,
     attractions,
-  };
+  }), [cities, attractions]);
 
   const activeItems = dataByFilter[currentFilter] ?? [];
   const totalPages = Math.max(1, Math.ceil(activeItems.length / PAGE_SIZE));
