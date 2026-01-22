@@ -37,11 +37,21 @@ export function initializeMonitoring(): void {
 
   // Add global error handler for JavaScript errors
   window.addEventListener('error', (event) => {
-    console.error('Global error:', event.error);
+    // Ignore Script errors (often from cross-origin scripts)
+    if (event.message === 'Script error.' || event.message === 'Script error') {
+      return;
+    }
+
+    // Don't log if there's no useful error info (unless we want to track the message)
+    if (!event.error && !event.message) {
+      return;
+    }
+
+    console.error('Global error:', event.error || event.message);
 
     // Import ErrorTracker dynamically to avoid circular dependencies
     import('./error-tracking').then(({ ErrorTracker }) => {
-      ErrorTracker.trackError(event.error || new Error(event.message), {
+      ErrorTracker.trackError(event.error || new Error(event.message || 'Unknown global error'), {
         action: 'global_error',
         additionalData: {
           filename: event.filename,

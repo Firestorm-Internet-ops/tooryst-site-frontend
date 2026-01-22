@@ -62,17 +62,29 @@ export function AttractionMapSection({ data }: MapSectionProps) {
         mapOptions.mapId = config.googleMapsMapId;
       }
 
+      // Validate coordinates
+      if (isNaN(destination.lat) || isNaN(destination.lng)) {
+        console.error('Invalid coordinates for map:', map.latitude, map.longitude);
+        return;
+      }
+
       const mapInstance = new google.maps.Map(mapRef.current, mapOptions);
 
-      // Add marker for destination (using modern AdvancedMarkerElement if available and mapId is present)
-      if (google.maps.marker?.AdvancedMarkerElement && config.googleMapsMapId) {
-        new google.maps.marker.AdvancedMarkerElement({
-          position: destination,
-          map: mapInstance,
-          title: map.address || 'Attraction',
-        });
-      } else {
-        // Fallback to deprecated Marker for older API versions or when mapId is missing
+      // Add marker for destination
+      try {
+        if (google.maps.marker?.AdvancedMarkerElement && config.googleMapsMapId) {
+          new google.maps.marker.AdvancedMarkerElement({
+            position: destination,
+            map: mapInstance,
+            title: map.address || 'Attraction',
+          });
+        } else {
+          // Explicitly throw to trigger catch block for fallback
+          throw new Error('AdvancedMarkerElement not available or Map ID missing');
+        }
+      } catch (e) {
+        console.warn('Failed to initialize AdvancedMarkerElement, falling back to legacy Marker', e);
+        // Fallback to deprecated Marker
         new google.maps.Marker({
           position: destination,
           map: mapInstance,

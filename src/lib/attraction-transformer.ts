@@ -4,6 +4,8 @@ import type { AttractionPageResponse } from '@/types/attraction-page';
 interface BackendHeroImage {
   url: string;
   alt_text?: string;
+  gcs_url_hero?: string;
+  gcs_url_card?: string;
 }
 
 interface BackendBestTimeRegular {
@@ -134,6 +136,7 @@ interface BackendNearbyAttraction {
   distance_text?: string | null;
   walking_time_minutes?: number | null;
   image_url?: string | null;
+  gcs_url?: string | null;
   rating?: number | null;
   review_count?: number | null;
   vicinity?: string | null;
@@ -204,6 +207,8 @@ export function transformAttractionData(data: BackendAttractionResponse): Attrac
         images: data.hero_images.map((img) => ({
           url: img.url,
           alt: img.alt_text,
+          gcs_url_hero: img.gcs_url_hero,
+          gcs_url_card: img.gcs_url_card,
         }))
       } : undefined,
 
@@ -429,7 +434,7 @@ export function transformAttractionData(data: BackendAttractionResponse): Attrac
       distance_km: nearby.distance_km || null,
       distance_text: nearby.distance_text || null,
       walking_time_minutes: nearby.walking_time_minutes || null,
-      image_url: nearby.image_url || null,
+      image_url: nearby.gcs_url || nearby.image_url || null,
       rating: nearby.rating || null,
       review_count: nearby.review_count || null,
       vicinity: nearby.vicinity || null,
