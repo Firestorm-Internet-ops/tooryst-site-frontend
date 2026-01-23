@@ -132,7 +132,9 @@ export function OptimizedImage({
 
   // Automatically unoptimize Google Photos to prevent 403 errors
   const isGooglePhoto = src.includes('googleusercontent.com') || src.includes('ggpht.com');
-  const shouldUnoptimize = unoptimized || isGooglePhoto;
+  // Check if URL is already on a trusted CDN to prevent double optimization
+  const isCDN = src.includes('images.tooryst.co') || src.includes('weserv.nl') || src.includes('wsrv.nl');
+  const shouldUnoptimize = unoptimized || isGooglePhoto || isCDN;
 
   // Generate optimized image URLs
   const optimizedSrc = React.useMemo(() => {
@@ -268,13 +270,14 @@ export function OptimizedImage({
       {/* Next.js optimized image */}
       <Image
         ref={imageRef}
-        src={lazy && !priority ? blurPlaceholder || '' : currentSrc}
+        src={lazy && !priority ? blurPlaceholder || '' : optimizedSrc}
         alt={alt}
         width={fill ? undefined : width}
         height={fill ? undefined : height}
         fill={fill}
         sizes={imageSizes}
         priority={priority}
+        unoptimized={shouldUnoptimize}
         quality={quality}
         placeholder={placeholder}
         blurDataURL={blurPlaceholder}
