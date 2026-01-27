@@ -374,7 +374,7 @@ export function generateStaticPageMetadata(pageType: keyof typeof seoConfig.temp
 // Generate structured data for different page types
 export function generateStructuredData(type: 'organization' | 'website' | 'city' | 'attraction', data?: any) {
   const template = seoConfig.structured_data[type];
-  
+
   if (!template) return null;
 
   const variables = {
@@ -384,8 +384,8 @@ export function generateStructuredData(type: 'organization' | 'website' | 'city'
   };
 
   // Deep clone and replace variables in the template
-  const structuredData = JSON.parse(JSON.stringify(template));
-  
+  let structuredData = JSON.parse(JSON.stringify(template));
+
   function replaceInObject(obj: any): any {
     if (typeof obj === 'string') {
       return replaceTemplateVariables(obj, variables);
@@ -401,7 +401,87 @@ export function generateStructuredData(type: 'organization' | 'website' | 'city'
     return obj;
   }
 
-  return replaceInObject(structuredData);
+  structuredData = replaceInObject(structuredData);
+
+  // Post-process attraction structured data to remove invalid/empty fields
+  if (type === 'attraction') {
+    // Remove aggregateRating if rating or reviewCount is missing/invalid
+    if (structuredData.aggregateRating) {
+      const rating = structuredData.aggregateRating.ratingValue;
+      const reviewCount = structuredData.aggregateRating.reviewCount;
+
+      // Check if values are still template placeholders or invalid
+      if (!rating || !reviewCount ||
+          rating === '{rating}' || reviewCount === '{reviewCount}' ||
+          isNaN(Number(rating)) || isNaN(Number(reviewCount)) ||
+          Number(reviewCount) === 0) {
+        delete structuredData.aggregateRating;
+      }
+    }
+
+    // Remove openingHours if missing/invalid
+    if (!structuredData.openingHours ||
+        structuredData.openingHours === '{openingHours}' ||
+        structuredData.openingHours === 'undefined' ||
+        structuredData.openingHours === 'null') {
+      delete structuredData.openingHours;
+    }
+
+    // Remove geo if coordinates are missing/invalid
+    if (structuredData.geo) {
+      const lat = structuredData.geo.latitude;
+      const lng = structuredData.geo.longitude;
+
+      if (!lat || !lng ||
+          lat === '{attractionLatitude}' || lng === '{attractionLongitude}' ||
+          isNaN(Number(lat)) || isNaN(Number(lng))) {
+        delete structuredData.geo;
+      }
+    }
+
+    // Remove image if missing/invalid
+    if (!structuredData.image ||
+        structuredData.image === '{attractionImage}' ||
+        structuredData.image === 'undefined') {
+      delete structuredData.image;
+    }
+
+    // Remove description if missing/invalid
+    if (!structuredData.description ||
+        structuredData.description === '{attractionDescription}') {
+      delete structuredData.description;
+    }
+  }
+
+  // Post-process city structured data to remove invalid/empty fields
+  if (type === 'city') {
+    // Remove geo if coordinates are missing/invalid
+    if (structuredData.geo) {
+      const lat = structuredData.geo.latitude;
+      const lng = structuredData.geo.longitude;
+
+      if (!lat || !lng ||
+          lat === '{cityLatitude}' || lng === '{cityLongitude}' ||
+          isNaN(Number(lat)) || isNaN(Number(lng))) {
+        delete structuredData.geo;
+      }
+    }
+
+    // Remove containsPlace if missing/invalid (should be array of Place objects)
+    if (!structuredData.containsPlace ||
+        structuredData.containsPlace === '{attractions}' ||
+        !Array.isArray(structuredData.containsPlace)) {
+      delete structuredData.containsPlace;
+    }
+
+    // Remove description if missing/invalid
+    if (!structuredData.description ||
+        structuredData.description === '{cityDescription}') {
+      delete structuredData.description;
+    }
+  }
+
+  return structuredData;
 }
 
 // Helper to get fallback image based on page type
