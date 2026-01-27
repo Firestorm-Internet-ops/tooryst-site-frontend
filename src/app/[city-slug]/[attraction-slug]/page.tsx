@@ -6,6 +6,7 @@ import { AttractionPageClient } from '@/components/attractions/AttractionPageCli
 import { transformAttractionData } from '@/lib/attraction-transformer';
 import { seoManager } from '@/lib/seo-manager';
 import { AttractionStructuredData } from '@/components/seo/StructuredData';
+import { cityNameToSlug } from '@/lib/slug-utils';
 
 async function getAttraction(slug: string): Promise<AttractionPageResponse> {
   try {
@@ -37,6 +38,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Check if pageData exists and has required properties
     if (!pageData || !pageData.name) {
       console.error('Invalid attraction data:', pageData);
+      return {
+        title: 'Attraction not found | Tooryst',
+        description: 'Explore verified travel intelligence on Tooryst.',
+      };
+    }
+
+    // Validate that the city-slug in the URL matches the attraction's actual city
+    const expectedCitySlug = pageData.city ? cityNameToSlug(pageData.city) : null;
+    if (!expectedCitySlug || citySlug !== expectedCitySlug) {
       return {
         title: 'Attraction not found | Tooryst',
         description: 'Explore verified travel intelligence on Tooryst.',
@@ -81,11 +91,18 @@ interface PageProps {
 }
 
 export default async function AttractionPage({ params }: PageProps) {
-  const { 'attraction-slug': attractionSlug } = await params;
+  const { 'city-slug': citySlug, 'attraction-slug': attractionSlug } = await params;
   const pageData = await getAttraction(attractionSlug);
 
   // Check if pageData exists
   if (!pageData || !pageData.name) {
+    notFound();
+  }
+
+  // Validate that the city-slug in the URL matches the attraction's actual city
+  // This ensures URLs like /attractions/some-attraction return 404
+  const expectedCitySlug = pageData.city ? cityNameToSlug(pageData.city) : null;
+  if (!expectedCitySlug || citySlug !== expectedCitySlug) {
     notFound();
   }
 
