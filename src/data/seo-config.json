@@ -168,7 +168,8 @@
     },
     "attraction": {
       "@context": "https://schema.org",
-      "@type": "TouristAttraction",
+      "@type": "LocalBusiness",
+      "additionalType": "https://schema.org/TouristAttraction",
       "name": "{attractionName}",
       "description": "{attractionDescription}",
       "image": "{attractionImage}",
@@ -182,10 +183,11 @@
         "latitude": "{attractionLatitude}",
         "longitude": "{attractionLongitude}"
       },
-      "openingHours": "{openingHours}",
+      "openingHoursSpecification": "{openingHours}",
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "{rating}",
+        "bestRating": "5",
         "reviewCount": "{reviewCount}"
       }
     }

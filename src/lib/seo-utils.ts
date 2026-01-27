@@ -419,12 +419,12 @@ export function generateStructuredData(type: 'organization' | 'website' | 'city'
       }
     }
 
-    // Remove openingHours if missing/invalid
-    if (!structuredData.openingHours ||
-        structuredData.openingHours === '{openingHours}' ||
-        structuredData.openingHours === 'undefined' ||
-        structuredData.openingHours === 'null') {
-      delete structuredData.openingHours;
+    // Remove openingHoursSpecification if missing/invalid
+    if (!structuredData.openingHoursSpecification ||
+        structuredData.openingHoursSpecification === '{openingHours}' ||
+        structuredData.openingHoursSpecification === 'undefined' ||
+        structuredData.openingHoursSpecification === 'null') {
+      delete structuredData.openingHoursSpecification;
     }
 
     // Remove geo if coordinates are missing/invalid
