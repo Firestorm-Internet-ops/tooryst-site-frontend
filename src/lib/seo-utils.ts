@@ -405,6 +405,29 @@ export function generateStructuredData(type: 'organization' | 'website' | 'city'
 
   // Post-process attraction structured data to remove invalid/empty fields
   if (type === 'attraction') {
+    // Transform opening hours to proper openingHoursSpecification format
+    if (data?.openingHours && Array.isArray(data.openingHours)) {
+      const specs = data.openingHours
+        .filter((h: { is_closed: boolean; open_time?: string | null; close_time?: string | null }) =>
+          !h.is_closed && h.open_time && h.close_time
+        )
+        .map((h: { day: string; open_time?: string | null; close_time?: string | null }) => ({
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": h.day,
+          "opens": h.open_time?.substring(0, 5), // "10:00:00" -> "10:00"
+          "closes": h.close_time?.substring(0, 5)
+        }));
+
+      if (specs.length > 0) {
+        structuredData.openingHoursSpecification = specs;
+      }
+    }
+
+    // Remove openingHoursSpecification placeholder if not replaced
+    if (structuredData.openingHoursSpecification === '{openingHoursSpecification}') {
+      delete structuredData.openingHoursSpecification;
+    }
+
     // Remove aggregateRating if rating or reviewCount is missing/invalid
     if (structuredData.aggregateRating) {
       const rating = structuredData.aggregateRating.ratingValue;
@@ -417,14 +440,6 @@ export function generateStructuredData(type: 'organization' | 'website' | 'city'
           Number(reviewCount) === 0) {
         delete structuredData.aggregateRating;
       }
-    }
-
-    // Remove openingHoursSpecification if missing/invalid
-    if (!structuredData.openingHoursSpecification ||
-        structuredData.openingHoursSpecification === '{openingHours}' ||
-        structuredData.openingHoursSpecification === 'undefined' ||
-        structuredData.openingHoursSpecification === 'null') {
-      delete structuredData.openingHoursSpecification;
     }
 
     // Remove geo if coordinates are missing/invalid

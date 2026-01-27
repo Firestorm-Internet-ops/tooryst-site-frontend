@@ -117,7 +117,7 @@ export default async function AttractionPage({ params }: PageProps) {
         attractionLongitude={pageData.cards?.map?.longitude}
         cityName={pageData.city || 'Unknown City'}
         countryName={pageData.country}
-        openingHours={pageData.cards?.best_time?.today_opening_hours_local ?? undefined}
+        openingHours={pageData.visitor_info?.opening_hours ?? undefined}
         rating={pageData.cards?.review?.overall_rating ?? undefined}
         reviewCount={pageData.cards?.review?.review_count ?? undefined}
       />

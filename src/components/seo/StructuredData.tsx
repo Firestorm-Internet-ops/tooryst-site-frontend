@@ -47,7 +47,12 @@ export function AttractionStructuredData(props: {
   attractionLongitude?: number;
   cityName: string;
   countryName?: string;
-  openingHours?: string;
+  openingHours?: Array<{
+    day: string;
+    is_closed: boolean;
+    open_time?: string | null;
+    close_time?: string | null;
+  }>;
   rating?: number;
   reviewCount?: number;
 }) {

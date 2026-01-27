@@ -183,7 +183,7 @@
         "latitude": "{attractionLatitude}",
         "longitude": "{attractionLongitude}"
       },
-      "openingHoursSpecification": "{openingHours}",
+      "openingHoursSpecification": "{openingHoursSpecification}",
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "{rating}",
