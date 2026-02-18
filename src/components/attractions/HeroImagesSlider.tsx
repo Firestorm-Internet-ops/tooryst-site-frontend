@@ -84,7 +84,39 @@ export function HeroImageSlider({
     return () => clearInterval(interval);
   }, [sorted.length, isPaused]);
 
-  if (!sorted.length) return null;
+  // Render content overlay - consistently rendered regardless of images
+  const ContentOverlay = () => (
+    <div className="absolute top-4 left-4 z-10 p-4">
+      <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-white mb-1 drop-shadow-md">
+        {name}
+      </h1>
+      {(city) && (
+        <p className="text-sm md:text-base text-slate-100 drop-shadow-md font-medium">
+          {[city].filter(Boolean).join(', ')}
+        </p>
+      )}
+    </div>
+  );
+
+  // If no images, render a fallback placeholder with the content
+  if (!sorted.length) {
+    return (
+      <article
+        className="relative rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 h-full min-h-[320px] md:min-h-[384px] flex flex-col"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        <div className="relative w-full h-full flex bg-gradient-to-br from-slate-800 to-slate-900">
+          {/* Abstract pattern or solid color */}
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-700/40 via-slate-900/0 to-transparent"></div>
+          <ContentOverlay />
+          <div className="absolute inset-0 flex items-center justify-center text-slate-600">
+            <span className="text-sm">No images available</span>
+          </div>
+        </div>
+      </article>
+    );
+  }
 
   const current = sorted[index];
 
@@ -105,7 +137,7 @@ export function HeroImageSlider({
           src={getImageUrl(current.url)}
           alt={current.alt || name}
           fill
-          className="object-cover"
+          className="object-cover transition-opacity duration-500"
           priority={true}
           loading="eager"
           fetchPriority="high"
@@ -119,16 +151,7 @@ export function HeroImageSlider({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
         {/* Content overlay */}
-        <div className="absolute top-4 left-4 z-10">
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-white mb-1">
-            {name}
-          </h1>
-          {(city) && (
-            <p className="text-sm md:text-base text-slate-200">
-              {[city].filter(Boolean).join(', ')}
-            </p>
-          )}
-        </div>
+        <ContentOverlay />
 
         {/* Slider controls */}
         {sorted.length > 1 && (

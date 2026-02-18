@@ -9,9 +9,10 @@ import { getCDNImageURL } from '@/lib/cdn-image';
 
 interface NearbyAttractionCardProps {
   nearby: NearbyAttractionCardType;
+  citySlug?: string;
 }
 
-export function NearbyAttractionCard({ nearby }: NearbyAttractionCardProps) {
+export function NearbyAttractionCard({ nearby, citySlug = 'unknown' }: NearbyAttractionCardProps) {
   if (!nearby) return null;
 
   const handleScrollToNearby = () => {
@@ -86,7 +87,7 @@ export function NearbyAttractionCard({ nearby }: NearbyAttractionCardProps) {
           <div className="flex items-center gap-2 mt-3">
             {nearby.slug && (
               <Link
-                href={`/attractions/${nearby.slug}`}
+                href={`/${citySlug}/${nearby.slug}`}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 hover:bg-white text-gray-900 text-sm font-medium transition-colors"
               >
                 View attraction

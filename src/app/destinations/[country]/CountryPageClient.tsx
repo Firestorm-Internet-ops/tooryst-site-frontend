@@ -9,6 +9,7 @@ import { CountryHero } from '@/components/pages/CountryHero';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { CountryMap } from '@/components/sections/CountryMap';
 import { AttractionsGrid } from '@/components/sections/AttractionsGrid';
+import { cityNameToSlug } from '@/lib/slug-utils';
 import { Card } from '@/components/ui/Card';
 
 export function CountryPageClient({ countryCode }: { countryCode: string }) {
@@ -79,10 +80,15 @@ export function CountryPageClient({ countryCode }: { countryCode: string }) {
   );
 
   const handleAttractionNavigate = React.useCallback(
-    (slug: string) => {
-      // For now, keep using the old URL structure since we don't have city slug here
-      // TODO: Update this when we have city slug in attraction data
-      router.push(`/attractions/${slug}`);
+    (slug: string, citySlug?: string) => {
+      if (citySlug) {
+        router.push(`/${citySlug}/${slug}`);
+      } else {
+        // Try to find the attraction in our list to get its city
+        const attraction = attractions?.items?.find(a => a.slug === slug);
+        const derivedCitySlug = attraction?.city ? cityNameToSlug(attraction.city) : 'unknown';
+        router.push(`/${derivedCitySlug}/${slug}`);
+      }
     },
     [router]
   );

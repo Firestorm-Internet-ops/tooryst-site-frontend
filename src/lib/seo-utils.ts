@@ -69,6 +69,9 @@ export function generateHomepageMetadata(): Metadata {
     title,
     description,
     keywords: template.keywords,
+    alternates: {
+      canonical: seoConfig.global.siteUrl,
+    },
     openGraph: {
       title,
       description,
@@ -109,7 +112,7 @@ export function generateHomepageMetadata(): Metadata {
 // Generate SEO metadata for city pages
 export async function generateCityMetadata(city: CityData): Promise<Metadata> {
   const template = seoConfig.templates.city;
-  
+
   // Get attraction images for collage if no hero image
   let cityImage = city.hero_image;
   if (!cityImage) {
@@ -144,7 +147,7 @@ export async function generateCityMetadata(city: CityData): Promise<Metadata> {
   const url = `${seoConfig.global.siteUrl}/${city.slug}`;
 
   // Replace template variables in keywords
-  const keywords = template.keywords.map(keyword => 
+  const keywords = template.keywords.map(keyword =>
     replaceTemplateVariables(keyword, variables)
   );
 
@@ -195,10 +198,10 @@ export async function generateCityMetadata(city: CityData): Promise<Metadata> {
 // Generate SEO metadata for attraction pages
 export function generateAttractionMetadata(attraction: AttractionData): Metadata {
   const template = seoConfig.templates.attraction;
-  
+
   // Use attraction hero image or fallback to default
   const attractionImage = attraction.hero_image || getFallbackImage('attraction');
-  
+
   const variables = {
     siteName: seoConfig.global.siteName,
     siteUrl: seoConfig.global.siteUrl,
@@ -213,7 +216,7 @@ export function generateAttractionMetadata(attraction: AttractionData): Metadata
   const url = `${seoConfig.global.siteUrl}/${attraction.city_slug}/${attraction.slug}`;
 
   // Replace template variables in keywords
-  const keywords = template.keywords.map(keyword => 
+  const keywords = template.keywords.map(keyword =>
     replaceTemplateVariables(keyword, variables)
   );
 
@@ -273,7 +276,7 @@ export function generateSearchMetadata(query: string, resultCount?: number): Met
 
   const title = replaceTemplateVariables(template.title, variables);
   let description = replaceTemplateVariables(template.description, variables);
-  
+
   // Add result count to description if available
   if (resultCount !== undefined) {
     description = `Found ${resultCount} results for "${query}". ${description}`;
@@ -306,8 +309,56 @@ export function generateSearchMetadata(query: string, resultCount?: number): Met
       images: [image],
       creator: seoConfig.global.twitterHandle,
     },
+  };
+}
+
+// Generate SEO metadata for country pages
+export function generateCountryMetadata(country: { name: string; slug: string; citiesCount?: number; attractionsCount?: number }): Metadata {
+  const template = seoConfig.templates.country;
+  const variables = {
+    siteName: seoConfig.global.siteName,
+    siteUrl: seoConfig.global.siteUrl,
+    countryName: country.name,
+    defaultImage: seoConfig.global.defaultImage,
+  };
+
+  const title = replaceTemplateVariables(template.title, variables);
+  const description = replaceTemplateVariables(template.description, variables);
+  const image = replaceTemplateVariables(template.image, variables);
+  const url = `${seoConfig.global.siteUrl}/destinations/${country.slug}`;
+
+  return {
+    title,
+    description,
+    keywords: template.keywords.map(k => replaceTemplateVariables(k, variables)),
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: seoConfig.global.siteName,
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: `${country.name} landscape`,
+        },
+      ],
+      locale: seoConfig.global.locale,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [image],
+      creator: seoConfig.global.twitterHandle,
+    },
     robots: {
-      index: false, // Don't index search pages
+      index: true,
       follow: true,
     },
   };
@@ -325,7 +376,14 @@ export function generateStaticPageMetadata(pageType: keyof typeof seoConfig.temp
   const title = replaceTemplateVariables(template.title, variables);
   const description = replaceTemplateVariables(template.description, variables);
   const image = replaceTemplateVariables(template.image, variables);
-  const url = `${seoConfig.global.siteUrl}/${pageType === 'about' ? 'about' : pageType === 'contact' ? 'contact' : pageType === 'privacy' ? 'privacy-policy' : 'terms-of-service'}`;
+  const url = `${seoConfig.global.siteUrl}/${pageType === 'about' ? 'about' :
+    pageType === 'contact' ? 'contact' :
+      pageType === 'privacy' ? 'privacy-policy' :
+        pageType === 'terms' ? 'terms-of-service' :
+          pageType === 'cookie-policy' ? 'cookie-policy' :
+            pageType === 'cities' ? 'cities' :
+              'faq'
+    }`;
 
   return {
     title,
@@ -435,9 +493,9 @@ export function generateStructuredData(type: 'organization' | 'website' | 'city'
 
       // Check if values are still template placeholders or invalid
       if (!rating || !reviewCount ||
-          rating === '{rating}' || reviewCount === '{reviewCount}' ||
-          isNaN(Number(rating)) || isNaN(Number(reviewCount)) ||
-          Number(reviewCount) === 0) {
+        rating === '{rating}' || reviewCount === '{reviewCount}' ||
+        isNaN(Number(rating)) || isNaN(Number(reviewCount)) ||
+        Number(reviewCount) === 0) {
         delete structuredData.aggregateRating;
       }
     }
@@ -448,22 +506,22 @@ export function generateStructuredData(type: 'organization' | 'website' | 'city'
       const lng = structuredData.geo.longitude;
 
       if (!lat || !lng ||
-          lat === '{attractionLatitude}' || lng === '{attractionLongitude}' ||
-          isNaN(Number(lat)) || isNaN(Number(lng))) {
+        lat === '{attractionLatitude}' || lng === '{attractionLongitude}' ||
+        isNaN(Number(lat)) || isNaN(Number(lng))) {
         delete structuredData.geo;
       }
     }
 
     // Remove image if missing/invalid
     if (!structuredData.image ||
-        structuredData.image === '{attractionImage}' ||
-        structuredData.image === 'undefined') {
+      structuredData.image === '{attractionImage}' ||
+      structuredData.image === 'undefined') {
       delete structuredData.image;
     }
 
     // Remove description if missing/invalid
     if (!structuredData.description ||
-        structuredData.description === '{attractionDescription}') {
+      structuredData.description === '{attractionDescription}') {
       delete structuredData.description;
     }
   }
@@ -476,22 +534,22 @@ export function generateStructuredData(type: 'organization' | 'website' | 'city'
       const lng = structuredData.geo.longitude;
 
       if (!lat || !lng ||
-          lat === '{cityLatitude}' || lng === '{cityLongitude}' ||
-          isNaN(Number(lat)) || isNaN(Number(lng))) {
+        lat === '{cityLatitude}' || lng === '{cityLongitude}' ||
+        isNaN(Number(lat)) || isNaN(Number(lng))) {
         delete structuredData.geo;
       }
     }
 
     // Remove containsPlace if missing/invalid (should be array of Place objects)
     if (!structuredData.containsPlace ||
-        structuredData.containsPlace === '{attractions}' ||
-        !Array.isArray(structuredData.containsPlace)) {
+      structuredData.containsPlace === '{attractions}' ||
+      !Array.isArray(structuredData.containsPlace)) {
       delete structuredData.containsPlace;
     }
 
     // Remove description if missing/invalid
     if (!structuredData.description ||
-        structuredData.description === '{cityDescription}') {
+      structuredData.description === '{cityDescription}') {
       delete structuredData.description;
     }
   }

@@ -1,16 +1,15 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-
 import { CountryPageClient } from './CountryPageClient';
 import { CountryOverview } from '@/types/api';
 import { config } from '@/lib/config';
+import { seoManager } from '@/lib/seo-manager';
 
 interface CountryPageProps {
   params: Promise<{ country: string }>;
 }
 
 const API_BASE_URL = config.apiBaseUrl;
-const APP_BASE_URL = config.appUrl;
 
 async function fetchCountry(country: string): Promise<CountryOverview | null> {
   try {
@@ -31,6 +30,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const resolvedParams = await params;
   const countryParam = resolvedParams.country?.toLowerCase();
+
   if (!countryParam) {
     return {
       title: 'Destination not found | Tooryst',
@@ -38,6 +38,7 @@ export async function generateMetadata(
   }
 
   const country = await fetchCountry(countryParam);
+
   if (!country) {
     return {
       title: 'Destination not found | Tooryst',
@@ -45,37 +46,12 @@ export async function generateMetadata(
     };
   }
 
-  const title = `${country.name} Travel Guide | Tooryst`;
-  const description = `Explore ${country.citiesCount ?? 'the top'} cities and ${country.attractionsCount ?? 'countless'} attractions across ${country.name}.`;
-  const canonical = `${APP_BASE_URL}/destinations/${countryParam}`;
-  const imageUrl = config.images.fallbackCity;
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical,
-    },
-    openGraph: {
-      title,
-      description,
-      url: canonical,
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${country.name} landscape`,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [imageUrl],
-    },
-  };
+  return seoManager.generateCountryMetadata({
+    name: country.name,
+    slug: countryParam,
+    citiesCount: country.citiesCount,
+    attractionsCount: country.attractionsCount,
+  });
 }
 
 export default async function CountryPage({ params }: CountryPageProps) {

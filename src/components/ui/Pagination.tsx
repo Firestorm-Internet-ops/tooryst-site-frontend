@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+import Link from 'next/link';
+
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +11,7 @@ interface PaginationProps {
   totalPages: number;
   onPageChange: (page: number) => void;
   isLoading?: boolean;
+  getPageUrl?: (page: number) => string;
 }
 
 const MAX_VISIBLE_PAGES = 5;
@@ -18,6 +21,7 @@ export function Pagination({
   totalPages,
   onPageChange,
   isLoading = false,
+  getPageUrl,
 }: PaginationProps) {
   // Move all hooks before any conditional returns
   const lockRef = React.useRef(false);
@@ -90,26 +94,71 @@ export function Pagination({
   return (
     <nav className="flex flex-col gap-3" data-testid="pagination">
       <div className="flex items-center justify-between gap-2">
-        <Button
-          variant="secondary"
-          size="small"
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={!canGoPrevious || isLoading}
-          aria-label="Previous page"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Previous
-        </Button>
-        <Button
-          variant="secondary"
-          size="small"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={!canGoNext || isLoading}
-          aria-label="Next page"
-        >
-          Next
-          <ChevronRight className="h-4 w-4" />
-        </Button>
+        {getPageUrl ? (
+          <Button
+            asChild
+            variant="secondary"
+            size="small"
+            disabled={!canGoPrevious || isLoading}
+          >
+            <Link
+              href={canGoPrevious ? getPageUrl(currentPage - 1) : '#'}
+              scroll={false}
+              onClick={(e) => {
+                if (!canGoPrevious) e.preventDefault();
+              }}
+              aria-label="Previous page"
+              aria-disabled={!canGoPrevious || isLoading}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Link>
+          </Button>
+        ) : (
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={!canGoPrevious || isLoading}
+            aria-label="Previous page"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+        )}
+
+        {getPageUrl ? (
+          <Button
+            asChild
+            variant="secondary"
+            size="small"
+            disabled={!canGoNext || isLoading}
+          >
+            <Link
+              href={canGoNext ? getPageUrl(currentPage + 1) : '#'}
+              scroll={false}
+              onClick={(e) => {
+                if (!canGoNext) e.preventDefault();
+              }}
+              aria-label="Next page"
+              aria-disabled={!canGoNext || isLoading}
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        ) : (
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={!canGoNext || isLoading}
+            aria-label="Next page"
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       <div className="hidden sm:flex flex-wrap items-center justify-center gap-2">
@@ -121,20 +170,40 @@ export function Pagination({
           return (
             <div key={page} className="flex items-center gap-2">
               {showEllipsis && <span className="text-gray-400">...</span>}
-              <button
-                type="button"
-                onClick={() => handlePageChange(page)}
-                disabled={isLoading}
-                aria-current={page === currentPage ? 'page' : undefined}
-                className={cn(
-                  'min-w-[40px] rounded-full px-3 py-1 text-sm font-medium transition-colors',
-                  page === currentPage
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                )}
-              >
-                {page}
-              </button>
+
+              {getPageUrl ? (
+                <Link
+                  href={getPageUrl(page)}
+                  scroll={false}
+                  aria-current={page === currentPage ? 'page' : undefined}
+                  className={cn(
+                    'min-w-[40px] rounded-full px-3 py-1 text-sm font-medium transition-colors flex items-center justify-center',
+                    page === currentPage
+                      ? 'bg-primary-500 text-white pointer-events-none'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  )}
+                  onClick={(e) => {
+                    if (isLoading) e.preventDefault();
+                  }}
+                >
+                  {page}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(page)}
+                  disabled={isLoading}
+                  aria-current={page === currentPage ? 'page' : undefined}
+                  className={cn(
+                    'min-w-[40px] rounded-full px-3 py-1 text-sm font-medium transition-colors',
+                    page === currentPage
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  )}
+                >
+                  {page}
+                </button>
+              )}
             </div>
           );
         })}

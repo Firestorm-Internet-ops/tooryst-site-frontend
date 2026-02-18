@@ -6,6 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 import { Card } from '@/components/ui/Card';
+import { cityNameToSlug } from '@/lib/slug-utils';
 
 type CityMarker = {
   name: string;
@@ -21,6 +22,7 @@ type AttractionMarker = {
   lat: number;
   lng: number;
   rating?: number | null;
+  city?: string;
 };
 
 interface CountryMapProps {
@@ -32,7 +34,7 @@ interface CountryMapProps {
   cities?: CityMarker[];
   attractions?: AttractionMarker[];
   onCityClick?: (slug: string) => void;
-  onAttractionClick?: (slug: string) => void;
+  onAttractionClick?: (slug: string, citySlug?: string) => void;
 }
 
 const cityIcon = L.divIcon({
@@ -217,7 +219,10 @@ export function CountryMap({
                   position={[spot.lat, spot.lng]}
                   icon={attractionIcon}
                   eventHandlers={{
-                    click: () => onAttractionClick?.(spot.slug),
+                    click: () => {
+                      const citySlug = spot.city ? cityNameToSlug(spot.city) : undefined;
+                      onAttractionClick?.(spot.slug, citySlug);
+                    },
                   }}
                 >
                   {/* Show name label when zoomed in close enough */}
@@ -275,7 +280,10 @@ export function CountryMap({
                 <button
                   key={`keyboard-attraction-${spot.slug}`}
                   type="button"
-                  onClick={() => onAttractionClick?.(spot.slug)}
+                  onClick={() => {
+                    const citySlug = spot.city ? cityNameToSlug(spot.city) : undefined;
+                    onAttractionClick?.(spot.slug, citySlug);
+                  }}
                   className="rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-600 hover:border-primary-300 hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300"
                 >
                   {spot.name}

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useSearch } from '@/hooks/useSearch';
 import { config } from '@/lib/config';
+import { cityNameToSlug } from '@/lib/slug-utils';
 import type { City, AttractionSummary, Attraction } from '@/types/api';
 
 interface SearchInputProps {
@@ -64,13 +65,13 @@ export function SearchInput({
   };
 
   // Helper function to get the URL for a suggestion
-  const getSuggestionUrl = (suggestion: { type: 'city' | 'attraction'; slug: string }) => {
+  const getSuggestionUrl = (suggestion: { type: 'city' | 'attraction'; slug: string; citySlug?: string }) => {
     if (suggestion.type === 'city') {
       return `/${suggestion.slug}`;
     } else {
-      // For attractions, we need the city slug. For now, we'll use the old structure
-      // TODO: Update this when we have city slug in attraction data
-      return `/attractions/${suggestion.slug}`;
+      // Use citySlug if available, otherwise fallback to 'unknown' or old structure (though old structure is redirected)
+      const citySlug = suggestion.citySlug || 'unknown';
+      return `/${citySlug}/${suggestion.slug}`;
     }
   };
 
@@ -96,14 +97,29 @@ export function SearchInput({
   };
 
   // Build suggestions from search results
-  const allSuggestions: Array<{ type: 'city' | 'attraction'; name: string; slug: string }> = [];
+  const allSuggestions: Array<{ type: 'city' | 'attraction'; name: string; slug: string; citySlug?: string }> = [];
   if (showSuggestions && results && typeof results === 'object' && 'cities' in results && 'attractions' in results) {
     const searchResults = results as { cities?: City[]; attractions?: (AttractionSummary | Attraction)[] };
     searchResults.cities?.slice(0, config.ui.searchSuggestionLimit).forEach((city) => {
       allSuggestions.push({ type: 'city', name: city.name, slug: city.slug });
     });
     searchResults.attractions?.slice(0, config.ui.searchSuggestionLimit).forEach((attraction) => {
-      allSuggestions.push({ type: 'attraction', name: attraction.name, slug: attraction.slug });
+      // Handle both Attraction and AttractionSummary types
+      let cityName: string | undefined;
+      if ('city_name' in attraction) {
+        cityName = attraction.city_name;
+      } else {
+        // Must be AttractionSummary
+        cityName = (attraction as AttractionSummary).city;
+      }
+
+      const citySlug = cityName ? cityNameToSlug(cityName) : undefined;
+      allSuggestions.push({
+        type: 'attraction',
+        name: attraction.name,
+        slug: attraction.slug,
+        citySlug
+      });
     });
   }
 

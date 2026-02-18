@@ -45,7 +45,7 @@ export function CityHeroCollage({
       if (navigator.share) {
         try {
           await navigator.share({
-            title: `${city.name} • Toorysts`,
+            title: `${city.name} • Tooryst`,
             text: `Discover attractions in ${city.name}`,
             url: typeof window !== 'undefined' ? `${window.location.origin}/${city.slug}` : `/${city.slug}`,
           });

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { MapPin, MapPinned } from 'lucide-react';
 import type { City, PaginatedResponse } from '@/types/api';
 import { config } from '@/lib/config';
+import { seoManager } from '@/lib/seo-manager';
 import citiesData from '@/data/cities.json';
 
 const API_BASE_URL = config.apiBaseUrl;
@@ -39,18 +40,7 @@ async function fetchCities(): Promise<City[]> {
   }
 }
 
-export const metadata: Metadata = {
-  title: 'Explore Cities | Tooryst',
-  description: 'Discover travel intelligence for cities worldwide. Find crowd levels, weather insights, and visitor sentiment.',
-  keywords: ['cities', 'destinations', 'travel', 'crowd levels', 'weather'],
-  openGraph: {
-    title: 'Explore Cities | Tooryst',
-    description: 'Discover travel intelligence for cities worldwide.',
-    url: `${APP_URL}/cities`,
-    siteName: 'Storyboard',
-    type: 'website',
-  },
-};
+export const metadata: Metadata = seoManager.generateStaticPageMetadata('cities');
 
 export default async function CitiesPage() {
   const cities = await fetchCities();

@@ -1,10 +1,9 @@
 import { Metadata } from 'next'
 import config from '@/lib/config'
 
-export const metadata: Metadata = {
-  title: `Cookie Policy - ${config.appName}`,
-  description: 'Our cookie policy and how we use cookies',
-}
+import { seoManager } from '@/lib/seo-manager'
+
+export const metadata: Metadata = seoManager.generateStaticPageMetadata('cookie-policy');
 
 export default function CookiePolicyPage() {
   const lastUpdated = new Date().toLocaleDateString('en-US', {

@@ -63,6 +63,7 @@ export function useCountry(country: string, options?: UseCountryOptions) {
         name: attraction.name,
         slug: attraction.slug,
         rating: attraction.average_rating ?? null,
+        city: attraction.city,
       })),
     [attractionData?.items]
   );

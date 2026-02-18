@@ -50,14 +50,14 @@ export const contactFormSchema = z.object({
     .min(2, 'Name must be at least 2 characters')
     .max(50, 'Name must be less than 50 characters')
     .regex(/^[a-zA-Z\s\-']+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes'),
-  
+
   email: z
     .string()
     .min(1, 'Email is required')
     .email('Please enter a valid email address')
     .max(100, 'Email must be less than 100 characters')
     .toLowerCase(),
-  
+
   phone: z
     .string()
     .optional()
@@ -69,31 +69,31 @@ export const contactFormSchema = z.object({
       const phoneRegex = /^[\+]?[1-9]\d{6,14}$/;
       return phoneRegex.test(cleanPhone);
     }, 'Please enter a valid phone number'),
-  
+
   subject: z
     .string()
     .min(5, 'Subject must be at least 5 characters')
     .max(100, 'Subject must be less than 100 characters'),
-  
+
   message: z
     .string()
     .min(10, 'Message must be at least 10 characters')
     .max(1000, 'Message must be less than 1000 characters'),
-  
+
   inquiryType: z
     .enum(['general', 'support', 'partnership', 'feedback', 'business'])
     .default('general'),
-  
+
   preferredContact: z
     .enum(['email', 'phone', 'either'])
     .default('email'),
-  
+
   // Honeypot field for spam protection
   website: z
     .string()
     .max(0, 'This field should be empty')
     .optional(),
-  
+
   // Privacy consent
   consent: z
     .boolean()
@@ -112,14 +112,14 @@ export const newsletterFormSchema = z.object({
     .email('Please enter a valid email address')
     .max(100, 'Email must be less than 100 characters')
     .toLowerCase(),
-  
+
   firstName: z
     .string()
     .min(2, 'First name must be at least 2 characters')
     .max(30, 'First name must be less than 30 characters')
     .regex(/^[a-zA-Z\s\-']+$/, 'First name can only contain letters, spaces, hyphens, and apostrophes')
     .optional(),
-  
+
   interests: z
     .array(z.enum([
       'attractions',
@@ -132,21 +132,21 @@ export const newsletterFormSchema = z.object({
     ]))
     .min(1, 'Please select at least one interest')
     .max(7, 'Please select no more than 7 interests'),
-  
+
   frequency: z
     .enum(['weekly', 'biweekly', 'monthly'])
     .default('monthly'),
-  
+
   location: z
     .string()
     .max(50, 'Location must be less than 50 characters')
     .optional(),
-  
+
   // Privacy consent
   consent: z
     .boolean()
     .refine((val) => val === true, 'You must agree to receive our newsletter'),
-  
+
   // Marketing consent (optional)
   marketingConsent: z
     .boolean()
@@ -163,17 +163,17 @@ export const advancedSearchFormSchema = z.object({
     .string()
     .max(100, 'Search query must be less than 100 characters')
     .optional(),
-  
+
   location: z
     .string()
     .max(50, 'Location must be less than 50 characters')
     .optional(),
-  
+
   categories: z
     .array(z.string())
     .max(5, 'Please select no more than 5 categories')
     .optional(),
-  
+
   priceRange: z
     .object({
       min: z.number().min(0, 'Minimum price must be 0 or greater').optional(),
@@ -186,13 +186,13 @@ export const advancedSearchFormSchema = z.object({
       return true;
     }, 'Minimum price must be less than or equal to maximum price')
     .optional(),
-  
+
   rating: z
     .number()
     .min(1, 'Rating must be between 1 and 5')
     .max(5, 'Rating must be between 1 and 5')
     .optional(),
-  
+
   accessibility: z
     .array(z.enum([
       'wheelchair-accessible',
@@ -202,15 +202,15 @@ export const advancedSearchFormSchema = z.object({
       'pet-friendly'
     ]))
     .optional(),
-  
+
   openNow: z
     .boolean()
     .optional(),
-  
+
   sortBy: z
     .enum(['relevance', 'rating', 'distance', 'price', 'popularity'])
     .default('relevance'),
-  
+
   sortOrder: z
     .enum(['asc', 'desc'])
     .default('desc'),
@@ -226,30 +226,30 @@ export const feedbackFormSchema = z.object({
     .number()
     .min(1, 'Please provide a rating between 1 and 5')
     .max(5, 'Please provide a rating between 1 and 5'),
-  
+
   title: z
     .string()
     .min(5, 'Title must be at least 5 characters')
     .max(100, 'Title must be less than 100 characters'),
-  
+
   comment: z
     .string()
     .min(10, 'Comment must be at least 10 characters')
     .max(500, 'Comment must be less than 500 characters'),
-  
+
   category: z
     .enum(['attraction', 'website', 'mobile-app', 'customer-service', 'other'])
     .default('attraction'),
-  
+
   wouldRecommend: z
     .boolean(),
-  
+
   email: z
     .string()
     .email('Please enter a valid email address')
     .max(100, 'Email must be less than 100 characters')
     .optional(),
-  
+
   anonymous: z
     .boolean()
     .default(false),
@@ -321,15 +321,15 @@ export function getFieldErrors(error: z.ZodError): Record<string, string> {
  */
 export function transformFormData<T>(data: T, transformations?: Partial<Record<keyof T, (value: any) => any>>): T {
   if (!transformations) return data;
-  
+
   const transformed = { ...data };
-  
+
   Object.entries(transformations).forEach(([key, transform]) => {
     if (key in transformed && transform) {
       (transformed as any)[key] = transform((transformed as any)[key]);
     }
   });
-  
+
   return transformed;
 }
 
@@ -339,16 +339,16 @@ export function transformFormData<T>(data: T, transformations?: Partial<Record<k
 export const validationPatterns = {
   // Only letters, spaces, hyphens, and apostrophes
   name: /^[a-zA-Z\s\-']+$/,
-  
+
   // Alphanumeric with common punctuation for search
   search: /^[a-zA-Z0-9\s\-.,'"!?()&]+$/,
-  
+
   // International phone number (basic pattern)
   phone: /^[\+]?[1-9][\d]{0,15}$/,
-  
+
   // URL slug pattern
   slug: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-  
+
   // Password strength (at least 8 chars, 1 uppercase, 1 lowercase, 1 number)
   strongPassword: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/,
 } as const;
