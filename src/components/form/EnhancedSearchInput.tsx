@@ -22,6 +22,7 @@ import { useSearch } from '@/hooks/useSearch';
 import { useSearchValidation } from '@/hooks/useFormValidation';
 import { searchFormSchema, type SearchFormData } from '@/lib/validation-schemas';
 import { config } from '@/lib/config';
+import { cityNameToSlug } from '@/lib/slug-utils';
 import type { City, AttractionSummary, Attraction } from '@/types/api';
 
 interface EnhancedSearchInputProps {
@@ -60,7 +61,7 @@ export function EnhancedSearchInput({
     resolver: zodResolver(searchFormSchema),
     defaultValues: {
       query: '',
-      filter: 'all',
+      filter: 'all' as 'all' | 'cities' | 'attractions',
     },
     mode: 'onChange',
   });
@@ -111,7 +112,7 @@ export function EnhancedSearchInput({
   // Handle form submission
   const onSubmit = (data: SearchFormData) => {
     if (!data.query.trim()) return;
-    
+
     setShowDropdown(false);
     onSearch({
       ...data,
@@ -120,22 +121,23 @@ export function EnhancedSearchInput({
   };
 
   // Handle suggestion click
-  const handleSuggestionClick = (suggestion: { type: 'city' | 'attraction'; name: string; slug: string }) => {
+  const handleSuggestionClick = (suggestion: { type: 'city' | 'attraction'; name: string; slug: string; citySlug?: string }) => {
     const searchData: SearchFormData = {
       query: suggestion.name,
       filter: suggestion.type === 'city' ? 'cities' : 'attractions',
     };
-    
+
     form.setValue('query', suggestion.name);
     setSelectedFilter(searchData.filter);
     setShowDropdown(false);
     onSearch(searchData);
-    
+
     // Navigate to appropriate page
     if (suggestion.type === 'city') {
-      router.push(`/cities/${suggestion.slug}`);
+      router.push(`/${suggestion.slug}`);
     } else {
-      router.push(`/attractions/${suggestion.slug}`);
+      const cityPath = suggestion.citySlug || 'unknown';
+      router.push(`/${cityPath}/${suggestion.slug}`);
     }
   };
 
@@ -148,19 +150,34 @@ export function EnhancedSearchInput({
   };
 
   // Build suggestions from search results
-  const allSuggestions: Array<{ type: 'city' | 'attraction'; name: string; slug: string }> = [];
+  const allSuggestions: Array<{ type: 'city' | 'attraction'; name: string; slug: string; citySlug?: string }> = [];
   if (showSuggestions && results && typeof results === 'object' && 'cities' in results && 'attractions' in results) {
     const searchResults = results as { cities?: City[]; attractions?: (AttractionSummary | Attraction)[] };
-    
+
     if (selectedFilter === 'all' || selectedFilter === 'cities') {
       searchResults.cities?.slice(0, config.ui.searchSuggestionLimit).forEach((city) => {
         allSuggestions.push({ type: 'city', name: city.name, slug: city.slug });
       });
     }
-    
+
     if (selectedFilter === 'all' || selectedFilter === 'attractions') {
       searchResults.attractions?.slice(0, config.ui.searchSuggestionLimit).forEach((attraction) => {
-        allSuggestions.push({ type: 'attraction', name: attraction.name, slug: attraction.slug });
+        // Handle both Attraction and AttractionSummary types
+        let cityName: string | undefined;
+        if ('city_name' in attraction) {
+          cityName = attraction.city_name;
+        } else {
+          // Must be AttractionSummary
+          cityName = (attraction as AttractionSummary).city;
+        }
+
+        const citySlug = cityName ? cityNameToSlug(cityName) : undefined;
+        allSuggestions.push({
+          type: 'attraction',
+          name: attraction.name,
+          slug: attraction.slug,
+          citySlug
+        });
       });
     }
   }
@@ -199,7 +216,7 @@ export function EnhancedSearchInput({
               size === 'sm' && 'h-4 w-4 left-2',
               size === 'lg' && 'h-6 w-6 left-4'
             )} />
-            
+
             {/* Main Input */}
             <Controller
               name="query"
@@ -304,13 +321,13 @@ export function EnhancedSearchInput({
               <span>Searching...</span>
             </div>
           )}
-          
+
           {!isLoading && allSuggestions.length === 0 && debouncedQuery.length > 0 && (
             <div className="px-4 py-3 text-sm text-gray-500">
               No results found for "{debouncedQuery}"
             </div>
           )}
-          
+
           {!isLoading && allSuggestions.length > 0 && (
             <div className="py-2">
               {allSuggestions.map((suggestion, index) => (

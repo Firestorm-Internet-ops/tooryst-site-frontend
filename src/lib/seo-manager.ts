@@ -4,6 +4,7 @@ import {
   generateCityMetadata,
   generateAttractionMetadata,
   generateSearchMetadata,
+  generateCountryMetadata,
   generateStaticPageMetadata,
   generateStructuredData,
   getFallbackImage,
@@ -46,8 +47,13 @@ export class SEOManager {
     return generateSearchMetadata(query, resultCount);
   }
 
+  // Generate metadata for country pages
+  generateCountryMetadata(country: { name: string; slug: string; citiesCount?: number; attractionsCount?: number }): Metadata {
+    return generateCountryMetadata(country);
+  }
+
   // Generate metadata for static pages
-  generateStaticPageMetadata(pageType: 'about' | 'contact' | 'privacy' | 'terms'): Metadata {
+  generateStaticPageMetadata(pageType: 'about' | 'contact' | 'privacy' | 'terms' | 'cookie-policy' | 'faq' | 'cities'): Metadata {
     return generateStaticPageMetadata(pageType);
   }
 
@@ -122,79 +128,6 @@ export class SEOManager {
         sections: template.content.sections,
       },
     };
-  }
-
-  // Generate sitemap data
-  generateSitemapData() {
-    return {
-      static_pages: [
-        { url: '/', priority: 1.0, changefreq: 'daily' },
-        { url: '/about', priority: 0.8, changefreq: 'monthly' },
-        { url: '/contact', priority: 0.8, changefreq: 'monthly' },
-        { url: '/privacy-policy', priority: 0.5, changefreq: 'yearly' },
-        { url: '/terms-of-service', priority: 0.5, changefreq: 'yearly' },
-        { url: '/search', priority: 0.6, changefreq: 'weekly' },
-      ],
-      dynamic_patterns: {
-        cities: {
-          pattern: '/{city-slug}',
-          priority: 0.9,
-          changefreq: 'weekly',
-        },
-        attractions: {
-          pattern: '/{city-slug}/{attraction-slug}',
-          priority: 0.8,
-          changefreq: 'weekly',
-        },
-      },
-    };
-  }
-
-  // Generate robots.txt content
-  generateRobotsTxt() {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://tooryst.co';
-
-    return `User-agent: *
-Allow: /
-
-# Sitemaps
-Sitemap: ${baseUrl}/sitemap.xml
-Sitemap: ${baseUrl}/sitemap-cities.xml
-Sitemap: ${baseUrl}/sitemap-attractions.xml
-
-# Disallow search pages with parameters
-Disallow: /search?*
-
-# Disallow admin or private areas (if any)
-Disallow: /admin/
-Disallow: /api/
-
-# Allow all other pages
-Allow: /`;
-  }
-
-  // Validate and optimize images for SEO
-  optimizeImageForSEO(imageUrl: string, alt: string, type: 'hero' | 'thumbnail' | 'social') {
-    const dimensions = {
-      hero: { width: 1200, height: 630 },
-      thumbnail: { width: 400, height: 300 },
-      social: { width: 1200, height: 630 },
-    };
-
-    const size = dimensions[type];
-
-    // If it's an Unsplash image, add optimization parameters
-    if (imageUrl.includes('unsplash.com')) {
-      const separator = imageUrl.includes('?') ? '&' : '?';
-      return `${imageUrl}${separator}auto=format&fit=crop&w=${size.width}&h=${size.height}&q=80`;
-    }
-
-    // If it's a local image, use Next.js Image Optimization API
-    if (imageUrl.startsWith('/images/')) {
-      return `/_next/image?url=${encodeURIComponent(imageUrl)}&w=${size.width}&h=${size.height}&q=80`;
-    }
-
-    return imageUrl;
   }
 
   // Generate meta tags for AEO (Answer Engine Optimization)

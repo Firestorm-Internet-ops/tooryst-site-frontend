@@ -9,6 +9,7 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { getCDNImageURL } from '@/lib/cdn-image';
 import { EnhancedAPIClient } from '@/lib/api';
 import { config } from '@/lib/config';
+import { cityNameToSlug } from '@/lib/slug-utils';
 
 interface NearbyAttractionsSectionProps {
   data: AttractionPageResponse;
@@ -216,9 +217,10 @@ export function NearbyAttractionsSection({ data }: NearbyAttractionsSectionProps
           }}
         >
           {nearbyAttractions.map((attraction, idx) => {
+            const citySlug = data.city ? cityNameToSlug(data.city) : 'unknown';
             const href =
               attraction.link ??
-              (attraction.slug ? `/attractions/${attraction.slug}` : '#');
+              (attraction.slug ? `/${citySlug}/${attraction.slug}` : '#');
             const isExternal = href.startsWith('http');
 
             const wrapperProps = {
@@ -238,129 +240,130 @@ export function NearbyAttractionsSection({ data }: NearbyAttractionsSectionProps
               );
 
             return (
-            <Wrapper key={idx}>
-              <div className="relative rounded-2xl overflow-hidden border border-gray-200 bg-white hover:border-primary-300 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2"
-                style={{
-                  transformStyle: 'preserve-3d',
-                  transition: 'all 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
-                }}
-              >
-                {getSafeImageUrl(attraction.image_url) ? (
-                  <>
-                    <div className="relative h-56 w-full overflow-hidden">
-                      {(() => {
-                        const rawUrl = getSafeImageUrl(attraction.image_url)!;
-                        const isGoogleMaps = typeof rawUrl === 'string' && rawUrl.includes('maps.googleapis.com');
-                        const imageUrl = isGoogleMaps ? rawUrl : getCDNImageURL(rawUrl, { width: 680, quality: 85, format: 'webp' });
+              <Wrapper key={idx}>
+                <div className="relative rounded-2xl overflow-hidden border border-gray-200 bg-white hover:border-primary-300 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2"
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    transition: 'all 0.5s cubic-bezier(0.23, 1, 0.32, 1)',
+                  }}
+                >
+                  {getSafeImageUrl(attraction.image_url) ? (
+                    <>
+                      <div className="relative h-56 w-full overflow-hidden">
+                        {(() => {
+                          const rawUrl = getSafeImageUrl(attraction.image_url)!;
+                          const isGoogleMaps = typeof rawUrl === 'string' && rawUrl.includes('maps.googleapis.com');
+                          const imageUrl = isGoogleMaps ? rawUrl : getCDNImageURL(rawUrl, { width: 680, quality: 85, format: 'webp' });
 
-                        return (
-                          <Image
-                            src={imageUrl}
-                            alt={attraction.name}
-                            fill
-                            className="object-cover group-hover/card:scale-110 transition-transform duration-700"
-                            sizes="340px"
-                            loading="lazy"
-                            unoptimized={!attraction.slug || isGoogleMaps}
-                          />
-                        );
-                      })()}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                          return (
+                            <Image
+                              src={imageUrl}
+                              alt={attraction.name}
+                              fill
+                              className="object-cover group-hover/card:scale-110 transition-transform duration-700"
+                              sizes="340px"
+                              loading="lazy"
+                              unoptimized={!attraction.slug || isGoogleMaps}
+                            />
+                          );
+                        })()}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
-                      {/* Rating Badge */}
-                      {attraction.rating && (
-                        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-lg">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <div className="flex flex-col items-start leading-none">
-                            <span className="text-sm font-bold text-gray-900">
-                              {attraction.rating.toFixed(1)}
-                            </span>
-                            {attraction.review_count && attraction.review_count > 0 && (
-                              <span className="text-[10px] text-gray-600">
-                                {formatReviewCount(attraction.review_count)}
+                        {/* Rating Badge */}
+                        {attraction.rating && (
+                          <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-lg">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <div className="flex flex-col items-start leading-none">
+                              <span className="text-sm font-bold text-gray-900">
+                                {attraction.rating.toFixed(1)}
                               </span>
-                            )}
+                              {attraction.review_count && attraction.review_count > 0 && (
+                                <span className="text-[10px] text-gray-600">
+                                  {formatReviewCount(attraction.review_count)}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/90 to-transparent">
-                      <h3 className="text-lg font-bold text-white mb-3 line-clamp-2 drop-shadow-lg">
-                        {attraction.name}
-                      </h3>
-
-                      <div className="flex flex-wrap gap-2">
-                        {attraction.distance_km && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium text-white border border-white/30">
-                            <MapPin className="h-3.5 w-3.5" />
-                            {attraction.distance_km.toFixed(1)} km
-                          </span>
-                        )}
-                        {attraction.walking_time_minutes && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium text-white border border-white/30">
-                            <Clock className="h-3.5 w-3.5" />
-                            {attraction.walking_time_minutes} min
-                          </span>
                         )}
                       </div>
 
-                      {attraction.vicinity && (
-                        <p className="text-xs text-white/80 mt-2 line-clamp-1 drop-shadow">
-                          {attraction.vicinity}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <div className="p-5 h-56 flex flex-col justify-between">
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-3">
-                        {attraction.name}
-                      </h3>
+                      <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/90 to-transparent">
+                        <h3 className="text-lg font-bold text-white mb-3 line-clamp-2 drop-shadow-lg">
+                          {attraction.name}
+                        </h3>
 
-                      {attraction.vicinity && (
-                        <p className="text-xs text-gray-500 mb-3 line-clamp-2">
-                          {attraction.vicinity}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {attraction.distance_km && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-xs font-medium text-gray-700">
-                            <MapPin className="h-3.5 w-3.5" />
-                            {attraction.distance_km.toFixed(1)} km
-                          </span>
-                        )}
-                        {attraction.walking_time_minutes && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-xs font-medium text-gray-700">
-                            <Clock className="h-3.5 w-3.5" />
-                            {attraction.walking_time_minutes} min
-                          </span>
-                        )}
-                      </div>
-
-                      {attraction.rating && (
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-semibold text-gray-900">
-                            {attraction.rating.toFixed(1)}
-                          </span>
-                          {attraction.review_count && attraction.review_count > 0 && (
-                            <span className="text-xs text-gray-500">
-                              ({formatReviewCount(attraction.review_count)})
+                        <div className="flex flex-wrap gap-2">
+                          {attraction.distance_km && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium text-white border border-white/30">
+                              <MapPin className="h-3.5 w-3.5" />
+                              {attraction.distance_km.toFixed(1)} km
+                            </span>
+                          )}
+                          {attraction.walking_time_minutes && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium text-white border border-white/30">
+                              <Clock className="h-3.5 w-3.5" />
+                              {attraction.walking_time_minutes} min
                             </span>
                           )}
                         </div>
-                      )}
+
+                        {attraction.vicinity && (
+                          <p className="text-xs text-white/80 mt-2 line-clamp-1 drop-shadow">
+                            {attraction.vicinity}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="p-5 h-56 flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-3">
+                          {attraction.name}
+                        </h3>
+
+                        {attraction.vicinity && (
+                          <p className="text-xs text-gray-500 mb-3 line-clamp-2">
+                            {attraction.vicinity}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {attraction.distance_km && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-xs font-medium text-gray-700">
+                              <MapPin className="h-3.5 w-3.5" />
+                              {attraction.distance_km.toFixed(1)} km
+                            </span>
+                          )}
+                          {attraction.walking_time_minutes && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-xs font-medium text-gray-700">
+                              <Clock className="h-3.5 w-3.5" />
+                              {attraction.walking_time_minutes} min
+                            </span>
+                          )}
+                        </div>
+
+                        {attraction.rating && (
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <span className="text-sm font-semibold text-gray-900">
+                              {attraction.rating.toFixed(1)}
+                            </span>
+                            {attraction.review_count && attraction.review_count > 0 && (
+                              <span className="text-xs text-gray-500">
+                                ({formatReviewCount(attraction.review_count)})
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            </Wrapper>
-          )})}
+                  )}
+                </div>
+              </Wrapper>
+            )
+          })}
         </div>
       </div>
     </SectionShell>

@@ -1,4 +1,5 @@
 import { AttractionPageResponse } from '@/types/attraction-page';
+import { cityNameToSlug } from '@/lib/slug-utils';
 import { HeroImageSlider } from '@/components/attractions/HeroImagesSlider';
 import { BestTimeTodayCard } from '@/components/attractions/storyboard/BestTimeTodayCard';
 import { WeatherSnapshotCard } from '@/components/attractions/storyboard/WeatherSnapshotCard';
@@ -104,7 +105,10 @@ export function StoryboardCardsGrid({ data }: StoryboardCardsGridProps) {
             {/* Nearby */}
             {data.cards.nearby_attraction && (
               <div className="hidden lg:block lg:col-start-2 lg:row-start-3 cursor-pointer">
-                <NearbyAttractionCard nearby={data.cards.nearby_attraction} />
+                <NearbyAttractionCard
+                  nearby={data.cards.nearby_attraction}
+                  citySlug={data.city ? cityNameToSlug(data.city) : undefined}
+                />
               </div>
             )}
 
@@ -146,7 +150,10 @@ export function StoryboardCardsGrid({ data }: StoryboardCardsGridProps) {
 
                   {data.cards.nearby_attraction && (
                     <div className="cursor-pointer">
-                      <NearbyAttractionCard nearby={data.cards.nearby_attraction} />
+                      <NearbyAttractionCard
+                        nearby={data.cards.nearby_attraction}
+                        citySlug={data.city ? cityNameToSlug(data.city) : undefined}
+                      />
                     </div>
                   )}
                 </div>

@@ -228,6 +228,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: '/cities/:slug',
+        destination: '/:slug',
+        permanent: true,
+      },
+      {
         source: '/sitemap_index.xml',
         destination: '/sitemap.xml',
         permanent: true,

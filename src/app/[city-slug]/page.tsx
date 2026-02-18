@@ -5,6 +5,7 @@ import { CityPageClient } from './CityPageClient';
 import { CityDetail, AttractionSummary } from '@/types/api';
 import { config } from '@/lib/config';
 import { seoManager } from '@/lib/seo-manager';
+import { BreadcrumbStructuredData } from '@/components/seo/FAQStructuredData';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -123,13 +124,22 @@ export default async function CityPage({ params, searchParams }: CityPageProps) 
     : undefined;
 
   return (
-    <CityPageClient
-      slug={slug}
-      initialPage={initialPage}
-      city={city}
-      allAttractions={attractions}
-      attractionImages={attractionImages}
-      averageRating={averageRating}
-    />
+    <>
+      <CityPageClient
+        slug={slug}
+        initialPage={initialPage}
+        city={city}
+        allAttractions={attractions}
+        attractionImages={attractionImages}
+        averageRating={averageRating}
+      />
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Home', url: config.appUrl },
+          { name: 'Cities', url: `${config.appUrl}/cities` },
+          { name: city.name, url: `${config.appUrl}/${slug}` },
+        ]}
+      />
+    </>
   );
 }

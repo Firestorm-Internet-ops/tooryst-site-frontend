@@ -6,6 +6,7 @@ import { AttractionPageClient } from '@/components/attractions/AttractionPageCli
 import { transformAttractionData } from '@/lib/attraction-transformer';
 import { seoManager } from '@/lib/seo-manager';
 import { AttractionStructuredData } from '@/components/seo/StructuredData';
+import { BreadcrumbStructuredData } from '@/components/seo/FAQStructuredData';
 import { cityNameToSlug } from '@/lib/slug-utils';
 
 async function getAttraction(slug: string): Promise<AttractionPageResponse> {
@@ -31,6 +32,18 @@ async function getAttraction(slug: string): Promise<AttractionPageResponse> {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { 'city-slug': citySlug, 'attraction-slug': attractionSlug } = await params;
+
+  // Handle "null" literal in URL (Issue 6)
+  if (attractionSlug === 'null') {
+    return {
+      title: 'Attraction not found | Tooryst',
+      description: 'Explore verified travel intelligence on Tooryst.',
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
 
   try {
     const pageData = await getAttraction(attractionSlug);
@@ -92,6 +105,11 @@ interface PageProps {
 
 export default async function AttractionPage({ params }: PageProps) {
   const { 'city-slug': citySlug, 'attraction-slug': attractionSlug } = await params;
+
+  // Handle "null" literal in URL (Issue 6)
+  if (attractionSlug === 'null') {
+    notFound();
+  }
   const pageData = await getAttraction(attractionSlug);
 
   // Check if pageData exists
@@ -120,6 +138,13 @@ export default async function AttractionPage({ params }: PageProps) {
         openingHours={pageData.visitor_info?.opening_hours ?? undefined}
         rating={pageData.cards?.review?.overall_rating ?? undefined}
         reviewCount={pageData.cards?.review?.review_count ?? undefined}
+      />
+      <BreadcrumbStructuredData
+        items={[
+          { name: 'Home', url: config.appUrl },
+          { name: pageData.city || citySlug, url: `${config.appUrl}/${citySlug}` },
+          { name: pageData.name, url: `${config.appUrl}/${citySlug}/${attractionSlug}` },
+        ]}
       />
     </>
   );

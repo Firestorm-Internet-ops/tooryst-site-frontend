@@ -67,7 +67,32 @@
       "type": "website",
       "noindex": true
     },
+    "country": {
+      "title": "{countryName} Travel Guide | {siteName}",
+      "description": "Explore the best cities and attractions across {countryName}. Plan your visit with real-time crowd data and weather insights.",
+      "keywords": [
+        "{countryName} travel",
+        "{countryName} destinations",
+        "visit {countryName}",
+        "{countryName} guide"
+      ],
+      "image": "{defaultImage}",
+      "type": "website"
+    },
     "static": {
+      "cities": {
+        "title": "Explore Cities | {siteName}",
+        "description": "Discover travel intelligence for cities worldwide. Find crowd levels, weather insights, and visitor sentiment.",
+        "keywords": [
+          "cities",
+          "destinations",
+          "travel",
+          "crowd levels",
+          "weather"
+        ],
+        "image": "{defaultImage}",
+        "type": "website"
+      },
       "about": {
         "title": "About {siteName} | Travel Intelligence Platform",
         "description": "Learn about {siteName}'s mission to provide real-time travel intelligence. Discover how we help millions of travelers make smarter decisions.",
@@ -114,6 +139,31 @@
           "user agreement",
           "terms",
           "conditions"
+        ],
+        "image": "{defaultImage}",
+        "type": "website"
+      },
+      "cookie-policy": {
+        "title": "Cookie Policy | {siteName}",
+        "description": "Read {siteName}'s cookie policy to understand how we use cookies to improve your experience.",
+        "keywords": [
+          "cookie policy",
+          "cookies",
+          "tracking",
+          "user experience"
+        ],
+        "image": "{defaultImage}",
+        "type": "website"
+      },
+      "faq": {
+        "title": "Frequently Asked Questions | {siteName}",
+        "description": "Find answers to common questions about {siteName}, crowd tracking, and travel planning.",
+        "keywords": [
+          "faq",
+          "frequently asked questions",
+          "help",
+          "questions",
+          "answers"
         ],
         "image": "{defaultImage}",
         "type": "website"

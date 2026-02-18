@@ -37,10 +37,10 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   metadataBase: new URL(config.appUrl),
-  title: 'Toorysts',
+  title: 'Tooryst',
   description:
     'Discover the best time to visit any attraction with live crowd, weather, and travel intel.',
-  authors: [{ name: 'Toorysts' }],
+  authors: [{ name: 'Tooryst' }],
 };
 
 export const viewport: Viewport = {

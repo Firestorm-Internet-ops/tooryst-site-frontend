@@ -3,7 +3,7 @@ import { config } from '@/lib/config';
 
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = config.appUrl;
-  
+
   return {
     rules: [
       {
@@ -12,8 +12,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/api/',
           '/admin/',
-          '/search?*', // Disallow search pages with parameters
-          '/*?*', // Disallow URLs with query parameters
         ],
       },
       {

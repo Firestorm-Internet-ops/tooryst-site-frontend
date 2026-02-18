@@ -17,7 +17,9 @@ export async function GET(request: NextRequest) {
     const cities = extractItems(citiesData);
 
     // Generate URL nodes - keeping data simple and matching your static sitemap style
-    const citiesXml = cities.map((city: any) => `  <url>
+    const citiesXml = cities
+      .filter((city: any) => city.slug && city.slug !== 'null')
+      .map((city: any) => `  <url>
     <loc>${baseUrl}/${city.slug}</loc>
     <lastmod>${currentDate}</lastmod>
   </url>`).join('\n');

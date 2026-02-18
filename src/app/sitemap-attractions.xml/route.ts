@@ -17,7 +17,14 @@ export async function GET(request: NextRequest) {
     const attractions = extractItems(attractionsData);
 
     // Generate URL nodes - removed priority/changefreq for a cleaner XML structure
-    const attractionsXml = attractions.map((attraction: any) => `  <url>
+    const attractionsXml = attractions
+      .filter((attraction: any) =>
+        attraction.slug &&
+        attraction.slug !== 'null' &&
+        attraction.city_slug &&
+        attraction.city_slug !== 'null'
+      )
+      .map((attraction: any) => `  <url>
     <loc>${baseUrl}/${attraction.city_slug}/${attraction.slug}</loc>
     <lastmod>${currentDate}</lastmod>
   </url>`).join('\n');
