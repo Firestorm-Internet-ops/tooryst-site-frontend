@@ -312,58 +312,6 @@ export function generateSearchMetadata(query: string, resultCount?: number): Met
   };
 }
 
-// Generate SEO metadata for country pages
-export function generateCountryMetadata(country: { name: string; slug: string; citiesCount?: number; attractionsCount?: number }): Metadata {
-  const template = seoConfig.templates.country;
-  const variables = {
-    siteName: seoConfig.global.siteName,
-    siteUrl: seoConfig.global.siteUrl,
-    countryName: country.name,
-    defaultImage: seoConfig.global.defaultImage,
-  };
-
-  const title = replaceTemplateVariables(template.title, variables);
-  const description = replaceTemplateVariables(template.description, variables);
-  const image = replaceTemplateVariables(template.image, variables);
-  const url = `${seoConfig.global.siteUrl}/destinations/${country.slug}`;
-
-  return {
-    title,
-    description,
-    keywords: template.keywords.map(k => replaceTemplateVariables(k, variables)),
-    alternates: {
-      canonical: url,
-    },
-    openGraph: {
-      title,
-      description,
-      url,
-      siteName: seoConfig.global.siteName,
-      images: [
-        {
-          url: image,
-          width: 1200,
-          height: 630,
-          alt: `${country.name} landscape`,
-        },
-      ],
-      locale: seoConfig.global.locale,
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [image],
-      creator: seoConfig.global.twitterHandle,
-    },
-    robots: {
-      index: true,
-      follow: true,
-    },
-  };
-}
-
 // Generate SEO metadata for static pages
 export function generateStaticPageMetadata(pageType: keyof typeof seoConfig.templates.static): Metadata {
   const template = seoConfig.templates.static[pageType];
