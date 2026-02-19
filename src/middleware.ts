@@ -11,11 +11,11 @@ export function middleware(request: NextRequest) {
     const proto = request.headers.get('x-forwarded-proto');
 
     // Check for www and redirect to non-www
-    const host = request.headers.get('host');
-    if (host && host.startsWith('www.')) {
-        const newHost = host.replace(/^www\./, '');
-        const url = new URL(request.url);
-        url.host = newHost;
+    const hostname = request.nextUrl.hostname;  // parsed hostname, no port
+    if (hostname.startsWith('www.')) {
+        const url = request.nextUrl.clone();
+        url.hostname = hostname.replace(/^www\./, '');
+        url.port = '';  // clear any internal port (e.g. :8080 on Cloud Run)
         return NextResponse.redirect(url, 301);
     }
 

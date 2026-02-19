@@ -108,8 +108,18 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
   if (!query) {
     return {
       title: 'Search | Tooryst',
-      description: 'Search cities and attractions on Storyboard.',
+      description: 'Search cities and attractions on Tooryst.',
       robots: { index: true, follow: true },
+      openGraph: {
+        title: 'Search | Tooryst',
+        description: 'Search cities and attractions on Tooryst.',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: 'Search | Tooryst',
+        description: 'Search cities and attractions on Tooryst.',
+        creator: '@tooryst',
+      },
     };
   }
 
@@ -121,15 +131,24 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
     title: `Search results for "${query}" | Tooryst`,
     description:
       total > 0
-        ? `Found ${total} results matching “${query}”.`
-        : `No destinations matched “${query}”.`,
+        ? `Found ${total} results matching "${query}".`
+        : `No destinations matched "${query}".`,
     robots: { index: true, follow: true },
     openGraph: {
       title: `Search results for "${query}" | Tooryst`,
       description:
         total > 0
-          ? `Explore ${total} destinations matching “${query}”.`
-          : `No destinations matched “${query}”.`,
+          ? `Explore ${total} destinations matching "${query}".`
+          : `No destinations matched "${query}".`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Search results for "${query}" | Tooryst`,
+      description:
+        total > 0
+          ? `Explore ${total} destinations matching "${query}".`
+          : `No destinations matched "${query}".`,
+      creator: '@tooryst',
     },
   };
 }
