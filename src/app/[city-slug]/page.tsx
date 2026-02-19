@@ -6,6 +6,7 @@ import { CityDetail, AttractionSummary } from '@/types/api';
 import { config } from '@/lib/config';
 import { seoManager } from '@/lib/seo-manager';
 import { BreadcrumbStructuredData } from '@/components/seo/FAQStructuredData';
+import { CityStructuredData } from '@/components/seo/StructuredData';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -139,6 +140,12 @@ export default async function CityPage({ params, searchParams }: CityPageProps) 
           { name: 'Cities', url: `${config.appUrl}/cities` },
           { name: city.name, url: `${config.appUrl}/${slug}` },
         ]}
+      />
+      <CityStructuredData
+        cityName={city.name}
+        cityLatitude={city.latitude ?? city.lat ?? undefined}
+        cityLongitude={city.longitude ?? city.lng ?? undefined}
+        attractions={attractions}
       />
     </>
   );

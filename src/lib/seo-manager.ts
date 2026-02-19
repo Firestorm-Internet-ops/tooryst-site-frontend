@@ -4,7 +4,6 @@ import {
   generateCityMetadata,
   generateAttractionMetadata,
   generateSearchMetadata,
-  generateCountryMetadata,
   generateStaticPageMetadata,
   generateStructuredData,
   getFallbackImage,
@@ -45,11 +44,6 @@ export class SEOManager {
   // Generate metadata for search pages
   generateSearchMetadata(query: string, resultCount?: number): Metadata {
     return generateSearchMetadata(query, resultCount);
-  }
-
-  // Generate metadata for country pages
-  generateCountryMetadata(country: { name: string; slug: string; citiesCount?: number; attractionsCount?: number }): Metadata {
-    return generateCountryMetadata(country);
   }
 
   // Generate metadata for static pages

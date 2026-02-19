@@ -8,8 +8,15 @@ import { SectionErrorBoundary } from '@/components/error-boundaries/ErrorBoundar
 import { SkeletonLoader } from '@/components/ui/SkeletonLoader';
 import { useScrollSpy } from '@/hooks/useScrollSpy';
 import { GetYourGuideScript } from '@/components/attractions/GetYourGuideScript';
+import { BestTimesSection } from '@/components/attractions/sections/BestTimesSection';
+import { AttractionReviewsSection } from '@/components/attractions/sections/ReviewsSection';
+import { VisitorInfoSection } from '@/components/attractions/sections/VisitorInfoSection';
+import { AttractionTipsSection } from '@/components/attractions/sections/TipsSection';
+import { SocialVideoSection } from '@/components/attractions/sections/SocialVideoSection';
+import { NearbyAttractionsSection } from '@/components/attractions/sections/NearbyAttractionsSection';
+import { AudienceProfilesSection } from '@/components/attractions/sections/AudienceProfilesSection';
 
-// Dynamically import Three.js components to avoid SSR issues
+// Three.js components must remain client-only (use WebGL/browser APIs)
 const TicketAnimation = dynamic(() => import('./TicketAnimation').then(mod => ({ default: mod.TicketAnimation })), {
   ssr: false,
   loading: () => null,
@@ -20,36 +27,7 @@ const TicketAnimationEmerald = dynamic(() => import('./TicketAnimationEmerald').
   loading: () => null,
 });
 
-// Dynamically import sections for code splitting
-const BestTimesSection = dynamic(() => import('@/components/attractions/sections/BestTimesSection').then(mod => ({ default: mod.BestTimesSection })), {
-  loading: () => <SkeletonLoader height="h-64" />
-});
-
-const AttractionReviewsSection = dynamic(() => import('@/components/attractions/sections/ReviewsSection').then(mod => ({ default: mod.AttractionReviewsSection })), {
-  loading: () => <SkeletonLoader height="h-96" showAvatar />
-});
-
-const VisitorInfoSection = dynamic(() => import('@/components/attractions/sections/VisitorInfoSection').then(mod => ({ default: mod.VisitorInfoSection })), {
-  loading: () => <SkeletonLoader height="h-48" />
-});
-
-const AttractionTipsSection = dynamic(() => import('@/components/attractions/sections/TipsSection').then(mod => ({ default: mod.AttractionTipsSection })), {
-  loading: () => <SkeletonLoader height="h-64" />
-});
-
-const SocialVideoSection = dynamic(() => import('@/components/attractions/sections/SocialVideoSection').then(mod => ({ default: mod.SocialVideoSection })), {
-  loading: () => <SkeletonLoader height="h-96" />
-});
-
-const NearbyAttractionsSection = dynamic(() => import('@/components/attractions/sections/NearbyAttractionsSection').then(mod => ({ default: mod.NearbyAttractionsSection })), {
-  loading: () => <SkeletonLoader height="h-72" />
-});
-
-const AudienceProfilesSection = dynamic(() => import('@/components/attractions/sections/AudienceProfilesSection').then(mod => ({ default: mod.AudienceProfilesSection })), {
-  loading: () => <SkeletonLoader height="h-56" />
-});
-
-// Import intersection-based map component for better performance
+// Map must remain client-only (Leaflet uses window)
 const LazyMapSectionWrapper = dynamic(() => import('@/components/attractions/sections/LazyMapSectionWrapper').then(mod => mod.LazyMapSectionWrapper), {
   ssr: false,
   loading: () => <SkeletonLoader height="h-80" />

@@ -1,18 +1,9 @@
-'use client'
-
-import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import faqData from '@/data/faq.json'
 
 const faqItems = faqData.items
 
 export default function FAQClient() {
-    const [expandedId, setExpandedId] = useState<number | null>(null)
-
-    const toggleFAQ = (id: number) => {
-        setExpandedId(expandedId === id ? null : id)
-    }
-
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
             {/* Hero Section */}
@@ -41,31 +32,24 @@ export default function FAQClient() {
                         </p>
                     </div>
 
-                    {/* FAQ Accordion */}
+                    {/* FAQ Accordion — uses <details>/<summary> so all answers are in the SSR HTML */}
                     <div className="space-y-4">
                         {faqItems.map((item) => (
-                            <div key={item.id} className="border border-gray-300 rounded-lg overflow-hidden">
-                                <button
-                                    onClick={() => toggleFAQ(item.id)}
-                                    className="w-full px-6 py-4 bg-white hover:bg-gray-50 transition flex items-center justify-between text-left"
-                                >
+                            <details key={item.id} className="group border border-gray-300 rounded-lg overflow-hidden">
+                                <summary className="w-full px-6 py-4 bg-white hover:bg-gray-50 transition flex items-center justify-between cursor-pointer list-none">
                                     <h3 className="text-lg font-semibold text-gray-900">
                                         {item.question}
                                     </h3>
                                     <ChevronDown
-                                        className={`w-5 h-5 text-gray-600 transition-transform ${expandedId === item.id ? 'rotate-180' : ''
-                                            }`}
+                                        className="w-5 h-5 text-gray-600 transition-transform group-open:rotate-180"
                                     />
-                                </button>
-
-                                {expandedId === item.id && (
-                                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-300">
-                                        <p className="text-gray-700 leading-relaxed">
-                                            {item.answer}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
+                                </summary>
+                                <div className="px-6 py-4 bg-gray-50 border-t border-gray-300">
+                                    <p className="text-gray-700 leading-relaxed">
+                                        {item.answer}
+                                    </p>
+                                </div>
+                            </details>
                         ))}
                     </div>
 
