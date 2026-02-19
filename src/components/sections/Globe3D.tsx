@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { flushSync } from 'react-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import Globe from 'three-globe';
@@ -325,27 +326,34 @@ export function Globe3D({ cities }: Globe3DProps) {
 
         {/* Desktop: Card on the right inside globe */}
         {activeCities.length > 0 && (
-          <div className="hidden lg:block absolute top-1/2 right-4 -translate-y-1/2 bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 lg:px-4 lg:py-3 shadow-xl z-10 border border-gray-200/50 w-[200px] lg:w-[240px] max-h-[320px] lg:max-h-[380px] overflow-y-auto space-y-2 lg:space-y-3">
-            {activeCities.map((city) => (
-              <div
-                key={city.slug ?? city.name}
-                className="flex flex-col gap-1 lg:gap-2 border-b last:border-b-0 border-gray-200/50 pb-2 lg:pb-3 last:pb-0"
-              >
-                <p className="text-xs lg:text-base font-semibold text-gray-900">{city.name}</p>
-                {typeof city.attractionCount === 'number' && (
-                  <p className="text-[10px] lg:text-sm text-gray-700">
-                    {city.attractionCount} attractions
-                  </p>
-                )}
-                <a
-                  href={city.slug ? `/${city.slug}` : '#'}
-                  className="mt-1 inline-flex items-center justify-center rounded-lg bg-primary-500 px-2 py-1 lg:px-3 lg:py-2 text-[10px] lg:text-sm font-semibold text-white hover:bg-primary-600 transition-colors"
+          <motion.div layout className="hidden lg:block absolute top-1/2 right-4 -translate-y-1/2 bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 lg:px-4 lg:py-3 shadow-xl z-10 border border-gray-200/50 w-[200px] lg:w-[240px] max-h-[320px] lg:max-h-[380px] overflow-y-auto space-y-2 lg:space-y-3">
+            <AnimatePresence mode="popLayout">
+              {activeCities.map((city, i) => (
+                <motion.div
+                  key={city.slug ?? city.name}
+                  layout
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -16 }}
+                  transition={{ duration: 0.28, delay: i * 0.07, ease: 'easeOut' }}
+                  className="flex flex-col gap-1 lg:gap-2 border-b last:border-b-0 border-gray-200/50 pb-2 lg:pb-3 last:pb-0"
                 >
-                  {config.text.globe.viewCity}
-                </a>
-              </div>
-            ))}
-          </div>
+                  <p className="text-xs lg:text-base font-semibold text-gray-900">{city.name}</p>
+                  {typeof city.attractionCount === 'number' && (
+                    <p className="text-[10px] lg:text-sm text-gray-700">
+                      {city.attractionCount} attractions
+                    </p>
+                  )}
+                  <a
+                    href={city.slug ? `/${city.slug}` : '#'}
+                    className="mt-1 inline-flex items-center justify-center rounded-lg bg-primary-500 px-2 py-1 lg:px-3 lg:py-2 text-[10px] lg:text-sm font-semibold text-white hover:bg-primary-600 transition-colors"
+                  >
+                    {config.text.globe.viewCity}
+                  </a>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         )}
       </div>
 
@@ -369,25 +377,32 @@ export function Globe3D({ cities }: Globe3DProps) {
             </svg>
           </button>
           <div ref={sliderRef} className="flex gap-2 md:gap-3 overflow-x-auto px-3 py-2 md:px-4 md:py-3 snap-x snap-mandatory scrollbar-hide">
-            {activeCities.map((city) => (
-              <div
-                key={city.slug ?? city.name}
-                className="flex-shrink-0 snap-start bg-white rounded-lg px-3 py-2 md:px-4 md:py-3 shadow-sm border border-gray-200/50 w-[200px] md:w-[240px]"
-              >
-                <p className="text-xs md:text-sm font-semibold text-gray-900 truncate">{city.name}</p>
-                {typeof city.attractionCount === 'number' && (
-                  <p className="text-[10px] md:text-xs text-gray-700 mt-0.5 md:mt-1">
-                    {city.attractionCount} attractions
-                  </p>
-                )}
-                <a
-                  href={city.slug ? `/${city.slug}` : '#'}
-                  className="mt-1.5 md:mt-2 inline-flex items-center justify-center rounded-lg bg-primary-500 px-2 py-1 md:px-3 md:py-2 text-[10px] md:text-xs font-semibold text-white hover:bg-primary-600 transition-colors w-full"
+            <AnimatePresence mode="popLayout" initial={false}>
+              {activeCities.map((city, i) => (
+                <motion.div
+                  key={city.slug ?? city.name}
+                  layout
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25, delay: i * 0.06, ease: 'easeOut' }}
+                  className="flex-shrink-0 snap-start bg-white rounded-lg px-3 py-2 md:px-4 md:py-3 shadow-sm border border-gray-200/50 w-[200px] md:w-[240px]"
                 >
-                  {config.text.globe.viewCity}
-                </a>
-              </div>
-            ))}
+                  <p className="text-xs md:text-sm font-semibold text-gray-900 truncate">{city.name}</p>
+                  {typeof city.attractionCount === 'number' && (
+                    <p className="text-[10px] md:text-xs text-gray-700 mt-0.5 md:mt-1">
+                      {city.attractionCount} attractions
+                    </p>
+                  )}
+                  <a
+                    href={city.slug ? `/${city.slug}` : '#'}
+                    className="mt-1.5 md:mt-2 inline-flex items-center justify-center rounded-lg bg-primary-500 px-2 py-1 md:px-3 md:py-2 text-[10px] md:text-xs font-semibold text-white hover:bg-primary-600 transition-colors w-full"
+                  >
+                    {config.text.globe.viewCity}
+                  </a>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       )}
