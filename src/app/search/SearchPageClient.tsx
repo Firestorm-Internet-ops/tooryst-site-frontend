@@ -304,6 +304,9 @@ export function SearchPageClient({
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 text-gray-900 px-1 sm:px-0">
+      <h1 className="text-2xl font-semibold text-gray-900">
+        {searchQuery ? `Search results for "${searchQuery}"` : 'Search Destinations & Attractions'}
+      </h1>
       <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 md:flex-row md:items-center md:gap-3">
           <div className="flex flex-1 flex-col gap-2">
