@@ -4,6 +4,7 @@ import config from '@/lib/config'
 import { seoManager } from '@/lib/seo-manager'
 import contactData from '@/content/contact.json'
 import { Mail, Phone, MapPin, Clock } from 'lucide-react'
+import { SafeEmail } from '@/components/ui/SafeEmail'
 
 export const metadata: Metadata = seoManager.generateStaticPageMetadata('contact');
 
@@ -52,7 +53,9 @@ export default function ContactPage() {
                     </h3>
                   </div>
                   <p className="text-gray-700 break-words">
-                    {detail.content}
+                    {detail.title === 'Email'
+                      ? <SafeEmail user="travel" domain="thebettervacation.com" plain />
+                      : detail.content}
                   </p>
                 </div>
               );
@@ -64,9 +67,7 @@ export default function ContactPage() {
         <div className="mb-12 max-w-3xl mx-auto bg-blue-50 rounded-lg p-6 border border-blue-200">
           <p className="text-gray-700 text-center">
             <span className="font-semibold">For both travel and advertising queries:</span> Email us at{' '}
-            <a href={`mailto:${contactData.contactInfo.email.value}`} className="text-blue-600 hover:underline font-semibold">
-              {contactData.contactInfo.email.value}
-            </a>
+            <SafeEmail user="travel" domain="thebettervacation.com" className="text-blue-600 hover:underline font-semibold" />
           </p>
           <p className="text-gray-600 text-center mt-2">
             {contactData.contactInfo.responseTime}

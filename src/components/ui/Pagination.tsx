@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { Button } from '@/components/ui/Button';
+import { Button, buttonVariants } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 
 interface PaginationProps {
@@ -95,25 +95,23 @@ export function Pagination({
     <nav className="flex flex-col gap-3" data-testid="pagination">
       <div className="flex items-center justify-between gap-2">
         {getPageUrl ? (
-          <Button
-            asChild
-            variant="secondary"
-            size="small"
-            disabled={!canGoPrevious || isLoading}
+          <Link
+            href={canGoPrevious ? getPageUrl(currentPage - 1) : '#'}
+            scroll={false}
+            onClick={(e) => {
+              e.preventDefault();
+              if (canGoPrevious) handlePageChange(currentPage - 1);
+            }}
+            aria-label="Previous page"
+            aria-disabled={!canGoPrevious || isLoading}
+            className={cn(
+              buttonVariants({ variant: 'secondary', size: 'small' }),
+              (!canGoPrevious || isLoading) && 'pointer-events-none opacity-60'
+            )}
           >
-            <Link
-              href={canGoPrevious ? getPageUrl(currentPage - 1) : '#'}
-              scroll={false}
-              onClick={(e) => {
-                if (!canGoPrevious) e.preventDefault();
-              }}
-              aria-label="Previous page"
-              aria-disabled={!canGoPrevious || isLoading}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Previous
-            </Link>
-          </Button>
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Link>
         ) : (
           <Button
             variant="secondary"
@@ -128,25 +126,23 @@ export function Pagination({
         )}
 
         {getPageUrl ? (
-          <Button
-            asChild
-            variant="secondary"
-            size="small"
-            disabled={!canGoNext || isLoading}
+          <Link
+            href={canGoNext ? getPageUrl(currentPage + 1) : '#'}
+            scroll={false}
+            onClick={(e) => {
+              e.preventDefault();
+              if (canGoNext) handlePageChange(currentPage + 1);
+            }}
+            aria-label="Next page"
+            aria-disabled={!canGoNext || isLoading}
+            className={cn(
+              buttonVariants({ variant: 'secondary', size: 'small' }),
+              (!canGoNext || isLoading) && 'pointer-events-none opacity-60'
+            )}
           >
-            <Link
-              href={canGoNext ? getPageUrl(currentPage + 1) : '#'}
-              scroll={false}
-              onClick={(e) => {
-                if (!canGoNext) e.preventDefault();
-              }}
-              aria-label="Next page"
-              aria-disabled={!canGoNext || isLoading}
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          </Button>
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Link>
         ) : (
           <Button
             variant="secondary"
@@ -183,7 +179,8 @@ export function Pagination({
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   )}
                   onClick={(e) => {
-                    if (isLoading) e.preventDefault();
+                    e.preventDefault();
+                    if (!isLoading) handlePageChange(page);
                   }}
                 >
                   {page}

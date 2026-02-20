@@ -3,7 +3,6 @@ const config = {
     "@tailwindcss/postcss": {
       config: "./tailwind.config.ts",
     },
-    autoprefixer: {},
   },
 };
 

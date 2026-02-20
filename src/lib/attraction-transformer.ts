@@ -200,6 +200,7 @@ export function transformAttractionData(data: BackendAttractionResponse): Attrac
     slug: data.slug,
     name: data.name,
     city: data.city,
+    city_slug: (data as any).city_slug,
     country: data.country,
     timezone: (data as any).timezone,
     cards: {

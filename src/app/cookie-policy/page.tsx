@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import config from '@/lib/config'
+import { SafeEmail } from '@/components/ui/SafeEmail'
 
 import { seoManager } from '@/lib/seo-manager'
 
@@ -119,7 +120,7 @@ export default function CookiePolicyPage() {
               If you have questions about our Cookie Policy, please contact us at:
             </p>
             <div className="p-6 bg-blue-50 rounded-lg">
-              <p><strong>Email:</strong> <a href={`mailto:${config.contactEmail}`} className="text-blue-600 hover:underline">{config.contactEmail}</a></p>
+              <p><strong>Email:</strong> <SafeEmail user="travel" domain="thebettervacation.com" className="text-blue-600 hover:underline" /></p>
               <p className="mt-2"><strong>Address:</strong> {config.officeAddress}</p>
             </div>
           </div>

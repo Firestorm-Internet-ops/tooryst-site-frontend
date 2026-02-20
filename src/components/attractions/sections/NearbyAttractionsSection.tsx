@@ -218,10 +218,11 @@ export function NearbyAttractionsSection({ data }: NearbyAttractionsSectionProps
         >
           {nearbyAttractions.map((attraction, idx) => {
             const citySlug = data.city ? cityNameToSlug(data.city) : 'unknown';
+            const externalLink = attraction.link?.startsWith('http') ? attraction.link : null;
             const href =
-              attraction.link ??
+              externalLink ??
               (attraction.slug ? `/${citySlug}/${attraction.slug}` : '#');
-            const isExternal = href.startsWith('http');
+            const isExternal = !!externalLink;
 
             const wrapperProps = {
               className: 'group/card relative flex-shrink-0 w-[340px] snap-center',

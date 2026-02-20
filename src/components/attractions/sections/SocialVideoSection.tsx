@@ -36,6 +36,7 @@ function formatDuration(seconds: number | null | undefined): string {
 export function SocialVideoSection({ data }: SocialVideoSectionProps) {
   const socialVideos = data.social_videos || [];
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
+  const [thumbnailErrors, setThumbnailErrors] = useState<Set<number>>(new Set());
 
   if (socialVideos.length === 0) return null;
 
@@ -70,7 +71,7 @@ export function SocialVideoSection({ data }: SocialVideoSectionProps) {
               ) : (
                 // Thumbnail with Play Button
                 <>
-                  {video.thumbnail_url && (
+                  {video.thumbnail_url && !thumbnailErrors.has(idx) ? (
                     <div className="relative w-full" style={{ aspectRatio: '9/16' }}>
                       <Image
                         src={video.thumbnail_url}
@@ -82,6 +83,7 @@ export function SocialVideoSection({ data }: SocialVideoSectionProps) {
                         blurDataURL={generateBlurDataURL()}
                         className="object-cover"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        onError={() => setThumbnailErrors(prev => new Set(prev).add(idx))}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                       <button
@@ -99,6 +101,18 @@ export function SocialVideoSection({ data }: SocialVideoSectionProps) {
                           {formatDuration(video.duration_seconds)}
                         </div>
                       )}
+                    </div>
+                  ) : (
+                    <div className="relative w-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center" style={{ aspectRatio: '9/16' }}>
+                      <button
+                        onClick={() => setPlayingVideo(idx)}
+                        className="flex flex-col items-center justify-center group/play"
+                        aria-label={`Play ${video.title}`}
+                      >
+                        <div className="rounded-full bg-white/95 p-4 group-hover/play:scale-110 group-hover/play:bg-white transition-all duration-300 shadow-2xl">
+                          <Play className="h-8 w-8 text-primary-600 fill-primary-600" />
+                        </div>
+                      </button>
                     </div>
                   )}
                 </>

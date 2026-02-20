@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import config from '@/lib/config'
 import { seoManager } from '@/lib/seo-manager'
 import tosData from '@/data/terms-of-service.json'
+import { SafeEmail } from '@/components/ui/SafeEmail'
 
 export const metadata: Metadata = seoManager.generateStaticPageMetadata('terms');
 
@@ -51,7 +52,7 @@ export default function TermsOfServicePage() {
               
               {section.contactInfo && (
                 <div className="mt-4 p-6 bg-blue-50 rounded-lg">
-                  <p><strong>Email:</strong> <a href={`mailto:${section.contactInfo.email}`} className="text-blue-600 hover:underline">{section.contactInfo.email}</a></p>
+                  <p><strong>Email:</strong> <SafeEmail user="travel" domain="thebettervacation.com" className="text-blue-600 hover:underline" /></p>
                   <p className="mt-2"><strong>Address:</strong> {section.contactInfo.address}</p>
                 </div>
               )}
