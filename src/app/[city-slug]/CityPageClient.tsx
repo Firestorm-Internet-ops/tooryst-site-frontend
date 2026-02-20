@@ -49,6 +49,10 @@ export function CityPageClient({
   const debounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const lockRef = React.useRef(false);
   const [currentPage, setCurrentPage] = React.useState(initialPage);
+  // Keep local state in sync with initialPage prop (which comes from URL)
+  React.useEffect(() => {
+    setCurrentPage(initialPage);
+  }, [initialPage]);
 
   // Prefetch hero images for attractions in this city
   const attractionIds = React.useMemo(() => allAttractions.map(a => a.id), [allAttractions]);
@@ -95,6 +99,13 @@ export function CityPageClient({
       });
     },
     [router, pathname, searchParams]
+  );
+  const getPageUrl = React.useCallback(
+    (page: number) => {
+      if (page <= 1) return `/${slug}`;
+      return `/${slug}?page=${page}`;
+    },
+    [slug]
   );
 
   const handlePageChange = React.useCallback(
@@ -219,6 +230,7 @@ export function CityPageClient({
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
                 isLoading={false}
+                getPageUrl={getPageUrl}
               />
             </div>
           )}
@@ -270,6 +282,35 @@ export function CityPageClient({
             />
           </div>
         </section>
+
+        {/* All Attractions Directory — ensures every attraction has a crawlable internal link */}
+        {allAttractions.length > pageSize && (
+          <section className="space-y-6 mb-12">
+            <header className="text-center md:text-left">
+              <div className="inline-flex items-center gap-2 mb-3">
+                <div className="h-px w-12 bg-gradient-to-r from-gray-400 to-transparent" />
+                <p className="text-sm uppercase tracking-widest text-gray-500 font-semibold">
+                  Directory
+                </p>
+                <div className="h-px flex-1 bg-gradient-to-r from-gray-400/50 to-transparent" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-display font-bold text-gray-900 mb-2">
+                All Attractions in {city.name}
+              </h2>
+            </header>
+            <div className="columns-2 md:columns-3 lg:columns-4 gap-4">
+              {allAttractions.map((attraction) => (
+                <Link
+                  key={attraction.slug}
+                  href={`/${slug}/${attraction.slug}`}
+                  className="block text-sm text-gray-600 hover:text-primary-600 py-1 truncate"
+                >
+                  {attraction.name}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </BentoGridLayout>
     </div>
   );

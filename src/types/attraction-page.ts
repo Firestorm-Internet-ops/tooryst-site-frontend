@@ -183,6 +183,7 @@ export type AttractionPageResponse = {
   slug: string;
   name: string;
   city?: string;
+  city_slug?: string;
   country?: string;
   timezone?: string;
   cards: AttractionCards;

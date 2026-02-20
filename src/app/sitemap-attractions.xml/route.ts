@@ -16,14 +16,17 @@ export async function GET(request: NextRequest) {
 
     const attractions = extractItems(attractionsData);
 
-    // Generate URL nodes - removed priority/changefreq for a cleaner XML structure
+    // Generate URL nodes - deduplicate by city_slug/slug to prevent duplicate sitemap entries
+    const seen = new Set<string>();
     const attractionsXml = attractions
-      .filter((attraction: any) =>
-        attraction.slug &&
-        attraction.slug !== 'null' &&
-        attraction.city_slug &&
-        attraction.city_slug !== 'null'
-      )
+      .filter((attraction: any) => {
+        if (!attraction.slug || attraction.slug === 'null' ||
+            !attraction.city_slug || attraction.city_slug === 'null') return false;
+        const key = `${attraction.city_slug}/${attraction.slug}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
       .map((attraction: any) => `  <url>
     <loc>${baseUrl}/${attraction.city_slug}/${attraction.slug}</loc>
     <lastmod>${currentDate}</lastmod>

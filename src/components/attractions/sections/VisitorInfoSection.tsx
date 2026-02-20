@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import tzLookup from 'tz-lookup';
 import { AttractionPageResponse } from '@/types/attraction-page';
 import { SectionShell } from './SectionShell';
@@ -18,6 +18,17 @@ export function VisitorInfoSection({ data }: VisitorInfoSectionProps) {
   const contactInfo = visitorInfo.contact_info || {};
   const openingHours = Array.isArray(visitorInfo.opening_hours) ? visitorInfo.opening_hours : [];
   const bestSeason = visitorInfo.best_season;
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  // Split email to avoid Cloudflare email obfuscation in SSR HTML
+  const emailParts = useMemo(() => {
+    if (!contactInfo.email?.value) return null;
+    const parts = contactInfo.email.value.split('@');
+    if (parts.length !== 2) return null;
+    return { user: parts[0], domain: parts[1] };
+  }, [contactInfo.email?.value]);
 
   // Get today's day name in the attraction's timezone
   const todayDayName = useMemo(() => {
@@ -59,13 +70,13 @@ export function VisitorInfoSection({ data }: VisitorInfoSectionProps) {
                 Contact
               </h3>
               <div className="space-y-3">
-                {contactInfo.email?.value && (
+                {emailParts && (
                   <a
-                    href={contactInfo.email.url || `mailto:${contactInfo.email.value}`}
+                    href={mounted ? `mailto:${emailParts.user}@${emailParts.domain}` : '#'}
                     className="flex items-center gap-2 text-sm text-gray-700 hover:text-blue-600 transition-colors"
                   >
                     <Mail className="h-4 w-4 text-blue-500" />
-                    {contactInfo.email.value}
+                    {mounted ? `${emailParts.user}@${emailParts.domain}` : 'Contact via email'}
                   </a>
                 )}
                 {contactInfo.phone?.value && (
@@ -134,8 +145,8 @@ export function VisitorInfoSection({ data }: VisitorInfoSectionProps) {
                     <div
                       key={idx}
                       className={`flex items-center justify-between py-2 px-3 rounded-lg border-b border-gray-200 last:border-0 transition-colors ${isToday
-                          ? 'bg-primary-50 border-primary-200 border-2 -mx-1'
-                          : ''
+                        ? 'bg-primary-50 border-primary-200 border-2 -mx-1'
+                        : ''
                         }`}
                     >
                       <span className={`text-sm font-medium ${isToday ? 'text-primary-900' : 'text-gray-900'

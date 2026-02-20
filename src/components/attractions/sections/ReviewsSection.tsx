@@ -64,14 +64,15 @@ function formatReviewTime(timeString?: string | null): string {
 
 function ReviewCard({ review: r, index }: ReviewCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
+  const [avatarError, setAvatarError] = useState(false);
+
   return (
     <article
       key={index}
       className="group rounded-2xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 p-5 md:p-6 shadow-sm hover:shadow-xl hover:border-primary-200 transition-all duration-300 hover:-translate-y-1"
     >
       <div className="flex items-start gap-4 mb-4">
-        {r.author_photo_url ? (
+        {r.author_photo_url && !avatarError ? (
           <div className="relative">
             <Image
               src={getCDNImageURL(r.author_photo_url, { width: 112, quality: 75, format: 'webp' })}
@@ -81,6 +82,7 @@ function ReviewCard({ review: r, index }: ReviewCardProps) {
               quality={75}
               loading="lazy"
               className="rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-primary-200 transition-all"
+              onError={() => setAvatarError(true)}
             />
             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
           </div>

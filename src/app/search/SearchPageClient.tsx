@@ -43,6 +43,10 @@ export function SearchPageClient({
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [inputValue, setInputValue] = useState(initialQuery);
   const [currentPage, setCurrentPage] = useState(Math.max(initialPage, 1));
+  // Keep local state in sync with initialPage prop
+  useEffect(() => {
+    setCurrentPage(Math.max(initialPage, 1));
+  }, [initialPage]);
 
   const updateUrlParams = useCallback(
     (updates: Record<string, string | null>) => {
@@ -142,6 +146,16 @@ export function SearchPageClient({
     // Scroll to top of page
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+  const getPageUrl = useCallback(
+    (page: number) => {
+      const params = new URLSearchParams();
+      if (searchQuery) params.set('q', searchQuery);
+      if (page > 1) params.set('page', page.toString());
+      const qs = params.toString();
+      return qs ? `/search?${qs}` : '/search';
+    },
+    [searchQuery]
+  );
 
   const hasQuery = searchQuery.trim().length > 0;
   const showEmptyQueryMessage = !hasQuery && !isLoading && totalResults === 0;
@@ -360,7 +374,12 @@ export function SearchPageClient({
       <section className="flex flex-col gap-6">
         {renderResults()}
         {totalPages > 1 && !isLoading && !isError && !showEmptyQueryMessage && !showNoResults && (
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            getPageUrl={getPageUrl}
+          />
         )}
       </section>
     </div>

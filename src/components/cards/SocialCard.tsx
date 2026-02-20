@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { Play, AlertCircle } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
@@ -13,11 +14,12 @@ interface SocialCardProps {
 }
 
 export function SocialCard({ video }: SocialCardProps) {
+  const [thumbnailError, setThumbnailError] = useState(false);
   const hasThumbnail = video.thumbnailUrl && video.thumbnailUrl.trim() !== '';
   const hasTitle = video.title && video.title.trim() !== '';
 
-  // Show placeholder if no thumbnail or title
-  if (!hasThumbnail || !hasTitle) {
+  // Show placeholder if no thumbnail, title, or broken thumbnail
+  if (!hasThumbnail || !hasTitle || thumbnailError) {
     return (
       <Card className="overflow-hidden p-0 hover:shadow-lg transition-shadow">
         <div className="relative h-40 md:h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group">
@@ -53,6 +55,7 @@ export function SocialCard({ video }: SocialCardProps) {
             quality={75}
             loading="lazy"
             className="object-cover group-hover:scale-105 transition-transform duration-200"
+            onError={() => setThumbnailError(true)}
           />
           <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
             <div className="bg-white/90 rounded-full p-3 shadow-lg">
